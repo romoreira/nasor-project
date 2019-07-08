@@ -3,4 +3,4 @@ Edge Computing Slice aims to provide network and computing sharing resources to 
 
 Here we bring some steps to follow to deploy and try our solution.
 
-1 *Bold* Raspberry Installation
+* **Raspberry Installation**
