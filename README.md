@@ -40,6 +40,12 @@ Here we bring some steps to follow to deploy and try our solution.
 * Run: # lxc list
 
 
+```
+git status
+git add
+git commit
+```
+
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
