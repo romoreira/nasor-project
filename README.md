@@ -15,7 +15,7 @@ Here we bring some steps to follow to deploy and try our solution.
 * Extract tar file: $tar -zxvf <ovs.tar.gz>
 * Open Extracted files on OVS directory: $ cd ovs
   * Run: $ ./boot
-  * Run: $ ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc (Mandatory to LXD runs OVS commands)
+  * Run: $ ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc (_Mandatory to LXD runs OVS commands_)
   * Run: $ sudo make
   * Run: $ sudo make install
 * Setting up OVS:
