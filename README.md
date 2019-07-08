@@ -7,4 +7,5 @@ Here we bring some steps to follow to deploy and try our solution.
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*: moreira(underscore)r(at)outlook(dot)com
+![alt text](https://github.com/romoreira/EdgeComputingSlice/blob/master/mail.PNG)
 
