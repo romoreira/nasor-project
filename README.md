@@ -5,5 +5,5 @@ Here we bring some steps to follow to deploy and try our solution.
 
 1. **Raspberry Installation**
 
-*E-mail*: moreira(underscore)r(at)outlook(dot)com
-[Rodrigo Moreira](twitter.com/moreira_r)
+*E-mail*: moreira(underscore)r(at)outlook(dot)com \
+[Rodrigo Moreira](http://twitter.com/moreira_r)
