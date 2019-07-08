@@ -31,7 +31,13 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: # ovs-vsctl show
 
 3. **Installing LXD (as snap) on Raspberry**
-* Try
+* Run: $ sudo apt-get install snap snapd
+* Run: $ sudo snap install lxd
+* Run: $ . /etc/profile.d/apps-bin-path.sh (_to put LXD commands available on bash_)
+* Run: $ lxd init
+* Run: # lxc launch ubuntu:16.04 <container-name>
+* Run: # lxc network set testbr0 bridge.driver openvswitch (to change LXD network driver to OVS)
+* Run: # lxc list
 
 
 
