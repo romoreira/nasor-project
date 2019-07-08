@@ -5,10 +5,21 @@ Here we bring some steps to follow to deploy and try our solution.
 
 1. **Raspberry Installation**
 
-* Download Raspberry Image: [Raspbian Buster with desktop and recommended software](https://downloads.raspberrypi.org/raspbian_full_latest)
+* Download Raspberry Image: [Raspbian Buster with desktop and recommended software](https://www.balena.io/etcher/)
 * Extract ISO file in a directory
 * Uses a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
-* Start you Raspberry for the first time (make it updated)
+* Start your Raspberry for the first time (make it updated)
+
+2. **Installing OpenvSwitch on Raspberry**
+* Go to OVS page and download a desired release (>2.9.0 is required to work with NSH protocol) [2.10.9](https://www.openvswitch.org/releases/openvswitch-2.10.0.tar.gz)
+* Extract tar file: $tar -zxvf <ovs.tar.gz>
+* Open Extracted files on OVS directory: $ cd ovs
+  * Run: $ ./boot
+  * Run: $ ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc (Mandatory to LXD runs OVS commands)
+  * Run: $ sudo make
+  * Run: $ sudo make install
+* Try it
+
 
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
