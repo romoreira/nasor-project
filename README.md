@@ -18,7 +18,11 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc (Mandatory to LXD runs OVS commands)
   * Run: $ sudo make
   * Run: $ sudo make install
-* Try it
+* Setting up OVS:
+  * Run: $ export PATH=$PATH:/usr/share/openvswitch/scripts
+  * Run: $ ovs-ctl start (Here all OVS deamons will run and OVS database will be populated)
+* Try OVS:
+  * Run: # ovs-vsctl show
 
 
 
