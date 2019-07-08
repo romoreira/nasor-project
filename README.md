@@ -39,8 +39,6 @@ Here we bring some steps to follow to deploy and try our solution.
 * Run: # lxc network set testbr0 bridge.driver openvswitch (_to change LXD network driver to OVS_)
 * Run: # lxc list
 
-> Teste
-
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
 ![alt text](https://github.com/romoreira/EdgeComputingSlice/blob/master/mail.PNG)
