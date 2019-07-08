@@ -16,7 +16,7 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo apt-get install bridge-utils
   * Run: $ sudo apt-get install make
   * Run: $ sudo apt-get install autoconf
-  * Run: $ sudo apt-get install autoconf automake libtool perl graphviz bridge-utils git (*LXD requires _Linux Bridge_ installed*)
+  * Run: $ sudo apt-get install autoconf automake libtool perl graphviz bridge-utils git (**LXD requires _Linux Bridge_ installed**)
 * Go to OVS page and download a desired release (>2.9.0 is required to work with NSH protocol) [2.10.9](https://www.openvswitch.org/releases/openvswitch-2.10.0.tar.gz)
 * Extract tar file: $tar -zxvf <ovs.tar.gz>
 * Open Extracted files on OVS directory: $ cd ovs
