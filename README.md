@@ -26,9 +26,12 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo make install
 * Setting up OVS:
   * Run: $ export PATH=$PATH:/usr/share/openvswitch/scripts
-  * Run: $ ovs-ctl start (Here all OVS deamons will run and OVS database will be populated)
+  * Run: $ ovs-ctl start (_Here all OVS deamons will run and OVS database will be populated_)
 * Try OVS:
   * Run: # ovs-vsctl show
+
+3. **Installing LXD (as snap) on Raspberry**
+* Try
 
 
 
