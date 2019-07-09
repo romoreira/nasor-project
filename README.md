@@ -6,7 +6,7 @@ Here we bring some steps to follow to deploy and try our solution.
 1. **Raspberry Installation**
 
 * Download Raspberry Image: [Raspbian Buster with desktop and recommended software](https://www.balena.io/etcher/)
-* Extract ISO file in a directory
+* Extract ISO file into directory
 * Uses a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
 * Start your Raspberry for the first time (make it updated)
 
@@ -28,14 +28,15 @@ Here we bring some steps to follow to deploy and try our solution.
   * hostname ansible_user=user
 * On Server:
   * Create SSH Keys: $ ssh-keygen (_without passphrase_)
-  * Put the Public key into Server (edge node) which you will connect remotely: $ ssh-copy-id user@host (_in this time will be necessary to insert pass for the first time_)
-  * Make SSH service on Client (which will receive ssh connections from server) accept only connections using Key file:
-     * Edit: $ sudo vim /etc/ssh/sshd_config
-     * Insert: "PubkeyAuthentication yes"
-     * Restart SSH service: $ systemctl reload sshd
-  * Try SSH connection from Server to Node (in this time any pass should be required): $ ssh user@host
-  * Try Ansible: $ ansible all -m ping (if any success message appear check ssh keys)
-  > The pint is: Client (SSH) creates keys and have to put it on Server (SSH) where ansible controller runs.
+  * Put the Public key into Server (Edge Node) which you will be connected remotely: $ ssh-copy-id user@host (_in this time will be necessary to insert pass for the first time_)
+* On Client:
+  * Make SSH service on Client (which will receive ssh connections from Server) accepting only connections using Key file:
+    * Edit: $ sudo vim /etc/ssh/sshd_config
+    * Insert: "PubkeyAuthentication yes"
+    * Restart SSH service: $ systemctl reload sshd
+* Try SSH connection from Server to Node (in this time any pass should be required): $ ssh user@host
+* Try Ansible: $ ansible all -m ping (if any success message appear check ssh keys)
+> The point is: Server (SSH) creates keys and have to put it on Client (Edge node).
  
 3. **Installing OpenvSwitch on Raspberry**
 * Dependences to compile OVS source:
