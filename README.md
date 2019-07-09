@@ -22,7 +22,7 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo pip install pyyaml
   * Run: $ ansible --version (_to check if ansible is correctly installed_)
 
-2.1 Configuring hosts on Ansible Controller Node
+2.1. Configuring hosts on Ansible Controller Node
 * Put host names into /etc/hosts properly
 * Edit /etc/ansible/hosts -> insert host name
   * hostname ansible_user=user
