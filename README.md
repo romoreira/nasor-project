@@ -37,8 +37,8 @@ Here we bring some steps to follow to deploy and try our solution.
     * Restart SSH service: $ systemctl reload sshd
 * Try SSH connection from Server to Node (in this time any pass should be required): $ ssh user@host
 * Try Ansible: $ ansible all -m ping (if any success message appear check ssh keys)
-> The point is: Server (SSH) creates keys and have to put it on Client (Edge node).
-> Aditional Ansible commands can be found [here](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html)
+> The point is: Server (SSH) creates keys and have to put it on Client (Edge node). \
+> Aditional Ansible commands can be found [here](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html).
 
 3. **Installing OpenvSwitch on Raspberry**
 * Dependences to compile OVS source:
