@@ -10,7 +10,34 @@ Here we bring some steps to follow to deploy and try our solution.
 * Uses a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
 * Start your Raspberry for the first time (make it updated)
 
-2. **Installing OpenvSwitch on Raspberry**
+2. **Ansible Playbook Installation** [Site](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
+* Steps:
+  * Run: $ sudo apt-get install software-properties-common
+  * Run: $ git clone git://github.com/ansible/ansible.git --recursive
+  * Run: $ cd ansible/
+  * Run: $ git checkout v2.2.0.0-1
+  * Run: $ make deb
+  * Run: $ cd deb-build/unstable/
+  * Run: $ sudo dpkg -i ansible_2.2.0.0-100.git201611010320.cdec853e37.HEAD~unstable_all.deb
+  * Run: $ sudo pip install pyyaml
+  * Run: $ ansible --version (_to check if ansible is correctly installed_)
+
+## Configuring hosts on Ansible Controller Node
+* Put host names into /etc/hosts properly
+* Edit /etc/ansible/hosts -> insert host name
+  * hostname ansible_user=user
+* On Server:
+  * Create SSH Keys: $ ssh-keygen (_without passphrase_)
+  * Put the Public key into Server (edge node) which you will connect remotely: $ ssh-copy-id user@host (_in this time will be necessary to insert pass for the first time_)
+  * Make SSH service on Client (which will receive ssh connections from server) accept only connections using Key file:
+     * Edit: $ sudo vim /etc/ssh/sshd_config
+     * Insert: "PubkeyAuthentication yes"
+     * Restart SSH service: $ systemctl reload sshd
+  * Try SSH connection from Server to Node (in this time any pass should be required): $ ssh user@host
+  * Try Ansible: $ ansible all -m ping (if any success message appear check ssh keys)
+  > The pint is: Client (SSH) creates keys and have to put it on Server (SSH) where ansible controller runs.
+ 
+3. **Installing OpenvSwitch on Raspberry**
 * Dependences to compile OVS source:
   * Run: $ sudo apt-get install gcc flex bison
   * Run: $ sudo apt-get install bridge-utils
@@ -30,7 +57,7 @@ Here we bring some steps to follow to deploy and try our solution.
 * Try OVS:
   * Run: # ovs-vsctl show
 
-3. **Installing LXD (as snap) on Raspberry**
+4. **Installing LXD (as snap) on Raspberry**
 * Run: $ sudo apt-get install snap snapd
 * Run: $ sudo snap install lxd
 * Run: $ . /etc/profile.d/apps-bin-path.sh (_to put LXD commands available on bash_)
