@@ -22,7 +22,7 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo pip install pyyaml
   * Run: $ ansible --version (_to check if ansible is correctly installed_)
 
-### Configuring hosts on Ansible Controller Node
+2.1 Configuring hosts on Ansible Controller Node
 * Put host names into /etc/hosts properly
 * Edit /etc/ansible/hosts -> insert host name
   * hostname ansible_user=user
@@ -38,7 +38,8 @@ Here we bring some steps to follow to deploy and try our solution.
 * Try SSH connection from Server to Node (in this time any pass should be required): $ ssh user@host
 * Try Ansible: $ ansible all -m ping (if any success message appear check ssh keys)
 > The point is: Server (SSH) creates keys and have to put it on Client (Edge node).
- 
+> Aditional Ansible commands can be found [here](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html)
+
 3. **Installing OpenvSwitch on Raspberry**
 * Dependences to compile OVS source:
   * Run: $ sudo apt-get install gcc flex bison
