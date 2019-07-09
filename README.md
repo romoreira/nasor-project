@@ -22,15 +22,16 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo pip install pyyaml
   * Run: $ ansible --version (_to check if ansible is correctly installed_)
 
-## Configuring hosts on Ansible Controller Node
+### Configuring hosts on Ansible Controller Node
 * Put host names into /etc/hosts properly
 * Edit /etc/ansible/hosts -> insert host name
   * hostname ansible_user=user
 * On Server:
   * Create SSH Keys: $ ssh-keygen (_without passphrase_)
   * Put the Public key into Server (Edge Node) which you will be connected remotely: $ ssh-copy-id user@host (_in this time will be necessary to insert pass for the first time_)
+  > Usually keys are created here: /home/username/.ssh
 * On Client:
-  * Make SSH service on Client (which will receive ssh connections from Server) accepting only connections using Key file:
+  * Make SSH service on Client (which will receive ssh connections from Server) accept only connections using Key file:
     * Edit: $ sudo vim /etc/ssh/sshd_config
     * Insert: "PubkeyAuthentication yes"
     * Restart SSH service: $ systemctl reload sshd
