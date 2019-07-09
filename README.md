@@ -7,7 +7,7 @@ Here we bring some steps to follow to deploy and try our solution.
 
 * Download Raspberry Image: [Raspbian Buster with desktop and recommended software](https://www.balena.io/etcher/)
 * Extract ISO file into directory
-* Uses a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
+* Use a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
 * Start your Raspberry for the first time (make it updated)
 
 2. **Ansible Playbook Installation** [Site](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
