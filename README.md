@@ -71,14 +71,14 @@ Here we bring some steps to follow to deploy and try our solution.
 
 
 5. **Installing Seguiment Routing on Linux (Debian Release)**
-  ## **Upgrade a Kernel to 4.19**
+  ## **Upgrade a Kernel to [4.19](https://elixir.bootlin.com/linux/v4.19.1/source/net/ipv6/route.c)**
   * `wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-headers-4.19.0-041900_4.19.0-041900.201810221809_all.deb`
 
   * `wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-headers-4.19.0-041900-generic_4.19.0-041900.201810221809_amd64.deb`
 
-  *`wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-image-unsigned-4.19.0-041900-generic_4.19.0-041900.201810221809_amd64.deb`
+  * `wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-image-unsigned-4.19.0-041900-generic_4.19.0-041900.201810221809_amd64.deb`
 
-  *`wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-modules-4.19.0-041900-generic_4.19.0-041900.201810221809_amd64.deb`
+  * `wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-modules-4.19.0-041900-generic_4.19.0-041900.201810221809_amd64.deb`
   * `wget archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb`
   * Run: $ sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
   * `wget security.ubuntu.com/ubuntu/pool/main/l/linux-base/linux-base_4.5ubuntu1~16.04.1_all.deb`
