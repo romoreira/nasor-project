@@ -3,14 +3,14 @@ Edge Computing Slice aims to provide network and computing sharing resources to 
 
 Here we bring some steps to follow to deploy and try our solution.
 
-1. **Raspberry Installation**
+## **Raspberry Installation**
 
 * Download Raspberry Image: [Raspbian Buster with desktop and recommended software](https://www.balena.io/etcher/)
 * Extract ISO file into directory
 * Use a tool to mount ISO image on Raspberry SD-Card [Etcher](https://www.balena.io/etcher/)
 * Start your Raspberry for the first time (make it updated)
 
-2. **Ansible Playbook Installation** [Site](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
+## **Ansible Playbook Installation** [Site](https://docs.ansible.com/ansible/latest/installation_guide/index.html)
 * Steps:
   * Run: $ sudo apt-get install software-properties-common
   * Run: $ git clone git://github.com/ansible/ansible.git --recursive
@@ -22,7 +22,7 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo pip install pyyaml
   * Run: $ ansible --version (_to check if ansible is correctly installed_)
 
-2.1. Configuring hosts on Ansible Controller Node
+### Configuring hosts on Ansible Controller Node
 * Put host names into /etc/hosts properly
 * Edit /etc/ansible/hosts -> insert host name
   * hostname ansible_user=user
@@ -40,7 +40,7 @@ Here we bring some steps to follow to deploy and try our solution.
 > The point is: Server (SSH) creates keys and have to put it on Client (Edge node). \
 > Aditional Ansible commands can be found [here](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html).
 
-3. **Installing OpenvSwitch on Raspberry**
+## **Installing OpenvSwitch on Raspberry**
 * Dependences to compile OVS source:
   * Run: $ sudo apt-get install gcc flex bison
   * Run: $ sudo apt-get install bridge-utils
@@ -60,7 +60,7 @@ Here we bring some steps to follow to deploy and try our solution.
 * Try OVS:
   * Run: # ovs-vsctl show
 
-4. **Installing LXD (as snap) on Raspberry**
+## **Installing LXD (as snap) on Raspberry**
 * Run: $ sudo apt-get install snap snapd
 * Run: $ sudo snap install lxd
 * Run: $ . /etc/profile.d/apps-bin-path.sh (_to put LXD commands available on bash_)
@@ -70,7 +70,7 @@ Here we bring some steps to follow to deploy and try our solution.
 * Run: # lxc list
 
 
-5. **Installing Seguiment Routing on Linux (Debian Release)**
+## **Installing Seguiment Routing on Linux (Debian Release)**
   ## **Upgrade a Kernel to [4.19](https://elixir.bootlin.com/linux/v4.19.1/source/net/ipv6/route.c)**
   * `wget -c http://kernel.ubuntu.com/~kernel-ppa/mainline/v4.19/linux-headers-4.19.0-041900_4.19.0-041900.201810221809_all.deb`
 
@@ -86,6 +86,8 @@ Here we bring some steps to follow to deploy and try our solution.
   * Run: $ sudo dpkg -i linux-h*.deb
   * Run: $ sudo dpkg -i linux-im*.deb
   * Run: $ sudo dpkg -i linux-mo*.deb
+
+> Additional steps can be found [here](https://github.com/netgroup/SRv6-net-prog/)
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
