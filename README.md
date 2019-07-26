@@ -69,8 +69,8 @@ Here we bring some steps to follow to deploy and try our solution.
 * Run: # lxc network set testbr0 bridge.driver openvswitch (_to change LXD network driver to OVS_)
 * Run: # lxc list
 
-## **Installing and Configuring Docker to [Use OpenvSwitch]{http://containertutorials.com/network/ovs_docker.html}**
-* Follow the official Docker installation tutorial available [here]{https://docs.docker.com/install/linux/docker-ce/ubuntu/}
+## **Installing and Configuring Docker to [Use OpenvSwitch](http://containertutorials.com/network/ovs_docker.html)**
+* Follow the official Docker installation tutorial available [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * Once you already have Docker running, you have to configure Docker to use OvS.
 * Installing OvS Docker Utility
 ** Run: $ cd /usr/bin
