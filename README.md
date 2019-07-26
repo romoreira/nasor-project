@@ -69,6 +69,19 @@ Here we bring some steps to follow to deploy and try our solution.
 * Run: # lxc network set testbr0 bridge.driver openvswitch (_to change LXD network driver to OVS_)
 * Run: # lxc list
 
+## **Installing and Configuring Docker to [Use OpenvSwitch]{http://containertutorials.com/network/ovs_docker.html}**
+* Follow the official Docker installation tutorial available [here]{https://docs.docker.com/install/linux/docker-ce/ubuntu/}
+* Once you already have Docker running, you have to configure Docker to use OvS.
+* Installing OvS Docker Utility
+** Run: $ cd /usr/bin
+** Run: $ sudo wget https://raw.githubusercontent.com/openvswitch/ovs/master/utilities/ovs-docker
+** Run: $ sudo chmod a+rwx ovs-docker
+* Add a port from OvS bridge to the Docker Container
+** Run: $ sudo docker run -t -i --name container1 ubuntu /bin/bash
+** Run: $ sudo docker run -t -i --name container2 ubuntu /bin/bash
+* Connecting the container to the OvS Bridge
+** Run: $ ovs-docker add-port ovs-br1 eth1 container1 --ipaddress=<>/24
+** Run: $ ovs-docker add-port ovs-br1 eth1 container2 --ipaddress=<>/24
 
 ## **Installing Seguiment Routing on Linux (Debian Release)**
   ### **Upgrade the Kernel to [4.19](https://elixir.bootlin.com/linux/v4.19.1/source/net/ipv6/route.c)**
