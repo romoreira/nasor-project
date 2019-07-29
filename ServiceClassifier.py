@@ -30,7 +30,7 @@ class Classifier(app_manager.RyuApp):
         parser = datapath.ofproto_parser
 
         # install the table-miss flow entry.
-        match = parser.OFPMatch()
+        match = parser.OFPMatch("in_port_nxm","eth_dst_nxm")
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
@@ -44,7 +44,7 @@ class Classifier(app_manager.RyuApp):
                                              actions)]
 
         #Flow will be deleted after 10 seconds
-        mod = parser.OFPFlowMod(datapath=datapath, hard_timeout=10, priority=priority,
+        mod = parser.OFPFlowMod(datapath=datapath, idle_timeout=10, hard_timeout=15, priority=priority,
                                 match=match, instructions=inst)
         datapath.send_msg(mod)
 
@@ -66,7 +66,10 @@ class Classifier(app_manager.RyuApp):
 
         # get Datapath ID to identify OpenFlow switches.
         dpid = datapath.id
-        self.mac_to_port.setdefault(dpid, {})
+        self.mac_to_port.setdefault(dpid, {'in_port': 2, 'out_port': 3,
+            'container_tos': 'cdn',  'spi': 10, 'si': 3,
+            'sff_next_hop': '192.168.0.1',
+            'nsh_to_sf': 'sf2', 'transport': 'vxlan'})
 
         # analyse the received packets using the packet library.
         pkt = packet.Packet(msg.data)
@@ -83,37 +86,29 @@ class Classifier(app_manager.RyuApp):
 
         if eth_pkt.ethertype == ether_types.ETH_TYPE_NSH:
             print("O pacote e do tipo NSH, fazer alguma coisa")
-            #return
         else:
-            print("Pacote nao e do tipo NSH")
+            print("Pacote nao e do tipo NSH - Faz nada")
+            return
 
         msg = ev.msg
         dp = msg.datapath
         dpid = dp.id
         ofproto = dp.ofproto
 
-
-        # get the received port number from packet_in message.
-        print(str(msg.match))
-        #in_port = msg.match['eth_type_nxm']
         in_port = msg.match['in_port']
-        print("For the first time: "+str(in_port))
+        out_port = self.mac_to_port[dpid]['out_port']
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
-        # learn a mac address to avoid FLOOD next time.
-        self.mac_to_port[dpid][src] = in_port
+        self.mac_to_port[dpid]['in_port'] = in_port
 
-        # if the destination mac address is already learned,
-        # decide which port to output the packet, otherwise FLOOD.
-        if dst in self.mac_to_port[dpid]:
-            #print("Ja conhece a porta de Entrada - nao fara Flood: " + str(in_port))
-            out_port = self.mac_to_port[dpid][dst]
-        else:
-            print("Nao Conhece a Porta de Entrada - fara Flood")
-            out_port = ofproto.OFPP_FLOOD
-            #print("Porta de Saida: "+str(out_port))
+        print(str(self.mac_to_port))
 
+        #if dst in self.mac_to_port[dpid]:
+        #    out_port = self.mac_to_port[dpid][dst]
+        #else:
+        #    print("Nao Conhece a Porta de Entrada - fara Flood")
+        #    out_port = ofproto.OFPP_FLOOD
 
         # construct action list.
         actions = [parser.OFPActionOutput(out_port)]
@@ -121,7 +116,7 @@ class Classifier(app_manager.RyuApp):
         # install a flow to avoid packet_in next time.
         if out_port != ofproto.OFPP_FLOOD:
             print("VAI INSTALAR FLOW")
-            match = parser.OFPMatch(in_port=in_port, eth_type_nxm=0x894f, nsh_spi=30, nsh_si=3)
+            match = parser.OFPMatch(eth_type_nxm=0x894f, nsh_spi=10, nsh_si=3)
             self.add_flow(datapath, 1, match, actions)
 
         # construct packet_out message and send it.
