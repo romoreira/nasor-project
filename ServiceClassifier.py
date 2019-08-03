@@ -1,5 +1,5 @@
 '''
-Author: Rodrigo Moreiar
+Author: Rodrigo Moreira
 '''
 #Based on NSH Draft: https://tools.ietf.org/id/draft-ietf-sfc-nsh-17.html
 
@@ -12,6 +12,7 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
+from ryu.lib.packet import icmp
 
 
 
@@ -29,11 +30,14 @@ class Classifier(app_manager.RyuApp):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
+        print("Getting Slices Details...")
+
         # install the table-miss flow entry.
-        match = parser.OFPMatch("in_port_nxm","eth_dst_nxm")
+        match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
+        print("Flow Table Created")
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -43,10 +47,11 @@ class Classifier(app_manager.RyuApp):
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
                                              actions)]
 
-        #Flow will be deleted after 10 seconds
-        mod = parser.OFPFlowMod(datapath=datapath, idle_timeout=10, hard_timeout=15, priority=priority,
+        #Flow will be deleted after 10 seconds - idle_timeout = 15
+        mod = parser.OFPFlowMod(datapath=datapath, idle_timeout=15, priority=priority,
                                 match=match, instructions=inst)
         datapath.send_msg(mod)
+        print("Flow Added!")
 
     def find_protocol(self, pkt, name):
         for p in pkt.protocols:
@@ -66,10 +71,7 @@ class Classifier(app_manager.RyuApp):
 
         # get Datapath ID to identify OpenFlow switches.
         dpid = datapath.id
-        self.mac_to_port.setdefault(dpid, {'in_port': 2, 'out_port': 3,
-            'container_tos': 'cdn',  'spi': 10, 'si': 3,
-            'sff_next_hop': '192.168.0.1',
-            'nsh_to_sf': 'sf2', 'transport': 'vxlan'})
+        self.mac_to_port.setdefault(dpid, {})
 
         # analyse the received packets using the packet library.
         pkt = packet.Packet(msg.data)
@@ -77,51 +79,98 @@ class Classifier(app_manager.RyuApp):
         dst = eth_pkt.dst
         src = eth_pkt.src
 
-        print("MAC Origem: "+ str(src))
-        print("MAC Destino: "+ str(dst))
-
-        print(str(pkt))
-        print(str(eth_pkt.ethertype))
-        print(str(ether_types.ETH_TYPE_NSH))
-
-        if eth_pkt.ethertype == ether_types.ETH_TYPE_NSH:
-            print("O pacote e do tipo NSH, fazer alguma coisa")
-        else:
-            print("Pacote nao e do tipo NSH - Faz nada")
-            return
-
-        msg = ev.msg
-        dp = msg.datapath
-        dpid = dp.id
-        ofproto = dp.ofproto
-
+        # get the received port number from packet_in message.
         in_port = msg.match['in_port']
-        out_port = self.mac_to_port[dpid]['out_port']
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        #Tipo MPLS -> 0x8847
+        print("\n****Tipo do Pacote passante: " + str(eth_pkt.ethertype))
+        if eth_pkt.ethertype == ether_types.ETH_TYPE_MPLS:
+            print("***************MPLS***************")
+            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+            # Learning MAC to avoid flood next time
+            self.mac_to_port[dpid][src] = in_port
 
-        self.mac_to_port[dpid]['in_port'] = in_port
+            if dst in self.mac_to_port[dpid]:
+                out_port = self.mac_to_port[dpid][dst]
+            else:
+                out_port = ofproto.OFPP_FLOOD
 
-        print(str(self.mac_to_port))
+            actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
 
-        #if dst in self.mac_to_port[dpid]:
-        #    out_port = self.mac_to_port[dpid][dst]
-        #else:
-        #    print("Nao Conhece a Porta de Entrada - fara Flood")
-        #    out_port = ofproto.OFPP_FLOOD
+            if out_port != ofproto.OFPP_FLOOD:
+                print("MPLS - A porta de Destino ja e Conhecida Sera feito Flood")
+                match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                    return
+                else:
+                    self.add_flow(datapath, 1, match, actions)
+            data = None
+            if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                data = msg.data
 
-        # construct action list.
-        actions = [parser.OFPActionOutput(out_port)]
+            out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                          in_port=in_port, actions=actions, data=data)
+            datapath.send_msg(out)
+            print("ESTADO DA MAC TABLE: "+str(self.mac_to_port))
 
-        # install a flow to avoid packet_in next time.
-        if out_port != ofproto.OFPP_FLOOD:
-            print("VAI INSTALAR FLOW")
-            match = parser.OFPMatch(eth_type_nxm=0x894f, nsh_spi=10, nsh_si=3)
-            self.add_flow(datapath, 1, match, actions)
+        elif eth_pkt.ethertype == ether_types.ETH_TYPE_ARP:
+            print("***************ARP***************")
+            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+            #Learning MAC to avoid flood next time
+            self.mac_to_port[dpid][src] = in_port
 
-        # construct packet_out message and send it.
-        out = parser.OFPPacketOut(datapath=datapath,
-                                  buffer_id=ofproto.OFP_NO_BUFFER,
-                                  in_port=in_port, actions=actions,
-                                  data=msg.data)
-        datapath.send_msg(out)
+            print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
+
+            if dst in self.mac_to_port[dpid]:
+                print("Aprendeu a porta de entrada - Adicionar Flow")
+                out_port = self.mac_to_port[dpid][dst]
+                actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
+                match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
+                #match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                    return
+                else:
+                    self.add_flow(datapath, 1, match, actions)
+            else:
+                out_port = ofproto.OFPP_FLOOD
+                actions = [parser.OFPActionOutput(out_port)]
+                data = None
+                if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                    data = msg.data
+                out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                          in_port=in_port, actions=actions, data=data)
+                datapath.send_msg(out)
+                print("Flood do ARP Feito")
+        else:
+            print("***************ICMP***************")
+            pkt_icmp = pkt.get_protocol(icmp.icmp)
+            if pkt_icmp:
+                if dst in self.mac_to_port[dpid]:
+                    out_port = self.mac_to_port[dpid][dst]
+                else:
+                    out_port = ofproto.OFPP_FLOOD
+
+                actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
+
+                # install a flow to avoid packet_in next time
+                if out_port != ofproto.OFPP_FLOOD:
+                    match = parser.OFPMatch(eth_type_nxm=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
+                    # verify if we have a valid buffer_id, if yes avoid to send both
+                    # flow_mod & packet_out
+                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                        return
+                    else:
+                        self.add_flow(datapath, 1, match, actions)
+                data = None
+                if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                    data = msg.data
+
+                out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                          in_port=in_port, actions=actions, data=data)
+                datapath.send_msg(out)
+
+        print("FIM")
+        return
