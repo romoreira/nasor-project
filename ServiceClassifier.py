@@ -90,6 +90,9 @@ class Classifier(app_manager.RyuApp):
             # Learning MAC to avoid flood next time
             self.mac_to_port[dpid][src] = in_port
 
+            print(str(dst))
+            print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
+
             if dst in self.mac_to_port[dpid]:
                 out_port = self.mac_to_port[dpid][dst]
             else:
@@ -134,6 +137,7 @@ class Classifier(app_manager.RyuApp):
                 else:
                     self.add_flow(datapath, 1, match, actions)
             else:
+                print("Sempre fazendo Flood")
                 out_port = ofproto.OFPP_FLOOD
                 actions = [parser.OFPActionOutput(out_port)]
                 data = None
@@ -152,10 +156,11 @@ class Classifier(app_manager.RyuApp):
                 else:
                     out_port = ofproto.OFPP_FLOOD
 
-                actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionOutput(out_port)]
 
                 # install a flow to avoid packet_in next time
                 if out_port != ofproto.OFPP_FLOOD:
+                    print("nao flood - icmp")
                     match = parser.OFPMatch(eth_type_nxm=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
                     # verify if we have a valid buffer_id, if yes avoid to send both
                     # flow_mod & packet_out
