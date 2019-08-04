@@ -13,6 +13,11 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import icmp
+from ryu.ofproto import ofproto_v1_3  # This code is OpenFlow 1.0 specific
+from ryu.lib.packet.packet import Packet # For packet parsing
+import ryu.lib.packet.ipv4
+import ryu.lib.packet.mpls
+from ryu.controller.handler import set_ev_cls
 
 
 
@@ -51,7 +56,7 @@ class Classifier(app_manager.RyuApp):
         mod = parser.OFPFlowMod(datapath=datapath, idle_timeout=15, priority=priority,
                                 match=match, instructions=inst)
         datapath.send_msg(mod)
-        print("Flow Added!")
+        print("------>Flow Added!")
 
     def find_protocol(self, pkt, name):
         for p in pkt.protocols:
@@ -64,6 +69,24 @@ class Classifier(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
+
+        msg = ev.msg
+        dp = msg.datapath
+        # Assumes that datapath ID represents an ascii name
+        packet = Packet(msg.data)
+        # self.logger.info("packet: {}".format(msg))
+        ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
+        ethertype = ether.ethertype
+        self.logger.info(" Switch {} received packet with ethertype: {}".format("switchName", hex(ethertype)))
+        if ethertype == 0x8847:
+            mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
+            self.logger.info("Label: {}, TTL: {}".format(mpls.label, mpls.ttl))
+        ipv4 = packet.get_protocol(ryu.lib.packet.ipv4.ipv4)
+        if ipv4:
+            self.logger.info("IPv4 src: {} dst: {}".format(
+                ipv4.src, ipv4.dst))
+
+
         msg = ev.msg
         datapath = msg.datapath
         ofproto = datapath.ofproto
@@ -89,6 +112,22 @@ class Classifier(app_manager.RyuApp):
             self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
             # Learning MAC to avoid flood next time
             self.mac_to_port[dpid][src] = in_port
+
+            msg = ev.msg
+            dp = msg.datapath
+
+            packet = Packet(msg.data)
+            # self.logger.info("packet: {}".format(msg))
+            ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
+            ethertype = ether.ethertype
+            self.logger.info(" Switch {} received packet with ethertype: {}".format("A", hex(ethertype)))
+            if ethertype == 0x8847:
+                mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
+                self.logger.info("Label: {}, TTL: {}".format(mpls.label, mpls.ttl))
+            ipv4 = packet.get_protocol(ryu.lib.packet.ipv4.ipv4)
+            if ipv4:
+                self.logger.info("IPv4 src: {} dst: {}".format(
+                    ipv4.src, ipv4.dst))
 
             print(str(dst))
             print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
@@ -128,9 +167,9 @@ class Classifier(app_manager.RyuApp):
             if dst in self.mac_to_port[dpid]:
                 print("Aprendeu a porta de entrada - Adicionar Flow")
                 out_port = self.mac_to_port[dpid][dst]
-                actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
-                match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
-                #match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                actions = [parser.OFPActionOutput(out_port)]
+                #match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
                 if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                     self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                     return
@@ -151,6 +190,11 @@ class Classifier(app_manager.RyuApp):
             print("***************ICMP***************")
             pkt_icmp = pkt.get_protocol(icmp.icmp)
             if pkt_icmp:
+
+                self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+                self.mac_to_port[dpid][src] = in_port
+                print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
+
                 if dst in self.mac_to_port[dpid]:
                     out_port = self.mac_to_port[dpid][dst]
                 else:
@@ -161,7 +205,8 @@ class Classifier(app_manager.RyuApp):
                 # install a flow to avoid packet_in next time
                 if out_port != ofproto.OFPP_FLOOD:
                     print("nao flood - icmp")
-                    match = parser.OFPMatch(eth_type_nxm=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
+                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                    #match = parser.OFPMatch(eth_type_nxm=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
                     # verify if we have a valid buffer_id, if yes avoid to send both
                     # flow_mod & packet_out
                     if msg.buffer_id != ofproto.OFP_NO_BUFFER:
