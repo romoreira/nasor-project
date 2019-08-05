@@ -70,42 +70,43 @@ class Classifier(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
 
-        msg = ev.msg
-        dp = msg.datapath
-        # Assumes that datapath ID represents an ascii name
-        packet = Packet(msg.data)
-        # self.logger.info("packet: {}".format(msg))
-        ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
-        ethertype = ether.ethertype
-        self.logger.info(" Switch {} received packet with ethertype: {}".format("switchName", hex(ethertype)))
-        if ethertype == 0x8847:
-            mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
-            self.logger.info("Label: {}, TTL: {}".format(mpls.label, mpls.ttl))
-        ipv4 = packet.get_protocol(ryu.lib.packet.ipv4.ipv4)
-        if ipv4:
-            self.logger.info("IPv4 src: {} dst: {}".format(
-                ipv4.src, ipv4.dst))
-
-
+        # If you hit this you might want to increase
+        # the "miss_send_length" of your switch
+        if ev.msg.msg_len < ev.msg.total_len:
+            self.logger.debug("packet truncated: only %s of %s bytes",
+                              ev.msg.msg_len, ev.msg.total_len)
         msg = ev.msg
         datapath = msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
+        in_port = msg.match['in_port']
 
-        # get Datapath ID to identify OpenFlow switches.
+        pkt = Packet(msg.data)
+        eth = pkt.get_protocols(ethernet.ethernet)[0]
+
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            # ignore lldp packet
+            return
+        dst = eth.dst
+        src = eth.src
+
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        # analyse the received packets using the packet library.
-        pkt = packet.Packet(msg.data)
-        eth_pkt = pkt.get_protocol(ethernet.ethernet)
-        dst = eth_pkt.dst
-        src = eth_pkt.src
+        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
-        # get the received port number from packet_in message.
-        in_port = msg.match['in_port']
+        # learn a mac address to avoid FLOOD next time.
+        self.mac_to_port[dpid][src] = in_port
+
+        if dst in self.mac_to_port[dpid]:
+            out_port = self.mac_to_port[dpid][dst]
+        else:
+            out_port = ofproto.OFPP_FLOOD
+
+        actions = [parser.OFPActionOutput(out_port)]
 
         #Tipo MPLS -> 0x8847
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
         print("\n****Tipo do Pacote passante: " + str(eth_pkt.ethertype))
         if eth_pkt.ethertype == ether_types.ETH_TYPE_MPLS:
             print("***************MPLS***************")
