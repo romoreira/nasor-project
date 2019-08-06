@@ -127,7 +127,7 @@ class Classifier(app_manager.RyuApp):
             switch_mac_port = hosts_list[i]["port"]["hw_addr"]
             switch_dpid =  hosts_list[i]["port"]["dpid"]
             switch_port_name = hosts_list[i]["port"]["name"]
-            print("Porta do Switch que o Host esta conectado: "+str(switch_mac_port))
+            print("Porta do Switch que o Host  esta conectado: "+str(switch_mac_port))
 
 
         URL = "http://10.0.0.100:8080/v1.0/topology/switches"
