@@ -4,20 +4,26 @@ Author: Rodrigo Moreira
 #Based on NSH Draft: https://tools.ietf.org/id/draft-ietf-sfc-nsh-17.html
 
 
+
+from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
+from ryu.lib.packet import packet
+from ryu.lib.packet import ether_types
+from ryu.ofproto import ofproto_v1_3  # This code is OpenFlow 1.0 specific
+import ryu.lib.packet.ipv4
+import ryu.lib.packet.ipv6
+import ryu.lib.packet.mpls
+from ryu.topology import event, switches
+from ryu.topology.api import get_switch, get_link
 from ryu.base import app_manager
 from ryu.controller import ofp_event
-from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
+from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types
-from ryu.lib.packet import icmp
-from ryu.ofproto import ofproto_v1_3  # This code is OpenFlow 1.0 specific
-from ryu.lib.packet.packet import Packet # For packet parsing
-import ryu.lib.packet.ipv4
-import ryu.lib.packet.mpls
-from ryu.controller.handler import set_ev_cls
+from ryu.lib.packet.packet import Packet
+from ryu.lib.packet import ipv6,ethernet
+from ryu.topology.api import get_switch, get_link, get_host
+import requests
+import json
+import sys
 
 
 
@@ -63,9 +69,22 @@ class Classifier(app_manager.RyuApp):
             if p.protocol_name == name:
                 return p
 
-    def pathToNSHFlow(self):
-        print("The Package is NSH-based. None flows will be created")
-        return
+    def pathToMPLSFlow(self):
+        URL = "http://10.0.0.100:8080/v1.0/topology/links"
+        r = requests.get(url=URL)
+        data = r.json()
+        print("LINKS: " + str(data))
+
+        URL = "http://10.0.0.100:8080/v1.0/topology/switches"
+        r = requests.get(url=URL)
+        data = r.json()
+        print("SWTCHES: " + str(data))
+
+        URL = "http://10.0.0.100:8080/v1.0/topology/hosts"
+        r = requests.get(url=URL)
+        data = r.json()
+        print("HOSTS: " + str(data))
+        return data
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -83,6 +102,52 @@ class Classifier(app_manager.RyuApp):
 
         pkt = Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
+
+        #________________________________________________________
+        print("Ola mundo")
+        packet = Packet(msg.data)
+        # self.logger.info("packet: {}".format(msg))
+        ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
+        ethertype = ether.ethertype
+        datapathid = datapath.id
+        self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid, hex(ethertype)))
+        ipv6 = packet.get_protocol(ryu.lib.packet.ipv6.ipv6)
+        print(ipv6)
+
+        URL = "http://10.0.0.100:8080/v1.0/topology/hosts"
+        r = requests.get(url=URL)
+        hosts_list = r.json()
+        print("HOSTS: " + str(json.dumps(hosts_list)))
+        hosts_list = json.loads(str(json.dumps(hosts_list)))
+        print(len(hosts_list))
+        for i in range(0, len(hosts_list)):
+            i = int(i)
+            host_ipv6 = hosts_list[i]["ipv6"]
+            host_mac = hosts_list[i]["mac"]
+            switch_mac_port = hosts_list[i]["port"]["hw_addr"]
+            switch_dpid =  hosts_list[i]["port"]["dpid"]
+            switch_port_name = hosts_list[i]["port"]["name"]
+            print("Porta do Switch que o Host esta conectado: "+str(switch_mac_port))
+
+
+        URL = "http://10.0.0.100:8080/v1.0/topology/switches"
+        r = requests.get(url=URL)
+        data = r.json()
+        #print("SWTCHES: " + str(data))
+        print("DUMPS: "+str(json.dumps(data)))
+        data = json.loads(str(json.dumps(data)))
+        print(data[0]["ports"][0]["hw_addr"])
+        print(len(data))
+
+
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
+        if eth_pkt.ethertype == ether_types.ETH_TYPE_MPLS:
+            print("O packet_in é MPLS - fazer aqui o pop do header se for a ultima milha")
+        if ipv6:
+            self.logger.info("IPv6 src: {} dst: {}".format(
+                ipv6.src, ipv6.dst))
+        #________________________________________________________
+
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
@@ -105,123 +170,30 @@ class Classifier(app_manager.RyuApp):
 
         actions = [parser.OFPActionOutput(out_port)]
 
-        #Tipo MPLS -> 0x8847
-        eth_pkt = pkt.get_protocol(ethernet.ethernet)
-        print("\n****Tipo do Pacote passante: " + str(eth_pkt.ethertype))
-        if eth_pkt.ethertype == ether_types.ETH_TYPE_MPLS:
-            print("***************MPLS***************")
-            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
-            # Learning MAC to avoid flood next time
-            self.mac_to_port[dpid][src] = in_port
-
-            msg = ev.msg
-            dp = msg.datapath
-
-            packet = Packet(msg.data)
-            # self.logger.info("packet: {}".format(msg))
-            ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
-            ethertype = ether.ethertype
-            self.logger.info(" Switch {} received packet with ethertype: {}".format("A", hex(ethertype)))
-            if ethertype == 0x8847:
-                mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
-                self.logger.info("Label: {}, TTL: {}".format(mpls.label, mpls.ttl))
-            ipv4 = packet.get_protocol(ryu.lib.packet.ipv4.ipv4)
-            if ipv4:
-                self.logger.info("IPv4 src: {} dst: {}".format(
-                    ipv4.src, ipv4.dst))
-
-            print(str(dst))
-            print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
-
-            if dst in self.mac_to_port[dpid]:
-                out_port = self.mac_to_port[dpid][dst]
+        # install a flow to avoid packet_in next time
+        if out_port != ofproto.OFPP_FLOOD:
+            match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+            # verify if we have a valid buffer_id, if yes avoid to send both
+            # flow_mod & packet_out
+            if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                return
             else:
-                out_port = ofproto.OFPP_FLOOD
+                self.add_flow(datapath, 1, match, actions)
+        data = None
+        if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+            data = msg.data
 
-            actions = [parser.OFPActionPopMpls(), parser.OFPActionOutput(out_port)]
+        out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                  in_port=in_port, actions=actions, data=data)
+        datapath.send_msg(out)
 
-            if out_port != ofproto.OFPP_FLOOD:
-                print("MPLS - A porta de Destino ja e Conhecida Sera feito Flood")
-                match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
-                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                    return
-                else:
-                    self.add_flow(datapath, 1, match, actions)
-            data = None
-            if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-                data = msg.data
-
-            out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                          in_port=in_port, actions=actions, data=data)
-            datapath.send_msg(out)
-            print("ESTADO DA MAC TABLE: "+str(self.mac_to_port))
-
-        elif eth_pkt.ethertype == ether_types.ETH_TYPE_ARP:
-            print("***************ARP***************")
-            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
-            #Learning MAC to avoid flood next time
-            self.mac_to_port[dpid][src] = in_port
-
-            print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
-
-            if dst in self.mac_to_port[dpid]:
-                print("Aprendeu a porta de entrada - Adicionar Flow")
-                out_port = self.mac_to_port[dpid][dst]
-                actions = [parser.OFPActionOutput(out_port)]
-                #match = parser.OFPMatch(eth_type_nxm=0x8847, eth_dst=dst)
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                    return
-                else:
-                    self.add_flow(datapath, 1, match, actions)
-            else:
-                print("Sempre fazendo Flood")
-                out_port = ofproto.OFPP_FLOOD
-                actions = [parser.OFPActionOutput(out_port)]
-                data = None
-                if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-                    data = msg.data
-                out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                          in_port=in_port, actions=actions, data=data)
-                datapath.send_msg(out)
-                print("Flood do ARP Feito")
-        else:
-            print("***************ICMP***************")
-            pkt_icmp = pkt.get_protocol(icmp.icmp)
-            if pkt_icmp:
-
-                self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
-                self.mac_to_port[dpid][src] = in_port
-                print("ESTADO DA MAC TABLE: " + str(self.mac_to_port))
-
-                if dst in self.mac_to_port[dpid]:
-                    out_port = self.mac_to_port[dpid][dst]
-                else:
-                    out_port = ofproto.OFPP_FLOOD
-
-                actions = [parser.OFPActionOutput(out_port)]
-
-                # install a flow to avoid packet_in next time
-                if out_port != ofproto.OFPP_FLOOD:
-                    print("nao flood - icmp")
-                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                    #match = parser.OFPMatch(eth_type_nxm=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
-                    # verify if we have a valid buffer_id, if yes avoid to send both
-                    # flow_mod & packet_out
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                        return
-                    else:
-                        self.add_flow(datapath, 1, match, actions)
-                data = None
-                if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-                    data = msg.data
-
-                out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                          in_port=in_port, actions=actions, data=data)
-                datapath.send_msg(out)
-
-        print("FIM ")
-        return
+    @set_ev_cls(event.EventSwitchEnter)
+    def get_topology_data(self, ev):
+        switch_list = get_switch(self, None)  # .topology_api_app
+        switches = [switch.dp.id for switch in switch_list]
+        print("switches: "+ str(switches))
+        links_list = get_link(self, switches[0])  # .topology_api_app ,None
+        links = [(link.src.dpid, link.dst.dpid, {'port': link.src.port_no}) for link in links_list]
+        print("links_list: "+ str(links_list))
+        print("links"+str(links))
