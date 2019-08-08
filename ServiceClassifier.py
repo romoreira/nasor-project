@@ -122,22 +122,26 @@ class Classifier(app_manager.RyuApp):
         print(len(hosts_list))
         for i in range(0, len(hosts_list)):
             i = int(i)
-            host_ipv6 = hosts_list[i]["ipv6"]
+            host_ipv6 = hosts_list[i]["ipv6"][0]
             host_mac = hosts_list[i]["mac"]
             switch_mac_port = hosts_list[i]["port"]["hw_addr"]
             switch_dpid =  hosts_list[i]["port"]["dpid"]
             switch_port_name = hosts_list[i]["port"]["name"]
-            print("Porta do Switch que o Host  esta conectado: "+str(switch_mac_port))
+            print("MAC-Port do Switch que o Host esta conectado: "+str(switch_mac_port))
+            print("IPv6 do HOST: " + str(host_ipv6))
+            print("MAC do HOST: " + str(host_mac))
+            print("ID do Switch: " +str(switch_dpid))
+            print("Nome da Porta do Switch: "+str(switch_port_name))
 
-
+        return
         URL = "http://10.0.0.100:8080/v1.0/topology/switches"
         r = requests.get(url=URL)
         data = r.json()
         #print("SWTCHES: " + str(data))
-        print("DUMPS: "+str(json.dumps(data)))
+        #print("DUMPS: "+str(json.dumps(data)))
         data = json.loads(str(json.dumps(data)))
-        print(data[0]["ports"][0]["hw_addr"])
-        print(len(data))
+        #print(data[0]["ports"][0]["hw_addr"])
+        #print(len(data))
 
 
         eth_pkt = pkt.get_protocol(ethernet.ethernet)
