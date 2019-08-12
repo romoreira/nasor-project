@@ -24,6 +24,9 @@ from ryu.topology.api import get_switch, get_link, get_host
 import requests
 import json
 import sys
+#Temporario
+import csv
+
 
 
 
@@ -103,54 +106,167 @@ class Classifier(app_manager.RyuApp):
         pkt = Packet(msg.data)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
 
-        #________________________________________________________
-        print("Ola mundo")
+
+        #______________________________________________________________________________
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            # ignore lldp packet
+            return
+
         packet = Packet(msg.data)
         # self.logger.info("packet: {}".format(msg))
         ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
         ethertype = ether.ethertype
-        datapathid = datapath.id
-        self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid, hex(ethertype)))
+        datapathid_packet_in = datapath.id
+        self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid_packet_in, hex(ethertype)))
         ipv6 = packet.get_protocol(ryu.lib.packet.ipv6.ipv6)
-        print(ipv6)
+
+        print("\nDATAPATH_ID: "+str(datapathid_packet_in))
+        source_ipv6 = ipv6.src
+        destination_ipv6 = ipv6.dst
+        print("SOURCE IP: "+str(source_ipv6))
+        print("DESTINATION IP: " + str(destination_ipv6))
+
+
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
+        source_mac = eth.src
+        destination_mac = eth.dst
+        print("DESTINATION MAC: "+str(destination_mac))
+        print("SOURCE MAC: " +str(source_mac))
+        print("\n")
+
+        URL = "http://10.0.0.100:8080/v1.0/topology/switches"
+        r = requests.get(url=URL)
+        switches_list = r.json()
+        switches_list = json.loads(str(json.dumps(switches_list)))
 
         URL = "http://10.0.0.100:8080/v1.0/topology/hosts"
         r = requests.get(url=URL)
         hosts_list = r.json()
-        print("HOSTS: " + str(json.dumps(hosts_list)))
         hosts_list = json.loads(str(json.dumps(hosts_list)))
-        print(len(hosts_list))
-        for i in range(0, len(hosts_list)):
-            i = int(i)
-            host_ipv6 = hosts_list[i]["ipv6"][0]
-            host_mac = hosts_list[i]["mac"]
-            switch_mac_port = hosts_list[i]["port"]["hw_addr"]
-            switch_dpid =  hosts_list[i]["port"]["dpid"]
-            switch_port_name = hosts_list[i]["port"]["name"]
-            print("MAC-Port do Switch que o Host esta conectado: "+str(switch_mac_port))
-            print("IPv6 do HOST: " + str(host_ipv6))
-            print("MAC do HOST: " + str(host_mac))
-            print("ID do Switch: " +str(switch_dpid))
-            print("Nome da Porta do Switch: "+str(switch_port_name))
+
+        #print("Tamanho da lista de hosts pra verificar: "+str(len(hosts_list)))
+        #for i in range(0, len(hosts_list)):
+        #    host_ipv6 = hosts_list[i]["ipv6"][0]
+        #    host_mac = hosts_list[i]["mac"]
+        #    switch_mac_port = hosts_list[i]["port"]["hw_addr"]
+        #    host_datapath_id =  hosts_list[i]["port"]["dpid"]
+        #    switch_port_name = hosts_list[i]["port"]["name"]
+        #    print("MAC-Port do Switch que o Host esta conectado: "+str(switch_mac_port))
+        #    print("IPv6 do HOST: " + str(host_ipv6))
+        #    print("MAC do HOST: " + str(host_mac))
+        #    print("ID do Switch: " +str(switch_dpid))
+        #    print("Nome da Porta do Switch: "+str(switch_port_name))
+        for i in range(0, len(switches_list)):
+            switch_dpid = str(switches_list[i]["dpid"])
+            switch_dpid = switch_dpid.lstrip("0")
+            print(switch_dpid)
+            if switch_dpid == str(datapathid_packet_in):
+                print("Encontrei o Switch do contexto do packet in: "+str(switch_dpid))
+                for j in range (0, len(hosts_list)):
+                    print(hosts_list[j])
+                    host_dpid = str(hosts_list[j]["port"]["dpid"])
+                    host_dpid = host_dpid.lstrip("0")
+                    if host_dpid == switch_dpid:
+                        print("Switch_dpid: "+str(switch_dpid) + " Host_dpid: "+str(host_dpid))
+                        mac_host = hosts_list[j]["mac"]
+                        if mac_host == source_mac:
+                            print("packet_in do host diretamente conectado - origem")
+                            #_____apagar_____
+                            if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+                                # ignore lldp packet
+                                return
+                            dst = eth.dst
+                            src = eth.src
+
+                            dpid = datapath.id
+                            self.mac_to_port.setdefault(dpid, {})
+
+                            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+
+                            # learn a mac address to avoid FLOOD next time.
+                            self.mac_to_port[dpid][src] = in_port
+
+                            if dst in self.mac_to_port[dpid]:
+                                out_port = self.mac_to_port[dpid][dst]
+                            else:
+                                out_port = ofproto.OFPP_FLOOD
+
+                            actions = [parser.OFPActionOutput(out_port)]
+
+                            # install a flow to avoid packet_in next time
+                            if out_port != ofproto.OFPP_FLOOD:
+                                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                                # verify if we have a valid buffer_id, if yes avoid to send both
+                                # flow_mod & packet_out
+                                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                                    return
+                                else:
+                                    self.add_flow(datapath, 1, match, actions)
+                            data = None
+                            if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                                data = msg.data
+
+                            out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                                      in_port=in_port, actions=actions, data=data)
+                            datapath.send_msg(out)
+                            #___apagar___
+                        elif mac_host == destination_mac:
+                            print("packet_in para o host diretamente conectado - destino")
+                        else:
+                            print("NOTHING TO DO")
+                            return
+
+
+
 
         return
-        URL = "http://10.0.0.100:8080/v1.0/topology/switches"
-        r = requests.get(url=URL)
-        data = r.json()
-        #print("SWTCHES: " + str(data))
-        #print("DUMPS: "+str(json.dumps(data)))
-        data = json.loads(str(json.dumps(data)))
-        #print(data[0]["ports"][0]["hw_addr"])
-        #print(len(data))
 
 
+        print("***FIM***")
+        return
+
+
+        #Check place of packet_in - if is on switch where host is directly connected, it will be a
+        #ingress MPLS domain
+        for i in range(0, len(hosts_list)):
+            host_datapath_id = hosts_list[i]["port"]["dpid"]
+            datapathid_packet_in = str(datapathid_packet_in)
+            host_datapath_id = host_datapath_id.lstrip("0")
+            if datapathid_packet_in == host_datapath_id:
+                mpls_label = 0
+                print("Houve um packet_in no switch onde o host esta diretamente conectado")
+
+                print("Switch: "+str(host_datapath_id) + " Porta: "+str(switch_mac_port) + " Host-IP: "+ str(host_ipv6))
+                #Looking for MPLS Label using 'packet_in' IPv6
+                with open('service_mapping.csv') as csvfile:
+                    service_mapping = csv.reader(csvfile, delimiter=';')
+                    for row in service_mapping:
+                        print(row[2])
+                        if host_ipv6 == row[2]:
+                            print(row)
+                            mpls_label = row[3]
+            else:
+                print("Packet_IN no switch: "+str(datapathid_packet_in) +" o qual nao possui nenhum host conectado")
+        if mpls_label != None:
+            print("Label que devera ser utilizado: "+str(mpls_label))
+
+        return
         eth_pkt = pkt.get_protocol(ethernet.ethernet)
         if eth_pkt.ethertype == ether_types.ETH_TYPE_MPLS:
             print("O packet_in é MPLS - fazer aqui o pop do header se for a ultima milha")
+            datapathid_packet_in = str(datapathid_packet_in)
+            host_datapath_id = host_datapath_id.lstrip("0")
+            if datapathid_packet_in == host_datapath_id:
+                ##Fazer aqui o POP do Header MPLS e entregar o Pacote ao Host
+                return
         if ipv6:
             self.logger.info("IPv6 src: {} dst: {}".format(
                 ipv6.src, ipv6.dst))
-        #________________________________________________________
+
+        print("\n\n\nFim do Programa\n\n\n")
+        return
+        #__________________________________________________________________________
 
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
@@ -163,6 +279,7 @@ class Classifier(app_manager.RyuApp):
         self.mac_to_port.setdefault(dpid, {})
 
         self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        return
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
