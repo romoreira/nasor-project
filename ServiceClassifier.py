@@ -113,12 +113,20 @@ class Classifier(app_manager.RyuApp):
             return
 
         packet = Packet(msg.data)
-        # self.logger.info("packet: {}".format(msg))
+        self.logger.info("packet: {}".format(msg))
         ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
         ethertype = ether.ethertype
         datapathid_packet_in = datapath.id
         self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid_packet_in, hex(ethertype)))
         ipv6 = packet.get_protocol(ryu.lib.packet.ipv6.ipv6)
+
+
+        if ethertype == 0x8847:
+            mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
+            self.logger.info("Label: {}, TTL: {}, BSB: {}, EXP: {}".format(mpls.label, mpls.ttl, mpls.bsb, mpls.exp))
+            return
+
+
 
         print("\nDATAPATH_ID: "+str(datapathid_packet_in))
         source_ipv6 = ipv6.src
@@ -144,6 +152,9 @@ class Classifier(app_manager.RyuApp):
         hosts_list = r.json()
         hosts_list = json.loads(str(json.dumps(hosts_list)))
 
+        #print(switches_list)
+        #print(hosts_list)
+
         #print("Tamanho da lista de hosts pra verificar: "+str(len(hosts_list)))
         #for i in range(0, len(hosts_list)):
         #    host_ipv6 = hosts_list[i]["ipv6"][0]
@@ -156,68 +167,81 @@ class Classifier(app_manager.RyuApp):
         #    print("MAC do HOST: " + str(host_mac))
         #    print("ID do Switch: " +str(switch_dpid))
         #    print("Nome da Porta do Switch: "+str(switch_port_name))
+
+        #Ignorando LLDP
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            # ignore lldp packet
+            return
+
+        eth_pkt = pkt.get_protocol(ethernet.ethernet)
+        if eth_pkt.ethertype != ether_types.ETH_TYPE_MPLS:
+            #Identificando packet_in no switch de Ingresso
+            trava = 1
+            for i in range (0, len(hosts_list)):
+                print("\nComeço")
+                print(hosts_list[i]["mac"])
+                print(source_mac)
+                print(datapathid_packet_in)
+                print(str(hosts_list[i]["port"]["dpid"]).lstrip("0"))
+                #Encapsular um Header MPLS, pois o switch e de Ingresso
+                if hosts_list[i]["mac"] == source_mac and str(datapathid_packet_in) == str(hosts_list[i]["port"]["dpid"]).lstrip("0"):
+                    print("Packet_in no Switch de Ingresso: " +str(source_ipv6) +" -- MAC DA INTERFACE DO SWITCH QUE O HOST ESTA LIGADO: "+ hosts_list[i]["port"]["hw_addr"]+"\n")
+                    #----APAGAR------
+                    dst = eth.dst
+                    src = eth.src
+
+                    dpid = datapath.id
+                    self.mac_to_port.setdefault(dpid, {})
+
+                    #self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+
+                    # learn a mac address to avoid FLOOD next time.
+                    self.mac_to_port[dpid][src] = in_port
+
+                    if dst in self.mac_to_port[dpid]:
+                        out_port = self.mac_to_port[dpid][dst]
+                    else:
+                        out_port = ofproto.OFPP_FLOOD
+
+                    actions = [parser.OFPActionPushMpls(),
+                               parser.OFPActionSetField(mpls_label=0x2),
+                               parser.OFPActionOutput(out_port)]
+
+                    # install a flow to avoid packet_in next time
+                    if out_port != ofproto.OFPP_FLOOD:
+                        match = parser.OFPMatch(eth_type=0x8847, in_port=in_port, eth_dst=dst, eth_src=src)
+                        # verify if we have a valid buffer_id, if yes avoid to send both
+                        # flow_mod & packet_out
+                        if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                            return
+                        else:
+                            self.add_flow(datapath, 1, match, actions)
+                    data = None
+                    if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                        data = msg.data
+
+                    out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                              in_port=in_port, actions=actions, data=data)
+                    datapath.send_msg(out)
+                    # ----APAGAR------
+                    trava = 0
+
+            #Packet_in ocorreu em um switch que nao e o de Ingresso
+            if trava == 1:
+                #Fazer o encaminhamento do pacote com header MPLS
+                print("Packet_in no Switch: "+str(datapathid_packet_in) + " - nao e switch de ingresso nem de egresso - Encaminhar VIA MPLS: "+str(source_ipv6))
+        else:
+            print("Packet_in do Tipo MPLS - Fazer nada por enquanto")
+
+        return
+
         for i in range(0, len(switches_list)):
             switch_dpid = str(switches_list[i]["dpid"])
             switch_dpid = switch_dpid.lstrip("0")
             print(switch_dpid)
             if switch_dpid == str(datapathid_packet_in):
                 print("Encontrei o Switch do contexto do packet in: "+str(switch_dpid))
-                for j in range (0, len(hosts_list)):
-                    print(hosts_list[j])
-                    host_dpid = str(hosts_list[j]["port"]["dpid"])
-                    host_dpid = host_dpid.lstrip("0")
-                    if host_dpid == switch_dpid:
-                        print("Switch_dpid: "+str(switch_dpid) + " Host_dpid: "+str(host_dpid))
-                        mac_host = hosts_list[j]["mac"]
-                        if mac_host == source_mac:
-                            print("packet_in do host diretamente conectado - origem")
-                            #_____apagar_____
-                            if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-                                # ignore lldp packet
-                                return
-                            dst = eth.dst
-                            src = eth.src
-
-                            dpid = datapath.id
-                            self.mac_to_port.setdefault(dpid, {})
-
-                            self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
-
-                            # learn a mac address to avoid FLOOD next time.
-                            self.mac_to_port[dpid][src] = in_port
-
-                            if dst in self.mac_to_port[dpid]:
-                                out_port = self.mac_to_port[dpid][dst]
-                            else:
-                                out_port = ofproto.OFPP_FLOOD
-
-                            actions = [parser.OFPActionOutput(out_port)]
-
-                            # install a flow to avoid packet_in next time
-                            if out_port != ofproto.OFPP_FLOOD:
-                                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                                # verify if we have a valid buffer_id, if yes avoid to send both
-                                # flow_mod & packet_out
-                                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                                    return
-                                else:
-                                    self.add_flow(datapath, 1, match, actions)
-                            data = None
-                            if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-                                data = msg.data
-
-                            out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                                      in_port=in_port, actions=actions, data=data)
-                            datapath.send_msg(out)
-                            #___apagar___
-                        elif mac_host == destination_mac:
-                            print("packet_in para o host diretamente conectado - destino")
-                        else:
-                            print("NOTHING TO DO")
-                            return
-
-
 
 
         return
