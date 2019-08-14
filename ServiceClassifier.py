@@ -23,7 +23,7 @@ from ryu.lib.packet import ipv6,ethernet
 from ryu.topology.api import get_switch, get_link, get_host
 import requests
 import json
-import sys
+from ryu.ofproto import ether
 #Temporario
 import csv
 
@@ -46,12 +46,22 @@ class Classifier(app_manager.RyuApp):
 
         print("Getting Slices Details...")
 
-        # install the table-miss flow entry.
-        match = parser.OFPMatch()
-        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+
+        if (str(datapath.id)) == str(2):
+            # install the table-miss flow entry.
+            match = parser.OFPMatch(eth_type=0x8847)
+            actions = [parser.OFPActionPopMpls(0x86DD),
+                       parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+                                              ofproto.OFPCML_NO_BUFFER)]
+            self.add_flow(datapath, 0, match, actions)
+            print("Flow Table Created on Switch: "+str(datapath.id))
+        else:
+            # install the table-miss flow entry.
+            match = parser.OFPMatch()
+            actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
-        self.add_flow(datapath, 0, match, actions)
-        print("Flow Table Created")
+            self.add_flow(datapath, 0, match, actions)
+            print("Flow Table Created - Switch: "+str(datapath.id))
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -113,20 +123,19 @@ class Classifier(app_manager.RyuApp):
             return
 
         packet = Packet(msg.data)
-        self.logger.info("packet: {}".format(msg))
+        #self.logger.info("packet: {}".format(msg))
         ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
         ethertype = ether.ethertype
         datapathid_packet_in = datapath.id
         self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid_packet_in, hex(ethertype)))
         ipv6 = packet.get_protocol(ryu.lib.packet.ipv6.ipv6)
 
-
         if ethertype == 0x8847:
             mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
+            ip = mpls.parser(msg.buf)
+            print("\nATENÇÂO: "+str(ip))
             self.logger.info("Label: {}, TTL: {}, BSB: {}, EXP: {}".format(mpls.label, mpls.ttl, mpls.bsb, mpls.exp))
             return
-
-
 
         print("\nDATAPATH_ID: "+str(datapathid_packet_in))
         source_ipv6 = ipv6.src
@@ -203,6 +212,7 @@ class Classifier(app_manager.RyuApp):
                     else:
                         out_port = ofproto.OFPP_FLOOD
 
+
                     actions = [parser.OFPActionPushMpls(),
                                parser.OFPActionSetField(mpls_label=0x2),
                                parser.OFPActionOutput(out_port)]
@@ -224,6 +234,7 @@ class Classifier(app_manager.RyuApp):
                     out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                               in_port=in_port, actions=actions, data=data)
                     datapath.send_msg(out)
+                    print("Switch: "+str(datapathid_packet_in)+" encaminhou o pacote!\n")
                     # ----APAGAR------
                     trava = 0
 
