@@ -3,7 +3,9 @@ Author: Rodrigo Moreira
 '''
 #Based on NSH Draft: https://tools.ietf.org/id/draft-ietf-sfc-nsh-17.html
 #Helpful links (ethertypes): http://www.networksorcery.com/enp/protocol/802/ethertypes.htm
-# Run in scapy: sendp(Ether(dst="08:00:27:be:65:6b")/MPLS(label=200)/IPv6(),iface="eth0")
+#Run in scapy: sendp(Ether(dst="08:00:27:be:65:6b")/MPLS(label=200)/IPv6(),iface="eth0")
+#Useful commands:
+#sendp(Ether(dst="08:00:27:be:65:6b")/MPLS(label=100)/IPv6(dst="2001:470:28:5b2::2"),iface="eth0")
 
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.lib.packet import packet
