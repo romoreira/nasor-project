@@ -55,14 +55,21 @@ class Classifier(app_manager.RyuApp):
                                               ofproto.OFPCML_NO_BUFFER)]
             self.add_flow(datapath, 0, match, actions)
             print("Flow Table Created on Switch: "+str(datapath.id))
-        else:
+        elif (str(datapath.id)) == str(1):
             # install the table-miss flow entry.
             match = parser.OFPMatch()
             actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
             self.add_flow(datapath, 0, match, actions)
             print("Flow Table Created - Switch: "+str(datapath.id))
-
+        elif (str(datapath.id)) == str(3):
+            # install the table-miss flow entry.
+            match = parser.OFPMatch(eth_type=0x8847)
+            actions = [parser.OFPActionPopMpls(0x86DD),
+                       parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+                                              ofproto.OFPCML_NO_BUFFER)]
+            self.add_flow(datapath, 0, match, actions)
+            print("Flow Table Created - Switch: " + str(datapath.id))
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
@@ -130,39 +137,37 @@ class Classifier(app_manager.RyuApp):
         self.logger.info("Switch {} received packet with ethertype: {}".format(datapathid_packet_in, hex(ethertype)))
         ipv6 = packet.get_protocol(ryu.lib.packet.ipv6.ipv6)
 
-
         if ethertype == 0x8847:
             mpls = packet.get_protocol(ryu.lib.packet.mpls.mpls)
             ip = mpls.parser(msg.buf)
             self.logger.info("Label: {}, TTL: {}, BSB: {}, EXP: {}".format(mpls.label, mpls.ttl, mpls.bsb, mpls.exp))
+
+            ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
+            dst = eth.dst
+            #print("Destination: "+str(dst))
 
             with open('service_mapping.csv') as csvfile:
                 service_mapping = csv.reader(csvfile, delimiter=';')
                 for row in service_mapping:
                     #print(row[3])
                     #Procure a porta de saida do MPLS Packet_in
-                    if str(row[3]) ==  str(mpls.label):
+                    if str(row[5]) ==  str(dst):
                         # ----APAGAR------
-                        dst = eth.dst
-                        src = eth.src
-
                         dpid = datapath.id
                         self.mac_to_port.setdefault(dpid, {})
 
                         # self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
                         # learn a mac address to avoid FLOOD next time.
-                        self.mac_to_port[dpid][src] = in_port
 
-                        out_port = row[4]
-                        out_port = int(out_port)
+                        out_port = int(row[4])
 
-                        actions = [parser.OFPActionPopMpls(),
+                        actions = [parser.OFPActionPopMpls(0x86DD),
                                    parser.OFPActionOutput(out_port)]
 
                         # install a flow to avoid packet_in next time
                         if out_port != ofproto.OFPP_FLOOD:
-                            match = parser.OFPMatch(eth_type=0x8847, mpls_label=mpls.label, in_port=in_port)
+                            match = parser.OFPMatch(eth_type=0x8847, mpls_label=mpls.label, eth_dst=dst)
                             # verify if we have a valid buffer_id, if yes avoid to send both
                             # flow_mod & packet_out
                             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
