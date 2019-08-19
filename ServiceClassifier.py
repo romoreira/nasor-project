@@ -146,7 +146,9 @@ class Classifier(app_manager.RyuApp):
 
             ether = packet.get_protocol(ryu.lib.packet.ethernet.ethernet)
             dst = eth.dst
+            src = eth.src
             #print("Destination: "+str(dst))
+            #print("Source: "+str(src))
 
             with open('service_mapping.csv') as csvfile:
                 service_mapping = csv.reader(csvfile, delimiter=';')
@@ -161,6 +163,7 @@ class Classifier(app_manager.RyuApp):
                         # self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
 
                         # learn a mac address to avoid FLOOD next time.
+                        self.mac_to_port[dpid][src] = in_port
 
                         out_port = int(row[4])
 
@@ -169,7 +172,7 @@ class Classifier(app_manager.RyuApp):
 
                         # install a flow to avoid packet_in next time
                         if out_port != ofproto.OFPP_FLOOD:
-                            match = parser.OFPMatch(eth_type=0x8847, mpls_label=mpls.label, eth_dst=dst)
+                            match = parser.OFPMatch(eth_type=0x8847, in_port=in_port, mpls_label=mpls.label, eth_dst=dst)
                             # verify if we have a valid buffer_id, if yes avoid to send both
                             # flow_mod & packet_out
                             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
