@@ -1,0 +1,2 @@
+orchestrator_id;ans;ipv6_address;interface;routing_weight;network_topology;asn_neighbors
+1;16735;2001:470:28:5b2::10;eth0;2;<link-to-somewhere>;[16735,16736,1]
