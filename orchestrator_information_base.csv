@@ -1,2 +1,4 @@
-orchestrator_id;ans;ipv6_address;interface;routing_weight;network_topology;asn_neighbors
-1;16735;2001:470:28:5b2::10;eth0;2;<link-to-somewhere>;[16735,16736,1]
+orchestrator_id;asn;asn_name;ipv6_address;interface;routing_weight;network_topology;asn_neighbors
+1;16735;AlgarTelecomSA;2001:470:28:5b2::10;eth0;2;<link-to-somewhere>;[16735,16736,1]
+2;14571;Level3;2001:470:28:5b2::20;eth1;3;<link-to-somewhere>;[3356,8075,2]
+3;15169;Google;2001:470:28:5b2::30;enp2s0;6;<link-to-somewhere>;[16625,2914,10455]
