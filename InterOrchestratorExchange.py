@@ -35,12 +35,15 @@ def server_proc(host, port, task=None):
         conn, addr = yield sock.accept()
         pycos.Task(process, conn)
 
-# pycos.Task(server_proc, '127.0.0.1', 8010)
-# while True:
-#     cmd = sys.stdin.readline().strip().lower()
-#     if cmd == 'exit' or cmd == 'quit':
-#         oib_loader()
-#         break
+def oib_protocol():
+    pycos.Task(server_proc, '127.0.0.1', 8010)
+    while True:
+        cmd = sys.stdin.readline().strip().lower()
+        if cmd == 'exit' or cmd == 'quit':
+            break
+
+
 
 if __name__ == "__main__":
     oib_loader()
+    oib_protocol()
