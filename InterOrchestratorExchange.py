@@ -11,7 +11,7 @@ import socket, sys, pycos, csv
 OIB = ''
 
 def oib_loader():
-    with open('orchestrator_information_base.csv') as OIB:
+    with open('inter-orchestrator_information-base.csv') as OIB:
         OIB = csv.DictReader(OIB, delimiter=';')
         for row in OIB:
             print(row)
