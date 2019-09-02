@@ -1,2 +1,2 @@
-edge_device_id;latitude;longitude;switch_id;cpu;memory;container_quantity
-3;0000000000000003;-19.4605259;-45.5948382;32;345;2
+edge_device_id,latitude,longitude,switch_id,management_ip,cpu;memory,container_quantity
+3,-19.4605259,-45.5948382,0000000000000003,10.0.0.1,32,345,2

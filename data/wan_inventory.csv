@@ -1,0 +1,2 @@
+wan_id,domain_id,switches_count,allocated_ports,core_gateway_ip
+1,2,10,20;<EdgeRouterIP>

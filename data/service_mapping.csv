@@ -1,3 +1,0 @@
-container_id;container_tos;container_ipv6;mpls_label;correspondent_port;mac_address;edge_device_id
-1;cdn;2001:470:28:5b2::3;100;6;MAC;10
-2;decoder;2001:470:28:5b2::2;200;4;08:00:27:be:65:6b;10

@@ -150,8 +150,8 @@ class Classifier(app_manager.RyuApp):
             #print("Destination: "+str(dst))
             #print("Source: "+str(src))
 
-            with open('service_mapping.csv') as csvfile:
-                service_mapping = csv.reader(csvfile, delimiter=';')
+            with open('slice_mapping.csv') as csvfile:
+                service_mapping = csv.reader(csvfile, delimiter=',')
                 for row in service_mapping:
                     #print(row[3])
                     #Procure a porta de saida do MPLS Packet_in
@@ -214,8 +214,8 @@ class Classifier(app_manager.RyuApp):
 
             print("IPv6 Source: " + str(ipv6.src))
             #Looking for appropriate MPLS label
-            with open('service_mapping.csv') as csvfile:
-                service_mapping = csv.reader(csvfile, delimiter=';')
+            with open('slice_mapping.csv') as csvfile:
+                service_mapping = csv.reader(csvfile, delimiter=',')
                 for row in service_mapping:
                 #print(row[3])
                 #Procure a porta de saida do MPLS Packet_in
@@ -339,8 +339,8 @@ class Classifier(app_manager.RyuApp):
         #
         #         print("Switch: "+str(host_datapath_id) + " Porta: "+str(switch_mac_port) + " Host-IP: "+ str(host_ipv6))
         #         #Looking for MPLS Label using 'packet_in' IPv6
-        #         with open('service_mapping.csv') as csvfile:
-        #             service_mapping = csv.reader(csvfile, delimiter=';')
+        #         with open('slice_mapping.csv') as csvfile:
+        #             service_mapping = csv.reader(csvfile, delimiter=',')
         #             for row in service_mapping:
         #                 print(row[2])
         #                 if host_ipv6 == row[2]:
