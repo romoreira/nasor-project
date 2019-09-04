@@ -2,7 +2,7 @@
 Author: Rodrigo Moreira
 Date: 29-08-2019 - 09:41
 '''
-#HThis class will interact with Geode: https://geode.apache.org/docs/guide/19/getting_started/15_minute_quickstart_gfsh.html
+#This class will interact with Geode: https://geode.apache.org/docs/guide/19/getting_started/15_minute_quickstart_gfsh.html
 
 class NSDManagement():
     def __init__(self):

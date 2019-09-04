@@ -6,44 +6,47 @@ Date: 27/08/2019
 #https://github.com/BytemarkHosting/bgpfeeder
 #https://github.com/Exa-Networks/exabgp
 
-import socket, sys, pycos, csv
+import socket, sys, pycos, csv, yaml
 
 OIB = ''
 
 def oib_loader():
-    with open('inter-orchestrator_information-base.csv') as OIB:
+    with open('./data/inter-orchestrator_information_base.csv') as OIB:
         OIB = csv.DictReader(OIB, delimiter=';')
         for row in OIB:
             print(row)
-def process(conn, task=None):
+        print(yaml.dump(yaml.load(OIB), default_flow_style=False))
+
+
+def listenner(conn, task=None):
     data = ''
     while True:
         data += (yield conn.recv(128)).decode('utf-8')
         if data[-1] == '/':
            break
     conn.close()
-    print('received: %s' % data)
+    print('Received: %s' % data)
 
-def server_proc(host, port, task=None):
+def listenner_proc(host, port, task=None):
     task.set_daemon()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = pycos.AsyncSocket(sock)
     sock.bind((host, port))
-    sock.listen(128)
+    sock.listen(8)
 
     while True:
         conn, addr = yield sock.accept()
-        pycos.Task(process, conn)
+        pycos.Task(listenner, conn)
 
-def oib_protocol():
-    pycos.Task(server_proc, '127.0.0.1', 8010)
+def oib_receier():
+
+    pycos.Task(listenner_proc, '127.0.0.1', 8010)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
             break
 
 
-
 if __name__ == "__main__":
     oib_loader()
-    oib_protocol()
+    oib_receier()
