@@ -15,8 +15,6 @@ def oib_loader():
         OIB = csv.DictReader(OIB, delimiter=';')
         for row in OIB:
             print(row)
-        print(yaml.dump(yaml.load(OIB), default_flow_style=False))
-
 
 def listenner(conn, task=None):
     data = ''
