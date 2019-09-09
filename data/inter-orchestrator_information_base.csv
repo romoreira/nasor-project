@@ -1,4 +1,4 @@
-orchestrator_id,asn,asn_name,ipv6_address,interface,routing_weight,manos,asn_neighbors
-1,16735,AlgarTelecomSA,2001:470:28:5b2::10,eth0,2,[192.168.0.100-192.168.0.200],[16735-16736-1]
-2,14571,Level3,2001:470:28:5b2::20,eth1,3,[10.0.0.100],[3356-8075-2]
-3,15169,Google,2001:470:28:5b2::30,enp2s0,6,[127.0.0.1],[16625-2914-10455]
+orchestrator_id,asn,asn_name,ipv6_address,interface,routing_weight,manos_managements,mano_vendor,asn_neighbors
+1,16735,AlgarTelecomSA,2001:470:28:5b2::10,eth0,2,[192.168.0.100-192.168.0.200],[OpenStack],[16735-16736-1]
+2,14571,Level3,2001:470:28:5b2::20,eth1,3,[10.0.0.100],[VMWare],[3356-8075-2]
+3,15169,Google,2001:470:28:5b2::30,enp2s0,6,[127.0.0.1],[Azure],[16625-2914-10455]
