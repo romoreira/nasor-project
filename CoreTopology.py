@@ -32,7 +32,20 @@ class CoreTopology:
 
         self.G.add_edge(1, 2)
 
-        print(str(self.G.nodes.data()))
+        print("Dados do Grafo: " + str(self.G.nodes.data()))
+
+        asns_involved = asns_involved[1:-1]
+        asns_involved = asns_involved.split(",")
+        print("ASNs Involved: "+str(asns_involved))
+        node_index = []
+        for n in self.G.nodes:
+            print("Teste: "+str(self.G.nodes[n]['asn']))
+            if str(self.G.nodes[n]['asn']) in asns_involved:
+                print("fdkfjkdjf")
+                print("Valor de N: "+str(n))
+                node_index.append(n)
+
+        print("Node Index: "+str(node_index))
 
         for n, nbrs in self.G.adj.items():
             for nbr, eattr in nbrs.items():
@@ -41,4 +54,5 @@ class CoreTopology:
         for u in self.G.nodes:
             print(str(self.G.nodes[u]['asn']))
 
-        print("FIM: "+str(asns_involved))
+
+
