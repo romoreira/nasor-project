@@ -4,9 +4,10 @@ nstd:nstd-details:
     slice-description: First multi-domain, hierarchical, and end-to-end NS Slice Deployment
     nsd-ref: cirros_2vnf_nsd
     asn-involved:
-    -   16735
-    -   14571
-
+      -  16735
+      -  14571
+    deployment-layers:
+      -  core
     SNSSAI-identifier:
       slice-service-type: eMBB
 

@@ -11,4 +11,4 @@ class MANO:
         self.VNFD = VNFD
 
     def vnfd_yaml_interpreter(self):
-        print("Here we will use OSM Rest API to Lauch NS Instances")
+        print("Here we will use OSM Rest API to Lauch VNF Instances")
