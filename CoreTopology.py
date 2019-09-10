@@ -33,7 +33,6 @@ class CoreTopology:
 
         self.G.add_edge(1, 2)
 
-        print("Checking neighborhood. Graph Data: " + str(self.G.nodes.data()))
 
         # Building a Python list - removing first and last charachtere.
         asns_involved = asns_involved[1:-1]
@@ -45,4 +44,4 @@ class CoreTopology:
             if str(self.G.nodes[n]['asn']) in str(asns_involved):
                 node_index.append(n)
 
-        print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")
+        #print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")

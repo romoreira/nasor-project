@@ -3,10 +3,10 @@ Author: Rodrigo Moreira
 Date: 06/09/2019
 '''
 
-# Each Service Builder in each Domain is able to receibe NSD to proced with service deployment
+# Each Service Builder in each Domain is able to receive NST to proced with Service Deployment
 
 import yaml
-import NSTManagement
+import NANO
 import MANO
 
 
@@ -22,7 +22,7 @@ class ServiceBuilder:
         self.VNFD = NSD['nsd:nsd-catalog']
 
     def network_slice_template(self):
-        nmano = NSTManagement.NSTManagement(self.NSD)
+        nmano = NANO.NANO(self.NSD)
         nmano.nst_yaml_interpreter()
 
     def virtual_network_function_description(self):
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     sb.read_nsd()
 
     """
-    Splitting YAML service descriptor to OSM and Netowrk MANO to provide Network Slice Builder
+    Splitting YAML service descriptor to OSM and NANO to provide Network Slice Builder
     """
     sb.network_slice_template()
     sb.virtual_network_function_description()

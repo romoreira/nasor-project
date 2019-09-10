@@ -2,9 +2,13 @@ nstd:nstd-details:
     id: slice_test
     slice-name: slice_test
     slice-description: First multi-domain, hierarchical, and end-to-end NS Slice Deployment
+    nsd-ref: cirros_2vnf_nsd
     asn-involved:
     -   16735
     -   14571
+
+    SNSSAI-identifier:
+      slice-service-type: eMBB
 
     quality-of-service:
       id: 1
@@ -14,6 +18,21 @@ nstd:nstd-details:
         is-shared-nss: 'false'
         description: NetSlice Subnet (service) composed by 1 vnf with 2 cp
         nsd-ref: slice_test_nsd
+
+    netslice-vld:
+        -  id: slice_cirros_vld_mgmt
+           name: slice_cirros_vld_mgmt
+           type: ELAN
+           mgmt-network: 'true'
+           nss-connection-point-ref:
+               -  nss-ref: slice_hackfest_nsd_1
+                  nsd-connection-point-ref: nsd_cp_mgmt
+        -  id: slice_cirros_vld_data1
+           name: slice_cirros_vld_data1
+           type: ELAN
+           nss-connection-point-ref:
+               -  nss-ref: slice_hackfest_nsd_1
+                  nsd-connection-point-ref: nsd_cp_data
 
 nsd:nsd-catalog:
     nsd:
@@ -25,7 +44,7 @@ nsd:nsd-catalog:
         version: '1.0'
 
         # Place the logo as png in icons directory and provide the name here
-        logo: osm_2x.png
+        logo: e2e.png
 
         # Specify the VNFDs that are part of this NSD
         constituent-vnfd:
@@ -45,7 +64,7 @@ nsd:nsd-catalog:
                 short-name: cirros_2vnf_nsd_vld1
                 type: ELAN
                 mgmt-network: 'true'
-                # vim-network-name: <update>
+                vim-network-name: "provider"
                 # provider-network:
                 #     overlay-type: VLAN
                 #     segmentation_id: <update>
