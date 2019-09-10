@@ -1,18 +1,19 @@
-'''
+"""
 Author: Rodrigo Moreira
 Date: 05/09/2019
-'''
-#To be defined further
+"""
+
+# To be defined further
 import networkx as nx
 
 
 class CoreTopology:
-
     G = nx.Graph()
 
+    def is_nodes_connected(self, u, v):
+        return u in self.G.neighbors(v)
+
     def neighborhood_check(self, asns_involved):
-
-
 
         self.G.add_node(2)
         self.G.nodes[2]['asn'] = 16735
@@ -32,27 +33,16 @@ class CoreTopology:
 
         self.G.add_edge(1, 2)
 
-        print("Dados do Grafo: " + str(self.G.nodes.data()))
+        print("Checking neighborhood. Graph Data: " + str(self.G.nodes.data()))
 
+        # Building a Python list - removing first and last charachtere.
         asns_involved = asns_involved[1:-1]
         asns_involved = asns_involved.split(",")
-        print("ASNs Involved: "+str(asns_involved))
         node_index = []
+
+        # Checkin if given two ASN they are neighbors - save the tuple of Node IDs.
         for n in self.G.nodes:
-            print("Teste: "+str(self.G.nodes[n]['asn']))
-            if str(self.G.nodes[n]['asn']) in asns_involved:
-                print("fdkfjkdjf")
-                print("Valor de N: "+str(n))
+            if str(self.G.nodes[n]['asn']) in str(asns_involved):
                 node_index.append(n)
 
-        print("Node Index: "+str(node_index))
-
-        for n, nbrs in self.G.adj.items():
-            for nbr, eattr in nbrs.items():
-                print('(%d, %d)' % (n, nbr))
-
-        for u in self.G.nodes:
-            print(str(self.G.nodes[u]['asn']))
-
-
-
+        print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")

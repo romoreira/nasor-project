@@ -11,17 +11,13 @@ import yaml
 
 import CoreTopology
 
-class NSTManagement:
 
+class NSTManagement:
     NSD = None
 
     def __init__(self, NSD):
         self.NSD = NSD
 
     def nst_yaml_interpreter(self):
-        print(str(self.NSD['asn-involved']))
         ct = CoreTopology.CoreTopology()
         ct.neighborhood_check(str(self.NSD['asn-involved']))
-
-
-
