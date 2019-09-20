@@ -102,6 +102,15 @@ Here we bring some steps to follow to deploy and try our solution.
 
 > Additional steps can be found [here](https://github.com/netgroup/SRv6-net-prog/)
 
+## **Installing Apache Geode**
+* In a new VM (or cluster) folow the below steps:
+1 - `sudo apt-get install default-jre openjdk-8-jre-headless unzip`
+2 - `export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64`
+3 - `wget http://ftp.unicamp.br/pub/apache/geode/1.9.1/apache-geode-1.9.1-src.tgz` (the link can change on time - because new released)
+4 - `tar -zxvf apache-geode-1.9.1-src.tgz`
+5 - `cd apache-geode-1.9.1-src/`
+6 - `./gradlew build -Dskip.tests=true`
+
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
 ![alt text](https://github.com/romoreira/EdgeComputingSlice/blob/master/mail.PNG)
