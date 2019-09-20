@@ -102,7 +102,7 @@ Here we bring some steps to follow to deploy and try our solution.
 
 > Additional steps can be found [here](https://github.com/netgroup/SRv6-net-prog/)
 
-## **[Installing Apache Geode](https://geode.apache.org)**
+## **Installing Apache [Geode](https://geode.apache.org)**
 * In a new VM (or cluster) follow the steps below:
 1. `sudo apt-get install default-jre openjdk-8-jre-headless default-jdk unzip`
 2. `export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64`
