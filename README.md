@@ -110,6 +110,7 @@ Here we bring some steps to follow to deploy and try our solution.
 4. `tar -zxvf apache-geode-1.9.1-src.tgz`
 5. `cd apache-geode-1.9.1-src/`
 6. `./gradlew build -Dskip.tests=true`
+> To Run: `./geode-assembly/build/install/apache-geode/bin/gfsh`
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
