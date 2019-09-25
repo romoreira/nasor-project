@@ -121,7 +121,7 @@ Here we bring some steps to follow to deploy and try our solution.
 6. `start server --name=server1 --start-rest-api=true --http-service-port=1026 --http-service-bind-address=200.19.151.175`
 7. `create region --name=regionA --type=REPLICATE_PERSISTENT`
 
-> TIP: Now the RestAPI should be working fine (check it - GET http://<Public-IP>:1026/gemfire-api/v1/regionA)
+> TIP: Now the RestAPI should be working fine (check it - GET http://InterOIB:1026/gemfire-api/v1/regionA)
 
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
