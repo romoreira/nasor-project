@@ -112,7 +112,7 @@ Here we bring some steps to follow to deploy and try our solution.
 6. `./gradlew build -Dskip.tests=true`
 
 ## **Running Apache [Geode](https://geode.apache.org) in our E2E Orchestration Environment**
-* IN a new VM (or in on e which is member of cluster) follow the spteps below:
+* In a new VM (or in one which is member of cluster) follow the spteps below:
 1. `mkdir my_geode`
 2. `cd /home/ubuntu/my_geode`
 3. `/home/ubuntu/apache-geode-1.9.1-src/geode-assembly/build/install/apache-geode/bin/gfsh`
