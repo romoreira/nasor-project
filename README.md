@@ -50,38 +50,38 @@ Here we bring some steps to follow to deploy and try our solution.
 * Go to OVS page and download a desired release (>2.9.0 is required to work with NSH protocol) [2.10.0](https://www.openvswitch.org/releases/openvswitch-2.10.0.tar.gz)
 * Extract tar file: $tar -zxvf <ovs.tar.gz>
 * Open Extracted files on OVS directory: $ cd ovs
-  * Run: $ ./boot
-  * Run: $ ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc (**Mandatory to LXD runs OVS commands**)
-  * Run: $ sudo make
-  * Run: $ sudo make install
+  * Run: $ `./boot`
+  * Run: $ `./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc` (**Mandatory to LXD runs OVS commands**)
+  * Run: $ `sudo make`
+  * Run: $ `sudo make install`
 * Setting up OVS:
-  * Run: $ export PATH=$PATH:/usr/share/openvswitch/scripts
-  * Run: $ ovs-ctl start (_Here all OVS deamons will run and OVS database will be populated_)
+  * Run: $ `export PATH=$PATH:/usr/share/openvswitch/scripts`
+  * Run: $ `ovs-ctl start` (_Here all OVS deamons will run and OVS database will be populated_)
 * Try OVS:
-  * Run: # ovs-vsctl show
+  * Run: # `ovs-vsctl show`
 
 ## **Installing LXD (as snap) on Raspberry**
-* Run: $ sudo apt-get install snap snapd
-* Run: $ sudo snap install lxd
-* Run: $ . /etc/profile.d/apps-bin-path.sh (_to put LXD commands available on bash_)
-* Run: $ lxd init
-* Run: # lxc launch ubuntu:16.04 _container-name_
-* Run: # lxc network set testbr0 bridge.driver openvswitch (_to change LXD network driver to OVS_)
-* Run: # lxc list
+* Run: $ `sudo apt-get install snap snapd`
+* Run: $ `sudo snap install lxd`
+* Run: $ `./etc/profile.d/apps-bin-path.sh` (_to put LXD commands available on bash_)
+* Run: $ `lxd init`
+* Run: # `lxc launch ubuntu:16.04 _container-name_`
+* Run: # `lxc network set testbr0 bridge.driver openvswitch` (_to change LXD network driver to OVS_)
+* Run: # `lxc list`
 
 ## **Installing and Configuring Docker to [Use OpenvSwitch](http://containertutorials.com/network/ovs_docker.html)**
 * Follow the official Docker installation tutorial available [here](https://docs.docker.com/install/linux/docker-ce/ubuntu/)
 * Once you already have Docker running, you have to configure Docker to use OvS.
 * Installing OvS Docker Utility
-  * Run: $ cd /usr/bin
-  * Run: $ sudo wget https://raw.githubusercontent.com/openvswitch/ovs/master/utilities/ovs-docker
-  * Run: $ sudo chmod a+rwx ovs-docker
+  * Run: $ `cd /usr/bin`
+  * Run: $ `sudo wget https://raw.githubusercontent.com/openvswitch/ovs/master/utilities/ovs-docker`
+  * Run: $ `sudo chmod a+rwx ovs-docker`
 * Add a port from OvS bridge to the Docker Container
-  * Run: $ sudo docker run -t -i --name container1 ubuntu /bin/bash
-  * Run: $ sudo docker run -t -i --name container2 ubuntu /bin/bash
+  * Run: $ `sudo docker run -t -i --name container1 ubuntu /bin/bash`
+  * Run: $ `sudo docker run -t -i --name container2 ubuntu /bin/bash`
 * Connecting the container to the OvS Bridge
-  * Run: $ ovs-docker add-port ovs-br1 eth1 container1 --ipaddress=<>/24
-  * Run: $ ovs-docker add-port ovs-br1 eth1 container2 --ipaddress=<>/24
+  * Run: $ `ovs-docker add-port ovs-br1 eth1 container1 --ipaddress=<>/24`
+  * Run: $ `ovs-docker add-port ovs-br1 eth1 container2 --ipaddress=<>/24`
 
 ## **Installing Seguiment Routing on Linux (Debian Release)**
   ### **Upgrade the Kernel to [4.19](https://elixir.bootlin.com/linux/v4.19.1/source/net/ipv6/route.c)**
@@ -95,10 +95,10 @@ Here we bring some steps to follow to deploy and try our solution.
   * `wget archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.0g-2ubuntu4_amd64.deb`
   * Run: $ sudo dpkg -i libssl1.1_1.1.0g-2ubuntu4_amd64.deb
   * `wget security.ubuntu.com/ubuntu/pool/main/l/linux-base/linux-base_4.5ubuntu1~16.04.1_all.deb`
-  * Run: $ sudo dpkg -i linux-base_4.5ubuntu1~16.04.1_all.deb
-  * Run: $ sudo dpkg -i linux-h*.deb
-  * Run: $ sudo dpkg -i linux-im*.deb
-  * Run: $ sudo dpkg -i linux-mo*.deb
+  * Run: $ `sudo dpkg -i linux-base_4.5ubuntu1~16.04.1_all.deb`
+  * Run: $ `sudo dpkg -i linux-h*.deb`
+  * Run: $ `sudo dpkg -i linux-im*.deb`
+  * Run: $ `sudo dpkg -i linux-mo*.deb`
 
 > Additional steps can be found [here](https://github.com/netgroup/SRv6-net-prog/)
 
