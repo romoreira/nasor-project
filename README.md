@@ -111,7 +111,7 @@ Here we bring some steps to follow to deploy and try our solution.
 5. `cd apache-geode-1.9.1-src/`
 6. `./gradlew build -Dskip.tests=true`
 
-## ** Running Apache [Geode]((https://geode.apache.org)) in our E2E Environment**
+## **Running Apache [Geode](https://geode.apache.org) in our E2E Orchestration Environment**
 * IN a new VM (or in on e which is member of cluster) follow the spteps below:
 1. `mkdir my_geode`
 2. `cd /home/ubuntu/my_geode`
