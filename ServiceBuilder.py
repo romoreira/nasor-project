@@ -86,4 +86,4 @@ if __name__ == "__main__":
     #sb.network_slice_template()
     #sb.virtual_network_function_description()
     #sb.vnfd_untar()
-    sb.nsd_untar()
+    #sb.nsd_untar()
