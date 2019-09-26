@@ -3,6 +3,8 @@ Author: Rodrigo Moreira
 Date: 06/09/2019
 '''
 
+
+#https://osm-download.etsi.org/ftp/osm-6.0-six/7th-hackfest/presentations/
 # Each Service Builder in each Domain is able to receive NST to proced with Service Deployment
 
 import requests, json, logging, glob, os
@@ -11,10 +13,15 @@ import NANO
 import MANO
 
 
+
+
 class ServiceBuilder:
     NSD = None
     VNFD = None
 
+    """
+    Receives a tar.gz NSD and returns a directory name of extracted files
+    """
     def nsd_untar(self):
         dir = os.path.dirname("./ns/cirros_2vnf_ns.tar.gz")  # get directory where file is stored
         dir_extract = os.path.dirname("./ns/")
@@ -38,7 +45,6 @@ class ServiceBuilder:
     """
     Receives a tar.gz VNFD and returns a directory name of extracted files
     """
-
     def vnfd_untar(self):
         dir = os.path.dirname("./ns/cirros_vnf.tar.gz")  # get directory where file is stored
         dir_extract = os.path.dirname("./ns/")
@@ -57,6 +63,28 @@ class ServiceBuilder:
 
             # Dir name of extracted files
             return file_untar
+
+    """
+    Search for yaml in extracted directory
+    """
+    def read_nsd(self, nsd_dir_name):
+        os.chdir(nsd_dir_name)
+        nsd_file_name = ""
+        for nsd in glob.glob("*.yaml"):
+            nsd_file_name = str(nsd)
+
+        nsd_full_path = nsd_dir_name + str("\\") + nsd_file_name
+
+        with open(nsd_full_path, 'r') as stream:
+            NSD = yaml.safe_load(stream)
+            self.NSD = NSD
+
+            with open('result.yaml', 'w') as yaml_file:
+                yaml.dump(self.NSD, yaml_file, default_flow_style=False)
+
+        print(self.NSD)
+
+
 
     def read_nsd(self):
         with open("./ns/cirros_2vnf_ns/cirros_2vnf_nsd.yaml", 'r') as stream:
