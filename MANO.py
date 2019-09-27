@@ -21,11 +21,37 @@ class MANO:
     VNFD = ""
     OSM_TOKEN_ID = ""
 
-
-
     def __init__(self, NSD, VNFD):
         self.NSD = ""
         self.VNFD = ""
+
+    def ns_get_id(self, NS_NAME):
+        print("Oi")
+    def ns_play(self, NSD_ID, REQUEST_ID):
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nsd/v1/ns_descriptors_content"
+        headers = {"Content-type": "application/gzip", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+                r = requests.get(url, headers=headers, verify=False)
+                ns_id = yaml.load(r.text)
+                ns_id = str(ns_id[0]['_id'])
+                print(ns_id)
+
+                url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances/"+str("86e6d64a-7ad6-46ea-9afb-36f40ec00a51")+"/instantiate"
+                headers = {"Content-type": "application/gzip", "Accept": "text/plain",
+                           'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+                r = requests.post(url, headers=headers, verify=False)
+                print(r.text)
+
+                logging.debug('Onbording NS in OSM: ' + str(osm_host) + ' status code: ' + str(r.status_code))
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nFailed to Upload NSD to OSM - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nFailed to upload NSD to OSM' + str(osm_host))
+
+        return
 
     def post_nsd(self, OSM_IP, REQUEST_ID):
         osm_host = "10.8.0.1"
@@ -97,5 +123,6 @@ if __name__ == "__main__":
     #mano_worker.vnfd_untar()
     #print(str(mano_worker.nsd_untar()))
     mano_worker.osm_connector()
-    mano_worker.post_vnfd("","")
-    mano_worker.post_nsd("", "")
+    #mano_worker.post_vnfd("","")
+    #mano_worker.post_nsd("", "")
+    mano_worker.ns_play("","")
