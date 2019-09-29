@@ -202,7 +202,6 @@ class MANO:
 
             create_instantiate_code = yaml.load(r.text)
 
-
             if int(create_instantiate_code['status']) >= 400:
                 logging.error(' NS Create and Instantiate Failed - OSM ' + str(osm_host)+" code error: "+str(create_instantiate_code['status']))
                 return
@@ -384,7 +383,7 @@ if __name__ == "__main__":
     #mano_worker.vim_get_id("")
     #ns_id = mano_worker.crete_ns("Network Service Test","cirros_2vnf_ns","")
     #mano_worker.instantiate_ns(ns_id,"")
-    #mano_worker.create_instantiate_ns("Network Service Test","cirros_2vnf_ns","")
+    #mano_worker.create_instantiate_ns("teste","cirros_2vnf_ns","")
     #mano_worker.get_ns_id("teste","")
     #print(mano_worker.terminate_ns("teste",""))
     print(mano_worker.delete_ns("teste",""))
