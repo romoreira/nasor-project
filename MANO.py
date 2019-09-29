@@ -6,6 +6,11 @@ Date: 06/09/2019
 #https://opendev.org/x/microstack
 
 import yaml, requests, json, logging, glob, os
+yaml.warnings({'YAMLLoadWarning': False})
+
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 
 #logging.debug('This is a debug message')
 #logging.info('This is an info message')
@@ -25,33 +30,192 @@ class MANO:
         self.NSD = ""
         self.VNFD = ""
 
-    def ns_get_id(self, NS_NAME):
-        print("Oi")
-    def ns_play(self, NSD_ID, REQUEST_ID):
+    def get_vim_id(self, VIM_NAME):
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/admin/v1/vim_accounts"
+        headers = {"Content-type": "application/json", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+            r = requests.get(url, headers=headers, verify=False)
+            vim_id = yaml.load(r.text)
+            if str(vim_id[0]['name']) == VIM_NAME:
+                vim_id = vim_id[0]['_id']
+            else:
+                logging.error('\Failed to retrieve VIM_ID from OSM:' + str(osm_host) + " VIM_NAME: "+str(VIM_NAME))
+                return
+
+            logging.debug('Getting VIM_ID: ' + str(vim_id) + ' from OSM:'+str(osm_host)+" status code: " + str(r.status_code))
+            return vim_id
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nFailed to GET VIM_ID from OSM - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nFailed to GET VIM_ID from OSM' + str(osm_host))
+
+        return
+
+    def get_nsd_id(self, NSD_NAME):
+
         osm_host = "10.8.0.1"
         osm_port = "9999"
         url = "https://" + osm_host + ":" + osm_port + "/osm/nsd/v1/ns_descriptors_content"
-        headers = {"Content-type": "application/gzip", "Accept": "text/plain",
+        headers = {"Content-type": "application/json", "Accept": "text/plain",
                    'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
         try:
-                r = requests.get(url, headers=headers, verify=False)
-                ns_id = yaml.load(r.text)
-                ns_id = str(ns_id[0]['_id'])
-                print(ns_id)
+            r = requests.get(url, headers=headers, verify=False)
+            nsd_id = yaml.load(r.text)
 
-                url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances/"+str("86e6d64a-7ad6-46ea-9afb-36f40ec00a51")+"/instantiate"
-                headers = {"Content-type": "application/gzip", "Accept": "text/plain",
-                           'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
-                r = requests.post(url, headers=headers, verify=False)
-                print(r.text)
+            if str(nsd_id[0]['name']) == str(NSD_NAME):
+                nsd_id = str(nsd_id[0]['_id'])
 
-                logging.debug('Onbording NS in OSM: ' + str(osm_host) + ' status code: ' + str(r.status_code))
+            logging.debug('Getting NS_ID: ' + str(osm_host) + ' status code: ' + str(r.status_code))
+
+            return nsd_id
+
         except requests.exceptions.Timeout as ct:
-            logging.error(str(ct) + '\nFailed to Upload NSD to OSM - Connection Timeout:' + str(osm_host))
+            logging.error(str(ct) + '\nFailed to GET NS_ID from OSM - Connection Timeout:' + str(osm_host))
         except requests.exceptions.RequestException as re:
-            logging.error(str(re) + '\nFailed to upload NSD to OSM' + str(osm_host))
+            logging.error(str(re) + '\nFailed to GET NS_ID from OSM' + str(osm_host))
 
         return
+
+    """
+    Create and Instantiate NS
+    """
+    def create_instantiate_ns(self, NS_NAME, NSD_NAME, REQUEST_ID):
+        nsd_id = self.get_nsd_id(NSD_NAME)
+        vim_id = self.get_vim_id("VIM-Name")
+
+        data = """
+                nsName: %s            # mandatory
+                nsdId: %s  # mandatory
+                vimAccountId: %s   # mandatory
+                wimAccountId: %s
+                additionalParamsForNs:  {}
+                additionalParamsForVnf: []
+                ssh_keys: []
+                vnf: [ {member-vnf-index: "1", vimAccountId: vim-uuid, internal-vld: [], vdu: [] } ]
+                vld: [ {name: vld-name, ip-profile: {}, vnfd-connection-point-ref: [{}] }]
+                """
+
+        data = str(data%(NS_NAME, nsd_id, vim_id, "False"))
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances_content"
+        headers = {"Content-type": "application/yaml", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.post(url, data=data, headers=headers, verify=False)
+
+            create_instantiate_code = yaml.load(r.text)
+
+
+            if int(create_instantiate_code['status']) >= 400:
+                logging.error(' NS Create and Instantiate Failed - OSM ' + str(osm_host)+" code error: "+str(create_instantiate_code['status']))
+                return
+            elif create_instantiate_code['status'] == 200:
+                logging.debug('NS Created on OSM' +osm_host+' status code: ' + str((create_instantiate_code['status'])))
+                return
+
+            created_ns_id = yaml.load(r.text)
+            created_ns_id = created_ns_id['id']
+
+            logging.debug('Create and Instantiate NS: ' + str(created_ns_id) + ' performed on OSM' + osm_host + ' status code: ' + str(r.status_code))
+
+            return created_ns_id
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nNS Create and Instantiate Failed - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nNS Create and Instantiate Failed' + str(osm_host))
+
+        return
+
+    """
+    Create a NS but not instantiate
+    """
+    def crete_ns(self, NS_NAME, NSD_NAME, REQUEST_ID):
+
+        nsd_id = self.get_nsd_id(NSD_NAME)
+        vim_id = self.get_vim_id("VIM-Name")
+
+        data = """
+                nsName: %s            # mandatory
+                nsdId: %s  # mandatory
+                vimAccountId: %s  # mandatory
+                wimAccountId: %s
+                additionalParamsForNs:  {}
+                additionalParamsForVnf: []"""
+
+        data = str(data%(NS_NAME, nsd_id, vim_id, "False"))
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances"
+        headers = {"Content-type": "application/yaml", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.post(url, data=data, headers=headers, verify=False)
+            created_ns_id = yaml.load(r.text)
+
+            logging.debug('NS: ' + str(created_ns_id) + ' Created on OSM' +osm_host+', but not instantiated - status code: ' + str(r.status_code))
+
+            return created_ns_id['id']
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nNS Create Failed - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nNS Create Failed' + str(osm_host))
+
+        return
+
+    def instantiate_ns(self, NS_ID, REQUEST_ID):
+
+        vim_id = self.get_vim_id("VIM-Name")
+
+        data = """
+                vimAccountId: %s   # mandatory
+                wimAccountId: %s
+                ssh_keys: []
+                vnf: [ {member-vnf-index: "1", vimAccountId: vim-uuid, internal-vld: [], vdu: [] } ]
+                vld: [ {name: vld-name, ip-profile: {}, vnfd-connection-point-ref: [{}] }]"""
+
+        data = str(data%(vim_id, "False"))
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances/"+str(NS_ID)+"/instantiate"
+        headers = {"Content-type": "application/yaml", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.post(url, data=data, headers=headers, verify=False)
+            instantiate_ns_response = yaml.load(r.text)
+
+            if int(instantiate_ns_response['status']) >= 400:
+                logging.error(' NS Instantiate Failed - OSM ' + str(osm_host)+" code error: "+str(instantiate_ns_response['status']))
+                return
+            elif int(instantiate_ns_response['status']) == 200:
+                logging.debug('NS Instantiate on OSM' +osm_host+' status code: ' + str((instantiate_ns_response['status'])))
+                return
+
+            created_ns_id = yaml.load(r.text)
+            created_ns_id = created_ns_id['id']
+
+            logging.debug('NS: ' + str(created_ns_id) + ' Instantiated on OSM' +osm_host+' status code: ' + str(r.status_code))
+
+            return created_ns_id
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nNS Instantiate Failed - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nNS Instantiate Failed' + str(osm_host))
+
+        return
+
 
     def post_nsd(self, OSM_IP, REQUEST_ID):
         osm_host = "10.8.0.1"
@@ -125,4 +289,8 @@ if __name__ == "__main__":
     mano_worker.osm_connector()
     #mano_worker.post_vnfd("","")
     #mano_worker.post_nsd("", "")
-    mano_worker.ns_play("","")
+    #mano_worker.ns_get_id("cirros_2vnf_ns")
+    #mano_worker.vim_get_id("")
+    ns_id = mano_worker.crete_ns("Network Service Test","cirros_2vnf_ns","")
+    mano_worker.instantiate_ns(ns_id,"")
+    #mano_worker.create_instantiate_ns("Network Service Test","cirros_2vnf_ns","")
