@@ -54,6 +54,32 @@ class MANO:
 
         return
 
+    def get_ns_id(self, NS_NAME, REQUEST_ID):
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances"
+        headers = {"Content-type": "application/json", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.get(url, headers=headers, verify=False)
+            ns_id = yaml.load(r.text)
+
+            if str(ns_id[0]['name']) == str(NS_NAME):
+                ns_id = str(ns_id[0]['_id'])
+
+            logging.debug('Getting NS_ID: ' + str(osm_host) + ' status code: ' + str(r.status_code))
+
+            return ns_id
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nFailed to GET NS_ID from OSM - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nFailed to GET NS_ID from OSM' + str(osm_host))
+
+        return
+
     def get_nsd_id(self, NSD_NAME):
 
         osm_host = "10.8.0.1"
@@ -68,16 +94,81 @@ class MANO:
             if str(nsd_id[0]['name']) == str(NSD_NAME):
                 nsd_id = str(nsd_id[0]['_id'])
 
-            logging.debug('Getting NS_ID: ' + str(osm_host) + ' status code: ' + str(r.status_code))
+            logging.debug('Getting NSD_ID: ' + str(osm_host) + ' status code: ' + str(r.status_code))
 
             return nsd_id
 
         except requests.exceptions.Timeout as ct:
-            logging.error(str(ct) + '\nFailed to GET NS_ID from OSM - Connection Timeout:' + str(osm_host))
+            logging.error(str(ct) + '\nFailed to GET NSD_ID from OSM - Connection Timeout:' + str(osm_host))
         except requests.exceptions.RequestException as re:
-            logging.error(str(re) + '\nFailed to GET NS_ID from OSM' + str(osm_host))
+            logging.error(str(re) + '\nFailed to GET NSD_ID from OSM' + str(osm_host))
 
         return
+
+    """
+    Delete NS
+    """
+    def delete_ns(self, NS_NAME, REQUEST_ID):
+
+        ns_id = self.get_ns_id(NS_NAME, REQUEST_ID)
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances_content/"+str(ns_id)
+        headers = {"Content-type": "application/yaml", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.delete(url, data="", headers=headers, verify=False)
+
+            terminated_ns_id = yaml.load(r.text)
+
+            if int(r.status_code) >= 400:
+                logging.error(' NS Delete Failed - OSM ' + str(osm_host)+" status: "+str(terminated_ns_id['status']))
+                return
+            elif int(r.status_code) == 200 or int(r.status_code) == 201 or  int(r.status_code) == 202:
+                logging.debug('Deleted NS: ' + str(terminated_ns_id['_id']) + ' performed on OSM' + osm_host + ' status code: ' + str(r.status_code))
+                return "NS: '"+NS_NAME+"' Deleted! - Request ID: "+REQUEST_ID
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nDelete NS Failed - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nDelete NS Failed' + str(osm_host))
+
+        return
+
+
+    """
+    Terminate NS
+    """
+    def terminate_ns(self, NS_NAME, REQUEST_ID):
+
+        ns_id = self.get_ns_id(NS_NAME, REQUEST_ID)
+
+        osm_host = "10.8.0.1"
+        osm_port = "9999"
+        url = "https://" + osm_host + ":" + osm_port + "/osm/nslcm/v1/ns_instances/"+str(ns_id)+"/terminate"
+        headers = {"Content-type": "application/yaml", "Accept": "text/plain",
+                   'Authorization': 'Bearer {}'.format(self.OSM_TOKEN_ID)}
+        try:
+
+            r = requests.post(url, data="", headers=headers, verify=False)
+            terminated_ns_id = yaml.load(r.text)
+
+            if int(r.status_code) >= 400:
+                logging.error(' NS Terminate Failed - OSM ' + str(osm_host)+" status: "+str(terminated_ns_id['status']))
+                return
+            elif int(r.status_code) == 200 or int(r.status_code) == 201:
+                logging.debug('Terminate NS: ' + str(terminated_ns_id['id']) + ' performed on OSM' + osm_host + ' status code: ' + str(r.status_code))
+                return terminated_ns_id['id']
+
+        except requests.exceptions.Timeout as ct:
+            logging.error(str(ct) + '\nTerminate NS Failed - Connection Timeout:' + str(osm_host))
+        except requests.exceptions.RequestException as re:
+            logging.error(str(re) + '\nTerminate NS Failed' + str(osm_host))
+
+        return
+
 
     """
     Create and Instantiate NS
@@ -291,6 +382,9 @@ if __name__ == "__main__":
     #mano_worker.post_nsd("", "")
     #mano_worker.ns_get_id("cirros_2vnf_ns")
     #mano_worker.vim_get_id("")
-    ns_id = mano_worker.crete_ns("Network Service Test","cirros_2vnf_ns","")
-    mano_worker.instantiate_ns(ns_id,"")
+    #ns_id = mano_worker.crete_ns("Network Service Test","cirros_2vnf_ns","")
+    #mano_worker.instantiate_ns(ns_id,"")
     #mano_worker.create_instantiate_ns("Network Service Test","cirros_2vnf_ns","")
+    #mano_worker.get_ns_id("teste","")
+    #print(mano_worker.terminate_ns("teste",""))
+    print(mano_worker.delete_ns("teste",""))
