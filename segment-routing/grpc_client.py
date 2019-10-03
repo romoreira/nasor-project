@@ -13,6 +13,11 @@ Segment Routing Enabled Wide Area Networks" shows that
 """
 
 
+#Useful links:
+#https://grpc.io/docs/tutorials/basic/python/
+#https://developers.google.com/protocol-buffers/docs/pythontutorial
+
+
 import grpc
 import json
 
