@@ -5,11 +5,11 @@ https://github.com/netgroup/srv6-controller/blob/master/grpc/grpc_client.py
 
 
 """
-This is a south-bound interface of the End-To-End Edge Slice Environment Router.
+This is a South-Bound Interface (SBI) of the End-To-End Edge Slice Environment Router.
 From here, we can perform inter-domain data-plane to Slice (it comes from the edge of a domain and spans to other edge of the other domain).
-It was chosen because it performs better than other South-Bound Methods such as
+It was chosen because it performs better than other SBI Methods such as
 RestAPI, SSH/CLI, and, NetConf. The paper: "SDN Architecture and Southbound APIs for IPv6
-Segment Routing Enabled Wide Area Networks" shows that
+Segment Routing Enabled Wide Area Networks" shows that.
 """
 
 
