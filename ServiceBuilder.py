@@ -18,7 +18,7 @@ import MANO
 class ServiceBuilder:
     NSD = None
     VNFD = None
-    NST = None
+    NSTD = None
 
     """
     Receives a tar.gz NSD and returns a directory name of extracted files
@@ -86,21 +86,25 @@ class ServiceBuilder:
         print(self.NSD)
 
 
+    def read_nstd(self):
+        with open("./ns/cirros_nstd.yaml", 'r') as stream:
+            NSTD = yaml.safe_load(stream)
+
+        self.NSTD = NSTD['nst']
+
 
     def read_nsd(self):
         with open("./ns/cirros_2vnf_ns/cirros_2vnf_nsd.yaml", 'r') as stream:
             NSD = yaml.safe_load(stream)
 
-        self.NSD = NSD['nstd:nstd-details']
         self.VNFD = NSD['nsd:nsd-catalog']
 
     def network_slice_template(self):
-        nano = NANO.NANO(self.NSD)
-        nano.nst_yaml_interpreter()
+        nano = NANO.NANO(self.NSTD)
+        nano.nst_yaml_interpreter(self.NSTD)
+        nano.interDomain_slice_builder()
 
     def virtual_network_function_description(self):
-        print(self.VNFD)
-        return
         mano = MANO.MANO(self.VNFD)
         mano.vnfd_yaml_interpreter()
 
@@ -112,7 +116,11 @@ if __name__ == "__main__":
     """
     Splitting YAML service descriptor to OSM and NANO to provide Network Slice Builder
     """
+
+    sb.read_nstd()
     sb.network_slice_template()
+
+
     #sb.virtual_network_function_description()
     #sb.vnfd_untar()
     #sb.nsd_untar()

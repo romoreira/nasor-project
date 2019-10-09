@@ -14,16 +14,19 @@ Date: 10/09/2019
 #https://openmaniak.com/quagga_tutorial.php
 
 
-import CoreTopology
+import CoreDomainTopology
 
 class NANO:
-    NST = None
+    NSTD = None
 
-    def __init__(self, NST):
-        self.NST = NST
+    def __init__(self, NSTD):
+        self.NSTD = NSTD
 
-    def nst_yaml_interpreter(self):
-        print("Here we will use NANO to launch Slice Instance")
+    def nst_yaml_interpreter(self, NSTD):
+        self.NSDT = NSTD
 
-        ct = CoreTopology.CoreTopology()
-        ct.neighborhood_check(str(self.NST['asn-involved']))
+        ct = CoreDomainTopology.CoreTopology()
+        ct.neighborhood_check(str(self.NSTD[0]['asns']))
+
+    def interDomain_slice_builder(self):
+        print("Construir o Slice!")

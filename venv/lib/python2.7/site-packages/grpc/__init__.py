@@ -1,0 +1,12 @@
+# -*- coding:utf-8 -*-
+VERSION = (0, 3, 19)
+__version__ = VERSION
+
+try:
+    from .rpc import *
+    from .rpc_shell import *
+except ImportError as e:
+    print("Import grpc:%s" % e)
+
+
+

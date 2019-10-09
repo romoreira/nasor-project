@@ -16,7 +16,7 @@ class CoreTopology:
     def neighborhood_check(self, asns_involved):
 
         self.G.add_node(2)
-        self.G.nodes[2]['asn'] = 16735
+        self.G.nodes[2]['asn'] = asns_involved[0]
         self.G.nodes[2]['is_border_vnf'] = 'false'
         self.G.nodes[2]['vnf_management_ip'] = '192.168.0.100'
         self.G.nodes[2]['vnf_egress-if_name'] = 'eth1'
@@ -24,7 +24,7 @@ class CoreTopology:
         self.G.nodes[2]['vim_management_ip'] = '192.168.0.200'
 
         self.G.add_node(1)
-        self.G.nodes[1]['asn'] = 14571
+        self.G.nodes[1]['asn'] = asns_involved[1]
         self.G.nodes[1]['is_border_vnf'] = 'true'
         self.G.nodes[1]['vnf_management_ip'] = '192.168.0.100'
         self.G.nodes[1]['vnf_egress-if_name'] = 'eth1'
@@ -39,9 +39,9 @@ class CoreTopology:
         asns_involved = asns_involved.split(",")
         node_index = []
 
-        # Checkin if given two ASN they are neighbors - save the tuple of Node IDs.
+        # Checkin if given two ASN are neighbors - save the tuple of Node IDs.
         for n in self.G.nodes:
             if str(self.G.nodes[n]['asn']) in str(asns_involved):
                 node_index.append(n)
 
-        #print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")
+        print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")
