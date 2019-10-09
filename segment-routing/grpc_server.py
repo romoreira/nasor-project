@@ -24,7 +24,7 @@ grpc_server = None
 # Netlink socket
 ip_route = None
 # Cache of the resolved interfaces
-interfaces = ['eth1']
+interfaces = ['enp2s0']
 idxs = {}
 # logger reference
 logger = logging.getLogger(__name__)

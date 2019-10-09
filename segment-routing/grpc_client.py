@@ -44,7 +44,7 @@ def get_grpc_session(ip_address, port, secure):
   return srv6_explicit_path_pb2_grpc.SRv6ExplicitPathStub(channel), channel
 
 # Get the reference of the stub
-srv6_stub,channel = get_grpc_session("192.168.0.105", 12345, SECURE)
+srv6_stub,channel = get_grpc_session("192.168.0.104", 12345, SECURE)
 
 # Create message request
 #path_request = srv6_explicit_path_pb2.SRv6EPRequest()
@@ -108,7 +108,7 @@ json_data = json.loads(data)
 # Iterate over the array and delete one by one all the paths
 for data in json_data:
   # Each time we create a new session
-  srv6_stub,channel = get_grpc_session("192.168.0.105", 12345, SECURE)
+  srv6_stub,channel = get_grpc_session("192.168.0.104", 12345, SECURE)
   #print("Antes")
   path_request = srv6_explicit_path_pb2.SRv6EPRequest()
   #print(str(path_request))
