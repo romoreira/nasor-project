@@ -122,5 +122,5 @@ for data in json_data:
       srv6_segment.segment = segment
     #response = srv6_stub.Remove(path_request)
     response = srv6_stub.Create(path_request)
-    print response
+    print(str(response))
     channel.close()

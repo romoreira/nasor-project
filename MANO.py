@@ -386,4 +386,4 @@ if __name__ == "__main__":
     #mano_worker.create_instantiate_ns("teste","cirros_2vnf_ns","")
     #mano_worker.get_ns_id("teste","")
     #print(mano_worker.terminate_ns("teste",""))
-    print(mano_worker.delete_ns("teste",""))
+    #print(mano_worker.delete_ns("teste",""))

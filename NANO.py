@@ -8,6 +8,12 @@ Date: 10/09/2019
 # Apache Geode para procurar nessa base persistente o VIM aonde a VNF esta lancada e por ela fazer o
 # mapeamento desde a VNF ate a outra. Empurrando isso de forma inter-dominios.
 
+#Links do multi-domain dataplane:
+#https://wiki.gentoo.org/wiki/Quagga
+#https://www.brianlinkletter.com/how-to-build-a-network-of-linux-routers-using-quagga/
+#https://openmaniak.com/quagga_tutorial.php
+
+
 import CoreTopology
 
 class NANO:

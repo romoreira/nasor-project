@@ -1,0 +1,32 @@
+nst:
+-   id: slice_rodrigo_nstd
+    name: slice_rodrigo_nstd
+    SNSSAI-identifier:
+        slice-service-type: IoT
+    quality-of-service:
+        id: 1
+
+    asns:
+    -   16625
+    -   10455
+
+    netslice-subnet:
+    -   id: slice_rodrigo_nsd_1
+        is-shared-nss: 'false'
+        description: NetSlice Subnet (service) composed by 1 vnf with 2 cp
+        nsd-ref: cirros_2vnf_nsd
+
+    netslice-vld:
+    -   id: slice_cirros_vld_mgmt
+        name: slice_cirros_vld_mgmt
+        type: ELAN
+        mgmt-network: 'true'
+        nss-connection-point-ref:
+        -   nss-ref: slice_rodrigo_nsd_1
+            nsd-connection-point-ref: nsd_cp_mgmt
+    -   id: slice_cirros_vld_data1
+        name: slice_cirros_vld_data1
+        type: ELAN
+        nss-connection-point-ref:
+        -   nss-ref: slice_rodrigo_nsd_1
+            nsd-connection-point-ref: nsd_cp_data
