@@ -5,7 +5,9 @@ import srv6_explicit_path_pb2 as srv6__explicit__path__pb2
 
 
 class SRv6ExplicitPathStub(object):
-  """Define the rpc service interface
+  """package srv6_explicit_path;
+
+  Define the rpc service interface
   """
 
   def __init__(self, channel):
@@ -15,19 +17,21 @@ class SRv6ExplicitPathStub(object):
       channel: A grpc.Channel.
     """
     self.Create = channel.unary_unary(
-        '/srv6_explicit_path.SRv6ExplicitPath/Create',
+        '/SRv6ExplicitPath/Create',
         request_serializer=srv6__explicit__path__pb2.SRv6EPRequest.SerializeToString,
         response_deserializer=srv6__explicit__path__pb2.SRv6EPReply.FromString,
         )
     self.Remove = channel.unary_unary(
-        '/srv6_explicit_path.SRv6ExplicitPath/Remove',
+        '/SRv6ExplicitPath/Remove',
         request_serializer=srv6__explicit__path__pb2.SRv6EPRequest.SerializeToString,
         response_deserializer=srv6__explicit__path__pb2.SRv6EPReply.FromString,
         )
 
 
 class SRv6ExplicitPathServicer(object):
-  """Define the rpc service interface
+  """package srv6_explicit_path;
+
+  Define the rpc service interface
   """
 
   def Create(self, request, context):
@@ -59,5 +63,5 @@ def add_SRv6ExplicitPathServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'srv6_explicit_path.SRv6ExplicitPath', rpc_method_handlers)
+      'SRv6ExplicitPath', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

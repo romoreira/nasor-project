@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package srv6_explicit_path;
+//package srv6_explicit_path;
 
 // Define the rpc service interface
 service SRv6ExplicitPath {
@@ -19,21 +19,24 @@ message SRv6EPRequest {
 message Path {
   // Route of the SRv6 policy
   string destination = 1;
+  //Type of route to SRv6 policy
+  string via = 2;
   // SRv6 Segment
   message SRv6Segment {
-    string segment = 1;
+    string segment = 3;
   }
   // A collection of SRv6 Segments
-  repeated SRv6Segment sr_path = 2;
+  repeated SRv6Segment sr_path = 4;
   // Encap mode
-  string encapmode = 3;
+  string encapmode = 5;
   // Device name
-  string device = 4;
+  string device = 6;
 }
 
 // The SRv6EPReply message containing a simple status message
 message SRv6EPReply {
   string message = 1;
 }
+
 
 

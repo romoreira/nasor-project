@@ -96,7 +96,7 @@ data = """
         "destination": "b::/64",
         "encapmode": "encap",
         "segments": [
-          "3::D61",
+          "3::D6",
           "2::AD6:F3",
           "2::AD6:F2",
           "2::AD6:F1"
@@ -110,7 +110,7 @@ json_data = json.loads(data)
 # Iterate over the array and delete one by one all the paths
 for data in json_data:
   # Each time we create a new session
-  srv6_stub,channel = get_grpc_session("192.168.0.105", 12345, SECURE)
+  srv6_stub,channel = get_grpc_session("192.168.0.102", 12345, SECURE)
   #print("Antes")
   path_request = srv6_explicit_path_pb2.SRv6EPRequest()
   #print(str(path_request))
