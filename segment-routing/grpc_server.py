@@ -1,5 +1,6 @@
 """
-Preserving the rights of the creator. Adapted from:
+Preserving the rights of the creator.
+Adapted from:
 https://github.com/netgroup/srv6-controller/blob/master/grpc/grpc_server.py
 """
 

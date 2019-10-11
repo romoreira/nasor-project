@@ -3,6 +3,11 @@ Author: Rodrigo Moreira
 Date: 05/09/2019
 """
 
+
+#Path Computing Element (PCE):
+#https://github.com/netgroup/SDN-TE-SR-tools
+#Telefonica: https://github.com/telefonicaid/netphony-pce
+
 # To be defined further
 import networkx as nx
 
