@@ -51,7 +51,7 @@ class SRv6ExplicitPathHandler(srv6_explicit_path_pb2_grpc.SRv6ExplicitPathServic
             segments = []
             for srv6_segment in path.sr_path:
                 segments.append(srv6_segment.segment)
-            ip_route.route(op, dst=path.destination, oif=idxs[path.device],
+            ip_route.route(op, dst=path.destination, gateway=path.via, oif=idxs[path.device],
                            encap={'type':'seg6', 'mode':path.encapmode, 'segs':segments})
         # and create the response
         return srv6_explicit_path_pb2.SRv6EPReply(message="OK")
