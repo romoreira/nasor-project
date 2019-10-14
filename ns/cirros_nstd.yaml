@@ -7,8 +7,8 @@ nst:
         id: 1
 
     asns:
-    -   16625
-    -   10455
+    -   16735 #Algar Telecom
+    -   26599 #Telefonica
 
     netslice-subnet:
     -   id: slice_rodrigo_nsd_1

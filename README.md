@@ -118,7 +118,7 @@ Here we bring some steps to follow to deploy and try our solution.
 3. `/home/ubuntu/apache-geode-1.9.1-src/geode-assembly/build/install/apache-geode/bin/gfsh`
 4. `start locator --name=locator1`
 5. `configure pdx --read-serialized=true --disk-store`
-6. `start server --name=server1 --start-rest-api=true --http-service-port=1026 --http-service-bind-address=200.19.151.175`
+6. `start server --name=server1 --start-rest-api=true --http-service-port=8080 --http-service-bind-address=200.19.151.175`
 7. `create region --name=regionA --type=REPLICATE_PERSISTENT`
 
 > TIP: Now the RestAPI should be working fine (check it - GET http://InterOIB:1026/gemfire-api/v1/regionA)

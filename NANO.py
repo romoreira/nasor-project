@@ -12,7 +12,8 @@ Date: 10/09/2019
 #https://wiki.gentoo.org/wiki/Quagga
 #https://www.brianlinkletter.com/how-to-build-a-network-of-linux-routers-using-quagga/
 #https://openmaniak.com/quagga_tutorial.php
-
+#https://blog.codybunch.com/2016/07/12/Getting-started-with-BGP-on-Linux-with-Cumuls-Quagga/
+#http://www.occaid.org/tutorial-ipv6bgp.html
 
 import CoreDomainTopology
 
@@ -23,8 +24,6 @@ class NANO:
         self.NSTD = NSTD
 
     def nst_yaml_interpreter(self, NSTD):
-        self.NSDT = NSTD
-
         ct = CoreDomainTopology.CoreTopology()
         ct.neighborhood_check(str(self.NSTD[0]['asns']))
 
