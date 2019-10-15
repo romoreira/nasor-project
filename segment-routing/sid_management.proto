@@ -1,0 +1,29 @@
+//Author: Rodrigo Moreira
+//Data: 15/10/2019
+
+syntax = "proto3";
+
+package sidmanagement;
+
+service SIDManagement{
+    rpc AddSID(SIDMessage) returns (SIDMessageReply) {}
+    rpc DelSID(SIDMessage) returns (SIDMessageReply) {}
+}
+
+message SIDMessage{
+    repeated SID sid = 1;
+}
+
+message SID{
+    string SID = 1;
+    string SID_BEHAVIOR = 2;
+    string IP_ADDR = 3;
+    string TARGET_IF = 4;
+    string SOURCE_IF = 5;
+}
+
+
+message SIDMessageReply {
+  string message = 1;
+}
+

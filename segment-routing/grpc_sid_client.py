@@ -1,0 +1,44 @@
+"""
+Author: Rodrigo Moreira
+Date: 15/10/2019
+"""
+
+import grpc
+import json
+
+import sid_management_pb2_grpc
+import sid_management_pb2
+
+# Define wheter to use SSL or not
+SECURE = False
+# SSL cerificate for server validation
+CERTIFICATE = 'cert_client.pem'
+
+# Build a grpc stub
+def get_grpc_session(ip_address, port, secure):
+  # If secure we need to establish a channel with the secure endpoint
+  if secure:
+    # Open the certificate file
+    with open(CERTIFICATE) as f:
+      certificate = f.read()
+    # Then create the SSL credentials and establish the channel
+    grpc_client_credentials = grpc.ssl_channel_credentials(certificate)
+    channel = grpc.secure_channel("%s:%s" %(ip_address, port), grpc_client_credentials)
+  else:
+    channel = grpc.insecure_channel("%s:%s" %(ip_address, port))
+  return sid_management_pb2_grpc.SIDManagementStub(channel), channel
+
+# Get the reference of the stub
+sid_stub,channel = get_grpc_session("192.168.0.101", 12345, SECURE)
+sid_request = sid_management_pb2.SIDMessage()
+sid = sid_request.sid.add()
+sid.SID = ""
+sid.SID_BEHAVIOR  = ""
+sid.IP_ADDR  = ""
+sid.TARGET_IF  = ""
+sid.SOURCE_IF  = ""
+
+
+response = sid_stub.AddSID(sid_request)
+print(str(response))
+channel.close()

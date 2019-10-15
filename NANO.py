@@ -27,5 +27,5 @@ class NANO:
         ct = CoreDomainTopology.CoreTopology()
         ct.neighborhood_check(str(self.NSTD[0]['asns']))
 
-    def interDomain_slice_builder(self):
+    def eDomain_slice_builder(self):
         print("Construir o Slice!")
