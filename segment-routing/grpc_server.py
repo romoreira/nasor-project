@@ -7,12 +7,9 @@ https://github.com/netgroup/srv6-controller/blob/master/grpc/grpc_server.py
 from concurrent import futures
 from optparse import OptionParser
 from pyroute2 import IPRoute
-from google.protobuf import json_format
-
 
 import logging
 import time
-import json
 import grpc
 
 import srv6_explicit_path_pb2_grpc

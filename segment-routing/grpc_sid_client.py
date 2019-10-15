@@ -4,7 +4,6 @@ Date: 15/10/2019
 """
 
 import grpc
-import json
 
 import sid_management_pb2_grpc
 import sid_management_pb2
@@ -29,7 +28,7 @@ def get_grpc_session(ip_address, port, secure):
   return sid_management_pb2_grpc.SIDManagementStub(channel), channel
 
 # Get the reference of the stub
-sid_stub,channel = get_grpc_session("192.168.0.101", 12345, SECURE)
+sid_stub,channel = get_grpc_session("192.168.0.201", 12345, SECURE)
 sid_request = sid_management_pb2.SIDMessage()
 sid = sid_request.sid.add()
 sid.SID = "1::d6"
