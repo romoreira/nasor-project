@@ -32,11 +32,11 @@ def get_grpc_session(ip_address, port, secure):
 sid_stub,channel = get_grpc_session("192.168.0.101", 12345, SECURE)
 sid_request = sid_management_pb2.SIDMessage()
 sid = sid_request.sid.add()
-sid.SID = ""
-sid.SID_BEHAVIOR  = ""
-sid.IP_ADDR  = ""
-sid.TARGET_IF  = ""
-sid.SOURCE_IF  = ""
+sid.SID = "1::d6"
+sid.SID_BEHAVIOR  = "end.dx6"
+sid.IP_ADDR  = "2:f3::f3"
+sid.TARGET_IF  = "eth1"
+sid.SOURCE_IF  = "eth0"
 
 
 response = sid_stub.AddSID(sid_request)

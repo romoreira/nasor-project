@@ -15,7 +15,7 @@ from optparse import OptionParser
 from pyroute2 import IPRoute
 from google.protobuf import json_format
 
-
+import os
 import logging
 import time
 import json
@@ -55,7 +55,18 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
         self.server_port = 46001
 
     def AddSID(self, request, context):
-        print("Ola Mundo ADD")
+        logger.debug("SID Config received:\n%s", request)
+
+
+        for sid in request.sid:
+            # Base: sudo srconf localsid add 2::AD6:F1 end.ad6 ip 2:f1::f1 veth1_2 veth1_2
+            command = 'sudo srconf localsid add ' + str(sid.SID)+' '+str(sid.SID_BEHAVIOR)+' ip '+str(sid.IP_ADDR)+' '+str(sid.TARGET_IF)+' '+str(sid.SOURCE_IF)
+
+            p = os.popen(command).read()
+
+            logging.info("SID Added - "+str(command)+ " Result: "+str(p))
+
+
         return sid_management_pb2.SIDMessageReply(message="SID Created")
 
     def DelSID(self, request, context):
