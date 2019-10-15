@@ -12,7 +12,7 @@ import socket, sys, pycos, csv, yaml
 OIB = ''
 
 def oib_loader():
-    with open('./data/inter-domain_information_base.csv') as OIB:
+    with open('./data/edomain_information_base.csv') as OIB:
         OIB = csv.DictReader(OIB, delimiter=';')
         for row in OIB:
             print(row)
