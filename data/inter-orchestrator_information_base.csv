@@ -1,3 +1,0 @@
-orchestrator_id,as_number,as_name,mgmt_router_ip,dta_ipv6_address,peering_interfaces,subnets_list,routing_weight,manos_list,mano_vendor,asn_neighbors
-1,16735,AlgarTelecomSA,"192.168.0.201","2001:470:28:5b2::1",eth0,"2607:f0d0:2001:a::10",2,"192.168.0.100","OpenStack","16735,1535"
-2,26599,TelefonicaSA,"192.168.0.202","2001:470:28:5b2::2",eth0,"2607:f0d0:2001:b::20",4,"10.8.0.1,100.100.100.1","Sonata,ONAP","16735"

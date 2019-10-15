@@ -6,7 +6,7 @@ import requests, logging, json, time, os
 import pandas as pd
 
 
-class OrchestrationInformationBase:
+class eOrchestrationInformationBase:
 
     def delete_data_from_region(self, region, key):
         geode_host = "10.8.0.1"
@@ -105,7 +105,7 @@ class OrchestrationInformationBase:
 
     def geode_syncronization(self):
 
-        csv_file = pd.DataFrame(pd.read_csv("./data/inter-orchestrator_information_base.csv", sep=",", header=0, index_col=False))
+        csv_file = pd.DataFrame(pd.read_csv("./data/inter-domain_information_base.csv", sep=",", header=0, index_col=False))
         csv_file.to_json("file.json", orient="records", date_format="epoch", double_precision=10,
                          force_ascii=True, date_unit="ms", default_handler=None)
 
@@ -146,7 +146,7 @@ class OrchestrationInformationBase:
             else:
                 t = time.localtime()
                 current_time = time.strftime("%H:%M:%S", t)
-                print(str("Data Inserted on Apache Geode"))
+                print(str("Data Updated on Apache Geode"))
                 logging.info("Data Inserted on Apache Geode. IP: "+str(geode_host) + " Data: "+current_time)
 
         except requests.exceptions.Timeout as ct:
@@ -157,9 +157,9 @@ class OrchestrationInformationBase:
         return
 
 if __name__ == "__main__":
-    oib = OrchestrationInformationBase()
+    eoib = eOrchestrationInformationBase()
     #oib.geode_syncronization()
-    oib.insert_datakey_into_region("regionA",1)
+    eoib.insert_datakey_into_region("regionA",1)
     #oib.get_data_from_region("regionA")
     #oib.get_region_keys("regionA")
     #oib.get_region_servers("")
