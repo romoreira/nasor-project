@@ -70,7 +70,8 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
         return sid_management_pb2.SIDMessageReply(message="SID Created")
 
     def DelSID(self, request, context):
-        print("Ola Mundo DEL")
+        print("Hello World DEL")
+        return sid_management_pb2.SIDMessageReply(message="SID Deleted")
 
     # Start gRPC server
     def start_server(self):
