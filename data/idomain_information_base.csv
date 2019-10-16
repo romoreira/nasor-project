@@ -1,2 +1,2 @@
-domain_id,asn_name,core_ingress_nodes_ip,wan_ingress_nodes_ip,wan_egress_nodes_ip,core_ingress_interface,wan_ingress_interface, manos_entity, manos_vendor
+domain_id,asn_name,router_ingress_mgmt,switch_ingress_mgmt,switch_egress_mgmt,router_ingress_iface,swtich_ingress_iface,manos_entity,manos_vendor
 1,"AlgarTelecomSA","192.168.0.201","100.100.100.123","100.100.100.125","eth2","enp2s0","192.168.0.100","OpenSourceMano"

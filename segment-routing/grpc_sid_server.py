@@ -64,7 +64,7 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
 
             p = os.popen(command).read()
 
-            logging.info("SID Added - "+str(command)+ " Result: "+str(p))
+            logging.info("SID Added - "+str(command)+ " Command Output: "+str(p))
 
 
         return sid_management_pb2.SIDMessageReply(message="SID Created")

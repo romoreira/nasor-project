@@ -106,15 +106,15 @@ class eOrchestrationInformationBase:
     def geode_syncronization(self):
 
         csv_file = pd.DataFrame(pd.read_csv("./data/edomain_information_base.csv", sep=",", header=0, index_col=False))
-        csv_file.to_json("file.json", orient="records", date_format="epoch", double_precision=10,
+        csv_file.to_json("edib-file.json", orient="records", date_format="epoch", double_precision=10,
                          force_ascii=True, date_unit="ms", default_handler=None)
 
 
-        with open('file.json') as f:
+        with open('edib-file.json') as f:
             data = json.load(f)
 
         try:
-            os.remove('file.json')
+            os.remove('edib-file.json')
         except:
             logging.error("Apache Geode - CSV to JSON Parsing Error - Deleting temporary file error")
             return None
