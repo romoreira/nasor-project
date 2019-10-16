@@ -6,7 +6,7 @@ Date: 15/10/2019
 import json, os, logging, requests, time
 import pandas as pd
 
-class iOrchestrationInformationBase:
+class iDomainInformationBase:
 
     def geode_syncronization(self):
 
@@ -83,7 +83,7 @@ class iOrchestrationInformationBase:
         except requests.exceptions.RequestException as re:
             logging.error(str(re) + "Getting Region Data - iDomainInformationBase")
 
-        return
+        return data
 
 
     def get_region_keys(self, region):

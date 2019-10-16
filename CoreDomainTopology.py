@@ -10,9 +10,10 @@ Date: 05/09/2019
 
 # To be defined further
 import networkx as nx
-
+import eDomainInformationBase
 
 class CoreTopology:
+
     G = nx.Graph()
 
     def is_nodes_connected(self, u, v):
@@ -49,4 +50,12 @@ class CoreTopology:
             if str(self.G.nodes[n]['asn']) in str(asns_involved):
                 node_index.append(n)
 
-        print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")
+        #print(str(self.is_nodes_connected(node_index[0], node_index[1])) + " - Vizinhança!")
+        return self.is_nodes_connected(node_index[0], node_index[1])
+
+    '''
+    Returns the peering interface given asn number
+    '''
+    def get_peering_iface(self, asn):
+        edib = eDomainInformationBase()
+        edib.get_data_from_region("regionA")

@@ -101,7 +101,6 @@ class ServiceBuilder:
 
     def network_slice_template(self):
         nano = NANO.NANO(self.NSTD)
-        nano.nst_yaml_interpreter(self.NSTD)
         nano.eDomain_slice_builder()
 
     def virtual_network_function_description(self):

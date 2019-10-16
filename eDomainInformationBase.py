@@ -6,7 +6,7 @@ import requests, logging, json, time, os
 import pandas as pd
 
 
-class eOrchestrationInformationBase:
+class eDomainInformationBase:
 
     def delete_data_from_region(self, region, key):
         geode_host = "10.8.0.1"
@@ -94,14 +94,14 @@ class eOrchestrationInformationBase:
             else:
                 data = r.text
 
-            print(data)
+            #print(data)
 
         except requests.exceptions.Timeout as ct:
             logging.error(str(ct) + "Getting region data Definir")
         except requests.exceptions.RequestException as re:
             logging.error(str(re) + "Getting region data Definir")
 
-        return
+        return data
 
     def geode_syncronization(self):
 
@@ -156,10 +156,10 @@ class eOrchestrationInformationBase:
 
         return
 
-if __name__ == "__main__":
-    eoib = eOrchestrationInformationBase()
+#if __name__ == "__main__":
+    #eoib = eOrchestrationInformationBase()
     #oib.geode_syncronization()
-    eoib.insert_datakey_into_region("regionA",1)
+    #eoib.insert_datakey_into_region("regionA",1)
     #oib.get_data_from_region("regionA")
     #oib.get_region_keys("regionA")
     #oib.get_region_servers("")
