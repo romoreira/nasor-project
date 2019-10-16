@@ -1,8 +1,12 @@
-import socket, pycos, yaml, sys
+import socket, pycos, yaml, sys, logging
 
-yaml_message = yaml.load("- Teste1" +
-                         "- Teste2" +
-                         "- Teste3")
+# yaml_message = yaml.load("- Teste1" +
+#                          "- Teste2" +
+#                          "- Teste3")
+
+yaml_message = ""
+
+RECEIVED_FROM = []
 
 ######################################-Sender-#######################################
 def speaker_proc(host, port, n, task=None):
@@ -16,10 +20,21 @@ def speaker_proc(host, port, n, task=None):
     sock.close()
 
 
-def oib_sender():
+def nstd_nano_exchange(SOURCE, NSTD, NANO_TARGET_AGENT):
+    print("Dentro do PYCOS Client")
+    print(NSTD)
+    print(NANO_TARGET_AGENT)
+
+    print("YAML antes de receber do NANO: ")
+    global yaml_message
+    yaml_message = NSTD
+
+    print("YAML Message: "+str(yaml_message))
+
     for n in range(1, 2):
-        pycos.Task(speaker_proc, '127.0.0.1', 8010, n)
-    print("Terminou")
+            teste = pycos.Task(speaker_proc, NANO_TARGET_AGENT, 8010, n)
+
+    print("Sent NSTD to NANO Agent: "+str(NANO_TARGET_AGENT))
 
 ######################################-Sender-#######################################
 
@@ -54,4 +69,4 @@ def oib_receier():
 ######################################-Receiver-#######################################
 
 if __name__ == "__main__":
-    oib_sender()
+    nstd_nano_exchange()

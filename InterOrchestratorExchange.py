@@ -9,6 +9,8 @@ Date: 27/08/2019
 
 import socket, sys, pycos, csv, yaml
 
+
+
 OIB = ''
 
 def oib_loader():
@@ -25,6 +27,7 @@ def listenner(conn, task=None):
            break
     conn.close()
     print('Received: %s' % data)
+    print("NANO RECEBEU UM NSTD - DEVE CRIAR O SLICE NO SEU DOMINIO")
 
 def listenner_proc(host, port, task=None):
     task.set_daemon()
@@ -37,9 +40,9 @@ def listenner_proc(host, port, task=None):
         conn, addr = yield sock.accept()
         pycos.Task(listenner, conn)
 
-def oib_receier():
+def nano_slice_receier():
 
-    pycos.Task(listenner_proc, '127.0.0.1', 8010)
+    pycos.Task(listenner_proc, '192.168.0.103', 8010)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
@@ -48,4 +51,4 @@ def oib_receier():
 
 if __name__ == "__main__":
     oib_loader()
-    oib_receier()
+    nano_slice_receier()

@@ -157,7 +157,7 @@ class eDomainInformationBase:
         return
 
 #if __name__ == "__main__":
-    #eoib = eOrchestrationInformationBase()
+    #eoib = eDomainInformationBase()
     #oib.geode_syncronization()
     #eoib.insert_datakey_into_region("regionA",1)
     #oib.get_data_from_region("regionA")
