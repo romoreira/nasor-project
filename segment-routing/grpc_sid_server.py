@@ -3,7 +3,6 @@ Author: Rodrigo Moreira
 Date: 15/10/2019
 """
 
-
 import grpc
 import time
 import hashlib
@@ -21,7 +20,6 @@ import time
 import json
 import grpc
 
-
 # Global variables definition
 
 # Server reference
@@ -29,13 +27,13 @@ grpc_server = None
 # Netlink socket
 ip_route = None
 # Cache of the resolved interfaces
-interfaces = ['enp2s0']
+interfaces = ['eth0', 'eth1', 'eth2']
 idxs = {}
 # logger reference
 logger = logging.getLogger(__name__)
 # Server ip and port
 GRPC_IP = "::"
-GRPC_PORT = 12345
+GRPC_PORT = 123456
 # Debug option
 SERVER_DEBUG = False
 # Secure option
@@ -57,21 +55,19 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
     def AddSID(self, request, context):
         logger.debug("SID Config received:\n%s", request)
 
-
         for sid in request.sid:
             # Base: sudo srconf localsid add 2::AD6:F1 end.ad6 ip 2:f1::f1 veth1_2 veth1_2
-            command = 'sudo srconf localsid add ' + str(sid.SID)+' '+str(sid.SID_BEHAVIOR)+' ip '+str(sid.IP_ADDR)+' '+str(sid.TARGET_IF)+' '+str(sid.SOURCE_IF)
+            command = 'sudo srconf localsid add ' + str(sid.SID) + ' ' + str(sid.SID_BEHAVIOR) + ' ip ' + str(
+                sid.IP_ADDR) + ' ' + str(sid.TARGET_IF) + ' ' + str(sid.SOURCE_IF)
 
             p = os.popen(command).read()
 
-            logging.info("SID Added - "+str(command)+ " Command Output: "+str(p))
-
+            logging.info("SID Added - " + str(command) + " Result: " + str(p))
 
         return sid_management_pb2.SIDMessageReply(message="SID Created")
 
     def DelSID(self, request, context):
-        print("Hello World DEL")
-        return sid_management_pb2.SIDMessageReply(message="SID Deleted")
+        print("Ola Mundo DEL")
 
     # Start gRPC server
     def start_server(self):
@@ -100,7 +96,7 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
                 grpc_server.add_insecure_port("[%s]:%s" % (GRPC_IP, GRPC_PORT))
 
         # Start the loop for gRPC
-        logger.info("Listening gRPC on Port: "+str(GRPC_PORT))
+        logger.info("Listening gRPC_SID on Port: " + str(GRPC_PORT))
         grpc_server.start()
         while True:
             time.sleep(5)
@@ -125,6 +121,7 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
             SECURE = False
         SERVER_DEBUG = logger.getEffectiveLevel() == logging.DEBUG
         logger.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
+
 
 if __name__ == "__main__":
     sid_management = SIDManagement()

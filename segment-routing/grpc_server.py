@@ -1,15 +1,11 @@
-"""
-Preserving the rights of the creator.
-Adapted from:
-https://github.com/netgroup/srv6-controller/blob/master/grpc/grpc_server.py
-"""
-
 from concurrent import futures
 from optparse import OptionParser
 from pyroute2 import IPRoute
+from google.protobuf import json_format
 
 import logging
 import time
+import json
 import grpc
 
 import srv6_explicit_path_pb2_grpc
@@ -22,7 +18,7 @@ grpc_server = None
 # Netlink socket
 ip_route = None
 # Cache of the resolved interfaces
-interfaces = ['enp2s0']
+interfaces = ['eth1', 'eth2']
 idxs = {}
 # logger reference
 logger = logging.getLogger(__name__)
@@ -38,6 +34,7 @@ CERTIFICATE = "cert_server.pem"
 # Server key
 KEY = "key_server.pem"
 
+
 class SRv6ExplicitPathHandler(srv6_explicit_path_pb2_grpc.SRv6ExplicitPathServicer):
     """gRPC request handler"""
 
@@ -49,8 +46,8 @@ class SRv6ExplicitPathHandler(srv6_explicit_path_pb2_grpc.SRv6ExplicitPathServic
             segments = []
             for srv6_segment in path.sr_path:
                 segments.append(srv6_segment.segment)
-            ip_route.route(op, dst=path.destination, gateway=path.via, oif=idxs[path.device],
-                           encap={'type':'seg6', 'mode':path.encapmode, 'segs':segments})
+            ip_route.route(op, dst=path.destination, oif=idxs[path.device],
+                           encap={'type': 'seg6', 'mode': path.encapmode, 'segs': segments})
         # and create the response
         return srv6_explicit_path_pb2.SRv6EPReply(message="OK")
 
@@ -58,10 +55,10 @@ class SRv6ExplicitPathHandler(srv6_explicit_path_pb2_grpc.SRv6ExplicitPathServic
         # Handle Create operation
         return self.Execute("add", request, context)
 
-
     def Remove(self, request, context):
         # Handle Remove operation
         return self.Execute("del", request, context)
+
 
 # Start gRPC server
 def start_server():
@@ -85,10 +82,10 @@ def start_server():
             # Create server ssl credentials
             grpc_server_credentials = grpc.ssl_server_credentials(((key, certificate,),))
             # Create a secure endpoint
-            grpc_server.add_secure_port("[%s]:%s" %(GRPC_IP, GRPC_PORT), grpc_server_credentials)
+            grpc_server.add_secure_port("[%s]:%s" % (GRPC_IP, GRPC_PORT), grpc_server_credentials)
         else:
             # Create an insecure endpoint
-            grpc_server.add_insecure_port("[%s]:%s" %(GRPC_IP, GRPC_PORT))
+            grpc_server.add_insecure_port("[%s]:%s" % (GRPC_IP, GRPC_PORT))
     # Setup ip route
     if ip_route is not None:
         logger.error("IP Route is already setup")
@@ -98,10 +95,11 @@ def start_server():
     for interface in interfaces:
         idxs[interface] = ip_route.link_lookup(ifname=interface)[0]
     # Start the loop for gRPC
-    logger.info("Listening gRPC")
+    logger.info("Listening gRPC_ROUTE on Port: " + str(GRPC_PORT))
     grpc_server.start()
     while True:
         time.sleep(5)
+
 
 # Parse options
 def parse_options():
@@ -123,6 +121,7 @@ def parse_options():
         SECURE = False
     SERVER_DEBUG = logger.getEffectiveLevel() == logging.DEBUG
     logger.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
+
 
 if __name__ == "__main__":
     parse_options()
