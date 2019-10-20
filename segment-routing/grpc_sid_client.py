@@ -44,11 +44,11 @@ class gRPC_SID():
     sid_stub,channel = self.get_grpc_session(self.REMOTE_SERVER_IP, self.REMOTE_SERVER_PORT, SECURE)
     sid_request = sid_management_pb2.SIDMessage()
     sid = sid_request.sid.add()
-    sid.SID = "1::d6"
-    sid.SID_BEHAVIOR  = "end.dx6"
-    sid.IP_ADDR  = "2:f3::f3"
-    sid.TARGET_IF  = "eth1"
-    sid.SOURCE_IF  = "eth0"
+    sid.SID = "4::"
+    sid.SID_BEHAVIOR  = "end"
+    sid.IP_ADDR  = ""
+    sid.TARGET_IF  = ""
+    sid.SOURCE_IF  = ""
 
 
     response = sid_stub.AddSID(sid_request)
@@ -58,24 +58,7 @@ class gRPC_SID():
 
 if __name__ == '__main__':
     print('me executou pelo terminal')
-    sid_agent = gRPC_SID("192.168.0.103",12345, "")
-    sid_agent.data = """
-      [
-        {
-          "paths": [
-            {
-              "via": "1:2::2",
-              "device": "eth2",
-              "destination": "b::/64",
-              "encapmode": "encap",
-              "segments": [
-                "2::AD6:F1"
-              ]
-            }
-          ]
-        }
-      ]
-      """
+    sid_agent = gRPC_SID("192.168.0.202",123456, "")
     sid_agent.main()
 else:
     print('me executou como um módulo')

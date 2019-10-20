@@ -36,7 +36,7 @@ class iDomainInformationBase:
             logging.error("Apache Geode - iDomainInformationBase - Error to Insert data to Repository - Data Empty")
             return
 
-        geode_host = "10.9.0.1"
+        geode_host = "191.234.188.131"
         geode_port = "8080"
         url = "http://" + geode_host + ":" + geode_port + "/geode/v1/"+str(region)+"/"+str(key)+"?op=PUT"
 
@@ -159,6 +159,6 @@ class iDomainInformationBase:
         return
 
 if __name__ == "__main__":
-    ioib = iOrchestrationInformationBase()
+    ioib = iDomainInformationBase()
     #ioib.geode_syncronization()
     ioib.insert_datakey_into_region("regionA", 1)
