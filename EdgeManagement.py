@@ -8,7 +8,7 @@ Date: 29/10/2019
 
 
 import paramiko, sys, logging
-
+logging.basicConfig(level=logging.DEBUG)
 
 class EdgeManagement:
 
@@ -24,13 +24,9 @@ class EdgeManagement:
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(host, username=user, password=password)
 
-        print("Running the command: "+str(command))
-
         ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(command)
 
-        logging.debug("Command sent")
-        #logging.debug("Command output: "+str(ssh_stdout.read()))
-        print("Command output: "+str(ssh_stdout.read()))
+        logging.debug("Command output: "+str(ssh_stdout.read()))
 
         ssh.close()
 

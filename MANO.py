@@ -11,12 +11,13 @@ yaml.warnings({'YAMLLoadWarning': False})
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+logging.basicConfig(level=logging.DEBUG)
+
 #logging.debug('This is a debug message')
 #logging.info('This is an info message')
 #logging.warning('This is a warning message')
 #logging.error('This is an error message')
 #logging.critical('This is a critical message')
-#logging.basicConfig(level=logging.DEBUG)
 #logging.basicConfig(filename='app.log', filemode='w', format='%(name)s - %(levelname)s - %(message)s')
 
 class MANO:
@@ -371,26 +372,27 @@ class MANO:
 
     def vnfd_yaml_interpreter(self):
         if self.VNFD['vnfd'][0]['name'] == 'lw-dns':
-            print("Pronto para chamar os comandos remotos")
-            return
+
             docker_image_pull = "sudo docker pull sameersbn/bind:latest"
 
-            docker_deploy = "sudo docker run -d --name=bind --dns=127.0.0.1 \
+            subprocess.call(
+                ['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', docker_image_pull])
+
+            docker_deploy = "sudo docker run -d --name=bind --dns=8.8.8.8 \
                        --publish=53:53/udp --publish=10000:10000 \
                        --volume=/srv/docker/bind:/data \
                        --env='ROOT_PASSWORD=bind' \
                        sameersbn/bind:latest"
 
-            subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', docker_image_pull])
             subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', docker_deploy])
-            logging.debug("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude")
-            print("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude")
 
             edge_docker_ovs_config = "cd /usr/bin && sudo wget https://raw.githubusercontent.com/openvswitch/ovs/master/utilities/ovs-docker && sudo chmod a+rwx ovs-docker"
             subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', edge_docker_ovs_config])
 
             edge_docker_ovs_attach = "sudo ovs-docker add-port ovs-br1 eth1 bind --ipaddress=192.168.0.1/24"
             subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', edge_docker_ovs_attach])
+
+            logging.debug("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude: ")
 
         else:
             print("Deploy dns as bare metal - Should USE OSM")
