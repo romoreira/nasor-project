@@ -182,8 +182,10 @@ class NANO(Thread):
         logger.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
 
 if __name__ == '__main__':
-
+    print('me executou pelo terminal - NANO')
     nano_listenner = NANO(4,NANO.NSTD,16735)
     nano_listenner.setName('NANO Listenner 1')
     nano_listenner.start()
     nano_listenner.join()
+else:
+    print('me executou como um modulo - NANO')

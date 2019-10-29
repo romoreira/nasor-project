@@ -5,12 +5,11 @@ Date: 06/09/2019
 
 #https://opendev.org/x/microstack
 
-import yaml, requests, json, logging, glob, os
+import yaml, requests, json, logging, subprocess
 yaml.warnings({'YAMLLoadWarning': False})
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 
 #logging.debug('This is a debug message')
 #logging.info('This is an info message')
@@ -27,8 +26,8 @@ class MANO:
     OSM_TOKEN_ID = ""
 
     def __init__(self, NSD, VNFD):
-        self.NSD = ""
-        self.VNFD = ""
+        self.NSD = NSD
+        self.VNFD = VNFD
 
     def get_vim_id(self, VIM_NAME):
         osm_host = "10.8.0.1"
@@ -370,13 +369,58 @@ class MANO:
             logging.error("OSM "+osm_host+" Unreacheable")
             return
 
-if __name__ == "__main__":
-    mano_worker = MANO("","")
+    def vnfd_yaml_interpreter(self):
+        if self.VNFD['vnfd'][0]['name'] == 'lw-dns':
+            print("Pronto para chamar os comandos remotos")
+            return
+            docker_image_pull = "sudo docker pull sameersbn/bind:latest"
+
+            docker_deploy = "sudo docker run -d --name=bind --dns=127.0.0.1 \
+                       --publish=53:53/udp --publish=10000:10000 \
+                       --volume=/srv/docker/bind:/data \
+                       --env='ROOT_PASSWORD=bind' \
+                       sameersbn/bind:latest"
+
+            subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', docker_image_pull])
+            subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', docker_deploy])
+            logging.debug("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude")
+            print("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude")
+
+            edge_docker_ovs_config = "cd /usr/bin && sudo wget https://raw.githubusercontent.com/openvswitch/ovs/master/utilities/ovs-docker && sudo chmod a+rwx ovs-docker"
+            subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', edge_docker_ovs_config])
+
+            edge_docker_ovs_attach = "sudo ovs-docker add-port ovs-br1 eth1 bind --ipaddress=192.168.0.1/24"
+            subprocess.call(['python', 'EdgeManagement.py', '191.234.185.132', 'ubuntu', 'S3nhaportalazure+', edge_docker_ovs_attach])
+
+        else:
+            print("Deploy dns as bare metal - Should USE OSM")
+
+if __name__ == '__main__':
+    print('me executou pelo terminal - MANO')
+    mano_worker = MANO("", "")
+    # mano_worker.read_nsd_temporary()
+    # mano_worker.osm_connector()
+    # mano_worker.vnfd_untar()
+    # print(str(mano_worker.nsd_untar()))
+    mano_worker.osm_connector()
+    # mano_worker.post_vnfd("","")
+    # mano_worker.post_nsd("", "")
+    # mano_worker.ns_get_id("cirros_2vnf_ns")
+    # mano_worker.vim_get_id("")
+    # ns_id = mano_worker.crete_ns("Network Service Test","cirros_2vnf_ns","")
+    # mano_worker.instantiate_ns(ns_id,"")
+    # mano_worker.create_instantiate_ns("teste","cirros_2vnf_ns","")
+    # mano_worker.get_ns_id("teste","")
+    # print(mano_worker.terminate_ns("teste",""))
+    # print(mano_worker.delete_ns("teste",""))
+else:
+    print('me executou como um módulo - MANO')
+    #mano_worker = MANO("","")
     #mano_worker.read_nsd_temporary()
     #mano_worker.osm_connector()
     #mano_worker.vnfd_untar()
     #print(str(mano_worker.nsd_untar()))
-    mano_worker.osm_connector()
+    #mano_worker.osm_connector()
     #mano_worker.post_vnfd("","")
     #mano_worker.post_nsd("", "")
     #mano_worker.ns_get_id("cirros_2vnf_ns")

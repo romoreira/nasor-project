@@ -7,7 +7,8 @@ Date: 06/09/2019
 #https://osm-download.etsi.org/ftp/osm-6.0-six/7th-hackfest/presentations/
 # Each Service Builder in each Domain is able to receive NST to proced with Service Deployment
 
-import requests, json, logging, glob, os
+import logging, glob, os
+
 import yaml
 import NANO
 import MANO
@@ -86,6 +87,12 @@ class ServiceBuilder:
         print(self.NSD)
 
 
+    def read_vnfd(self):
+        with open("./ns/lw-dns_vnfd.yaml", 'r') as stream:
+            VNFD = yaml.safe_load(stream)
+
+        self.VNFD = VNFD['vnfd:vnfd-catalog']
+
     def read_nstd(self):
         with open("./ns/cirros_nstd.yaml", 'r') as stream:
             NSTD = yaml.safe_load(stream)
@@ -104,11 +111,12 @@ class ServiceBuilder:
         nano.eDomain_slice_builder()
 
     def virtual_network_function_description(self):
-        mano = MANO.MANO(self.VNFD)
+        mano = MANO.MANO("", self.VNFD)
         mano.vnfd_yaml_interpreter()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    print('me executou pelo terminal - ServiceBuilder')
     sb = ServiceBuilder()
     #sb.read_nsd()
 
@@ -116,10 +124,30 @@ if __name__ == "__main__":
     Splitting YAML service descriptor to OSM and NANO to provide Network Slice Builder
     """
 
-    sb.read_nstd()
-    sb.network_slice_template()
+    #sb.read_nstd()
+    #sb.network_slice_template()
 
 
-    #sb.virtual_network_function_description()
+
+    sb.read_vnfd()
+    sb.virtual_network_function_description()
+    #sb.vnfd_untar()
+    #sb.nsd_untar()
+else:
+    print('me executou como um módulo')
+    sb = ServiceBuilder()
+    #sb.read_nsd()
+
+    """
+    Splitting YAML service descriptor to OSM and NANO to provide Network Slice Builder
+    """
+
+    #sb.read_nstd()
+    #sb.network_slice_template()
+
+
+
+    sb.read_vnfd()
+    sb.virtual_network_function_description()
     #sb.vnfd_untar()
     #sb.nsd_untar()
