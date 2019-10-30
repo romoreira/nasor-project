@@ -370,8 +370,11 @@ class MANO:
             logging.error("OSM "+osm_host+" Unreacheable")
             return
 
-    def vnfd_yaml_interpreter(self):
-        if self.VNFD['vnfd'][0]['name'] == 'lw-dns':
+    def vnfd_yaml_interpreter(self, VNF_NAME):
+        if self.VNFD['vnfd:vnfd-catalog']['vnfd'][0]['vendor'] == str(VNF_NAME):
+            logging.debug("Deploying VNF as Docker Container")
+            return
+
 
             docker_image_pull = "sudo docker pull sameersbn/bind:latest"
 
@@ -394,8 +397,8 @@ class MANO:
 
             logging.debug("VNF Deployed on Edge. Device: " + "" + " Latitude: Longitude: ")
 
-        else:
-            print("Deploy dns as bare metal - Should USE OSM")
+        elif self.VNFD['vnfd:vnfd-catalog']['vnfd'][0]['vendor'] == str("OSM"):
+            logging.debug("Deploying VNF as VM in Bare-Metal")
 
 if __name__ == '__main__':
     print('me executou pelo terminal - MANO')

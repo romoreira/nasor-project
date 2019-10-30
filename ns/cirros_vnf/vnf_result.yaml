@@ -1,0 +1,32 @@
+vnfd:vnfd-catalog:
+  vnfd:
+  - connection-point:
+    - name: eth0
+      type: VPORT
+    description: Simple VNF example with a cirros
+    id: cirros_vnfd
+    logo: cirros-64.png
+    mgmt-interface:
+      cp: eth0
+    name: cirros_vnf
+    short-name: cirros_vnf
+    vdu:
+    - count: 1
+      description: cirros_vnfd-VM
+      id: cirros_vnfd-VM
+      image: cirros034
+      interface:
+      - external-connection-point-ref: eth0
+        name: eth0
+        type: EXTERNAL
+        virtual-interface:
+          bandwidth: '0'
+          type: VIRTIO
+          vpci: 0000:00:0a.0
+      name: cirros_vnfd-VM
+      vm-flavor:
+        memory-mb: 256
+        storage-gb: 2
+        vcpu-count: 1
+    vendor: OSM
+    version: '1.0'

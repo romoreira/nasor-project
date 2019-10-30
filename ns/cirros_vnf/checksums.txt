@@ -1,0 +1,2 @@
+4f46f4d22678dbeda79b7a35da27c3f5  cirros_vnfd.yaml
+446d48a83c17eeae5eab906883092db5  icons/cirros-64.png
