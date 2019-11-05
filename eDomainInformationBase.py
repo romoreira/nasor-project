@@ -164,3 +164,16 @@ if __name__ == "__main__":
     #oib.get_region_keys("regionA")
     #oib.get_region_servers("")
     #oib.delete_data_from_region("regionA", 1)
+
+if __name__ == '__main__':
+    logging.debug('Running by IDE - eDomainInformationBase')
+    eoib = eDomainInformationBase()
+    #oib.geode_syncronization()
+    eoib.insert_datakey_into_region("regionA",1)
+    #oib.get_data_from_region("regionA")
+    #oib.get_region_keys("regionA")
+    #oib.get_region_servers("")
+    #oib.delete_data_from_region("regionA", 1)
+
+else:
+    logging.debug('Imported in somewhere place - eDomainInformationBase')

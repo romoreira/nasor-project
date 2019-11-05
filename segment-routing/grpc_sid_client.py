@@ -8,6 +8,9 @@ import grpc
 import sid_management_pb2_grpc
 import sid_management_pb2
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 # Define wheter to use SSL or not
 SECURE = False
 # SSL cerificate for server validation
@@ -57,8 +60,8 @@ class gRPC_SID():
 
 
 if __name__ == '__main__':
-    print('me executou pelo terminal')
+    logging.debug('Imported by IDE - grpc_sid_client')
     sid_agent = gRPC_SID("192.168.0.202",123456, "")
     sid_agent.main()
 else:
-    print('me executou como um módulo')
+    logging.debug('Imported in somewhereplace - grpc_sid_client')

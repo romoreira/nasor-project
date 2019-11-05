@@ -16,7 +16,7 @@ Date: 10/09/2019
 #http://www.occaid.org/tutorial-ipv6bgp.html
 
 from optparse import OptionParser
-import json, logging, time, socket, sys, pycos
+import json, logging, sys
 import CoreDomainTopology
 import eDomainInformationBase
 import iDomainInformationBase
@@ -26,7 +26,7 @@ import grpc_client
 import grpc_sid_client
 
 # logger reference
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.DEBUG)
 
 import InterOrchestratorExchange
 import IOExClient
@@ -182,10 +182,10 @@ class NANO(Thread):
         logger.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
 
 if __name__ == '__main__':
-    print('me executou pelo terminal - NANO')
+    logging.debug('Running by IDE - NANO')
     nano_listenner = NANO(4,NANO.NSTD,16735)
     nano_listenner.setName('NANO Listenner 1')
     nano_listenner.start()
     nano_listenner.join()
 else:
-    print('me executou como um modulo - NANO')
+    logging.debug('Impomrted in somewhere place - NANO')

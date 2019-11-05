@@ -401,7 +401,7 @@ class MANO:
             logging.debug("Deploying VNF as VM in Bare-Metal")
 
 if __name__ == '__main__':
-    print('me executou pelo terminal - MANO')
+    logging.debug('Running by IDE - MANO')
     mano_worker = MANO("", "")
     # mano_worker.read_nsd_temporary()
     # mano_worker.osm_connector()
@@ -419,7 +419,7 @@ if __name__ == '__main__':
     # print(mano_worker.terminate_ns("teste",""))
     # print(mano_worker.delete_ns("teste",""))
 else:
-    print('me executou como um módulo - MANO')
+    logging.debug('Imported in somewhere place - MANO')
     #mano_worker = MANO("","")
     #mano_worker.read_nsd_temporary()
     #mano_worker.osm_connector()

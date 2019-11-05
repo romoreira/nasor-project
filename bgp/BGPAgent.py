@@ -43,7 +43,7 @@ class BGPAgent(Thread):
     def run(self):
         while True:
             if self.get_routes_state() != str(self.hash_route_string(str(self.list_routes()))):
-                print("As rotas mudaram fazer algo")
+                print("As rotas mudaram fazer algo - Envia Para o CoreSliceDomain as Novas Rotas")
                 self.set_routes_state(self.hash_route_string(str(self.list_routes())))
             else:
                 print("As rotas nao mudaram - nada a fazer - dormir por tres segundos")

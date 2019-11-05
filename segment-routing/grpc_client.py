@@ -21,6 +21,9 @@ Segment Routing Enabled Wide Area Networks" shows that.
 import grpc
 import json
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 import srv6_explicit_path_pb2_grpc
 import srv6_explicit_path_pb2
 
@@ -150,6 +153,7 @@ class gRPC_Route():
           channel.close()
 
 if __name__ == '__main__':
+    logging.debug('Running by IDE - grpc_client')
 
     route_agent = gRPC_Route("192.168.0.202",12345, "")
     route_agent.data = """
@@ -171,4 +175,4 @@ if __name__ == '__main__':
       """
     route_agent.main()
 else:
-    print('me executou como um módulo')
+    logging.debug('Imported in somewhereplace - grpc_client')

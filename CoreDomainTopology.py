@@ -11,6 +11,9 @@ Date: 05/09/2019
 # To be defined further
 import networkx as nx
 import eDomainInformationBase
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 class CoreTopology:
 
@@ -59,3 +62,9 @@ class CoreTopology:
     def get_peering_iface(self, asn):
         edib = eDomainInformationBase()
         edib.get_data_from_region("regionA")
+
+if __name__ == '__main__':
+    logging.debug('Running by IDE - CoreDomainTopology')
+
+else:
+    logging.debug('Imported in somewhere place - CoreDomainTopology')

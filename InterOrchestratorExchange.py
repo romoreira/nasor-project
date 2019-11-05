@@ -7,9 +7,9 @@ Date: 27/08/2019
 #https://github.com/Exa-Networks/exabgp
 #LINK Rest API Apache Geode: https://geode.apache.org/docs/guide/11/rest_apps/develop_rest_apps.html
 
-import socket, sys, pycos, csv, yaml
+import socket, sys, pycos, csv, logging
 
-
+logging.basicConfig(level=logging.DEBUG)
 
 OIB = ''
 
@@ -48,7 +48,10 @@ def nano_slice_receier():
         if cmd == 'exit' or cmd == 'quit':
             break
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
+    logging.debug('Running by IDE - InterOrchestratorExchange')
     oib_loader()
     nano_slice_receier()
+
+else:
+    logging.debug('Imported in somewhere place - InterOrchestratorExchange')

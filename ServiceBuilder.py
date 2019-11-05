@@ -13,7 +13,7 @@ import yaml
 import NANO
 import MANO
 
-
+logging.basicConfig(level=logging.DEBUG)
 
 
 class ServiceBuilder:
@@ -133,13 +133,13 @@ class ServiceBuilder:
 
 
 if __name__ == '__main__':
-    print('me executou pelo terminal - ServiceBuilder')
+    logging.debug('Running by IDE - ServiceBuilder')
     sb = ServiceBuilder()
 
     '''VNF Onboarding'''
-    vnfd_dir_name = sb.vnfd_untar()
-    sb.search_vnf_yaml("./cirros_vnf")
-    sb.virtual_network_function_description("Docker")
+    #vnfd_dir_name = sb.vnfd_untar()
+    #sb.search_vnf_yaml("./cirros_vnf")
+    #sb.virtual_network_function_description("Docker")
 
 
     '''Slice Template Onboarding'''
@@ -149,13 +149,12 @@ if __name__ == '__main__':
 
     '''NS Onboarding'''
     #ns_dir_name = sb.nsd_untar()
-
     #sb.read_nsd()
 
 
 
 else:
-    print('me executou como um módulo')
+    logging.debug('Imported in somewhere place - ServiceBuilder')
     sb = ServiceBuilder()
     #sb.read_nsd()
     #sb.read_nstd()
