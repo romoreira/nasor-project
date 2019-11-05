@@ -53,7 +53,7 @@ class BGPAgent(Thread):
             time.sleep(secondsToSleep)
 
 if __name__ == '__main__':
-    logging.debug('me executou pelo terminal - MANO')
+    logging.debug('Running by IDE - BGPAgent')
 
 
     routeListener = BGPAgent("192.168.0.105")
@@ -67,4 +67,4 @@ if __name__ == '__main__':
 
 
 else:
-    print('me executou como um módulo - Importado em algum lugar')
+    logging.debug('Imported in somwhere place - BGPAgent')
