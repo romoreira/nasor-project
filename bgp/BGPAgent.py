@@ -4,8 +4,6 @@ Date: 04/11/2019
 """
 import time
 from _socket import AF_INET
-from array import array
-from random import randint
 from pyroute2 import IPRoute
 from threading import Thread
 import logging
