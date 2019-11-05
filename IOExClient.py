@@ -32,7 +32,7 @@ def nstd_nano_exchange(SOURCE, NSTD, NANO_TARGET_AGENT):
     print("YAML Message: "+str(yaml_message))
 
     for n in range(1, 2):
-            teste = pycos.Task(speaker_proc, NANO_TARGET_AGENT, 8010, n)
+            teste = pycos.Task(speaker_proc, NANO_TARGET_AGENT, 8011, n)
 
     print("Sent NSTD to NANO Agent: "+str(NANO_TARGET_AGENT))
 
@@ -61,7 +61,7 @@ def listenner_proc(host, port, task=None):
 
 def oib_receier():
 
-    pycos.Task(listenner_proc, '127.0.0.1', 8010)
+    pycos.Task(listenner_proc, '192.168.0.105', 8011)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
@@ -69,4 +69,4 @@ def oib_receier():
 ######################################-Receiver-#######################################
 
 if __name__ == "__main__":
-    nstd_nano_exchange()
+    nstd_nano_exchange("SOURCE","NSTD","192.168.0.105")

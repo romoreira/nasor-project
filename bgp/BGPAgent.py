@@ -8,6 +8,8 @@ from pyroute2 import IPRoute
 from threading import Thread
 import logging
 import hashlib
+import pycos
+import socket
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -40,13 +42,25 @@ class BGPAgent(Thread):
     def set_routes_state(self, routes_state):
         self.routes_state = routes_state
 
+    def speaker_proc(host, port, n, task=None):
+        # Create a TCP Socket over port 8011 - we may change it further - with pycos we can create more than one socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = pycos.AsyncSocket(sock)
+        yield sock.connect((host, port))
+        msg = str(BGPAgent.list_routes("")) + '/'
+        msg = msg.encode()
+        yield sock.sendall(msg)
+        sock.close()
+
     def run(self):
         while True:
             if self.get_routes_state() != str(self.hash_route_string(str(self.list_routes()))):
-                print("As rotas mudaram fazer algo - Envia Para o CoreSliceDomain as Novas Rotas")
+                logging.debug("The routes were changed - Sent it to BGPServer")
                 self.set_routes_state(self.hash_route_string(str(self.list_routes())))
+                for n in range(1, 2):
+                    teste = pycos.Task(BGPAgent.speaker_proc, "192.168.0.105", 8011, n)
             else:
-                print("As rotas nao mudaram - nada a fazer - dormir por tres segundos")
+                logging.info("As rotas nao mudaram - nada a fazer - dormir por tres segundos")
 
             # Sleep for random time between 1 ~ 3 second
             secondsToSleep = 3
@@ -59,12 +73,10 @@ if __name__ == '__main__':
     routeListener = BGPAgent("192.168.0.105")
     routeListener.setName('Thread-Router-192.168.0.10')
 
-    print("Antes de Executar a Thread o estado das rotas e: "+routeListener.get_routes_state())
+    logging.debug("Antes de Executar a Thread o estado das rotas e: "+routeListener.get_routes_state())
 
     routeListener.start()
 
 
-
-
 else:
-    logging.debug('Imported in somwhere place - BGPAgent')
+    logging.debug('Imported in somewhere place - BGPAgent')

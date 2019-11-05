@@ -19,7 +19,7 @@ def oib_loader():
         for row in OIB:
             print(row)
 
-def listenner(conn, task=None):
+def listener(conn, task=None):
     data = ''
     while True:
         data += (yield conn.recv(128)).decode('utf-8')
@@ -29,7 +29,7 @@ def listenner(conn, task=None):
     print('Received: %s' % data)
     print("NANO RECEBEU UM NSTD - DEVE CRIAR O SLICE NO SEU DOMINIO")
 
-def listenner_proc(host, port, task=None):
+def listener_proc(host, port, task=None):
     task.set_daemon()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = pycos.AsyncSocket(sock)
@@ -38,11 +38,11 @@ def listenner_proc(host, port, task=None):
 
     while True:
         conn, addr = yield sock.accept()
-        pycos.Task(listenner, conn)
+        pycos.Task(listener, conn)
 
 def nano_slice_receier():
 
-    pycos.Task(listenner_proc, '192.168.0.104', 8010)
+    pycos.Task(listener_proc, '192.168.0.104', 8010)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
