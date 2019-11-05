@@ -52,23 +52,38 @@ class BGPAgent(Thread):
         yield sock.sendall(msg)
         sock.close()
 
-    def run(self):
-        while True:
-            if self.get_routes_state() != str(self.hash_route_string(str(self.list_routes()))):
-                logging.debug("The routes were changed - Sent it to BGPServer")
-                self.set_routes_state(self.hash_route_string(str(self.list_routes())))
-                for n in range(1, 2):
-                    teste = pycos.Task(BGPAgent.speaker_proc, "192.168.0.105", 8011, n)
-            else:
-                logging.info("As rotas nao mudaram - nada a fazer - dormir por tres segundos")
+    def speaker_proc_register(host, port, n, task=None):
+        # Create a TCP Socket over port 8011 - we may change it further - with pycos we can create more than one socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = pycos.AsyncSocket(sock)
+        yield sock.connect((host, port))
+        msg = str("ROUTER_IP: 192.168.0.202;ASN: 16735") + '/'
+        msg = msg.encode()
+        yield sock.sendall(msg)
+        sock.close()
 
-            # Sleep for random time between 1 ~ 3 second
-            secondsToSleep = 3
-            time.sleep(secondsToSleep)
+    def register_to_bgp_server(self):
+        logging.debug("Registering on DomainBGP Server - after it will able to reach the router")
+        for n in range(1, 2):
+            teste = pycos.Task(BGPAgent.speaker_proc_register, "192.168.0.105", 8012, n)
+
+    def run(self):
+        self.register_to_bgp_server()
+        # while True:
+        #     if self.get_routes_state() != str(self.hash_route_string(str(self.list_routes()))):
+        #         logging.debug("The routes were changed - Sent it to BGPServer")
+        #         self.set_routes_state(self.hash_route_string(str(self.list_routes())))
+        #         for n in range(1, 2):
+        #             teste = pycos.Task(BGPAgent.speaker_proc, "192.168.0.105", 8011, n)
+        #     else:
+        #         logging.info("As rotas nao mudaram - nada a fazer - dormir por tres segundos")
+        #
+        #     # Sleep for random time between 1 ~ 3 second
+        #     secondsToSleep = 3
+        #     time.sleep(secondsToSleep)
 
 if __name__ == '__main__':
     logging.debug('Running by IDE - BGPAgent')
-
 
     routeListener = BGPAgent("192.168.0.105")
     routeListener.setName('Thread-Router-192.168.0.10')
@@ -76,7 +91,6 @@ if __name__ == '__main__':
     logging.debug("Antes de Executar a Thread o estado das rotas e: "+routeListener.get_routes_state())
 
     routeListener.start()
-
 
 else:
     logging.debug('Imported in somewhere place - BGPAgent')
