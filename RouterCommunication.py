@@ -14,7 +14,7 @@ def listener(conn, task=None):
         if data[-1] == '/':
            break
     conn.close()
-    logging.debug("Received from Router: "+str(data))
+    logging.debug("Received from BGPAgent: "+str(data))
 
 def listener_proc(host, port, task=None):
     task.set_daemon()
@@ -29,7 +29,7 @@ def listener_proc(host, port, task=None):
 
 def routes_modification_listener():
 
-    pycos.Task(listener_proc, '192.168.0.105', 8011)
+    pycos.Task(listener_proc, '192.168.0.104', 8011)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':

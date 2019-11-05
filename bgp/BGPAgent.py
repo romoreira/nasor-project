@@ -10,17 +10,20 @@ import logging
 import hashlib
 import pycos
 import socket
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 
 class BGPAgent(Thread):
 
-    router_id = ""
+    global router_domain
+    global router_id
     routes_state = ""
 
-    def __init__(self, ROUTER_ID):
+    def __init__(self, ROUTER_ID, ROUTER_DOMAIN):
         Thread.__init__(self)
         self.router_id = ROUTER_ID
+        self.router_domain = ROUTER_DOMAIN
         self.routes_state = self.hash_route_string(str(self.list_routes()))
 
 
@@ -52,11 +55,18 @@ class BGPAgent(Thread):
         yield sock.sendall(msg)
         sock.close()
 
-    def speaker_proc_register(host, port, n, task=None):
+    def speaker_proc_register_in_bgp_server(host, port, n, task=None):
         # Create a TCP Socket over port 8011 - we may change it further - with pycos we can create more than one socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock = pycos.AsyncSocket(sock)
         yield sock.connect((host, port))
+
+        print(router_domain)
+        json_msg = """{ "router-id": %s, "asn": %s }"""
+        json_msg = str(json_msg % (BGPAgent.router_id, BGPAgent.router_domain))
+        print(str(json_msg))
+        return
+
         msg = str("ROUTER_IP: 192.168.0.202;ASN: 16735") + '/'
         msg = msg.encode()
         yield sock.sendall(msg)
@@ -65,7 +75,7 @@ class BGPAgent(Thread):
     def register_to_bgp_server(self):
         logging.debug("Registering on DomainBGP Server - after it will able to reach the router")
         for n in range(1, 2):
-            teste = pycos.Task(BGPAgent.speaker_proc_register, "192.168.0.105", 8012, n)
+            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.104", 8012, n)
 
     def run(self):
         self.register_to_bgp_server()
@@ -85,8 +95,8 @@ class BGPAgent(Thread):
 if __name__ == '__main__':
     logging.debug('Running by IDE - BGPAgent')
 
-    routeListener = BGPAgent("192.168.0.105")
-    routeListener.setName('Thread-Router-192.168.0.10')
+    routeListener = BGPAgent("192.168.0.202", "16735")
+    routeListener.setName('Router-Name')
 
     logging.debug("Antes de Executar a Thread o estado das rotas e: "+routeListener.get_routes_state())
 
