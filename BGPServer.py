@@ -44,7 +44,7 @@ class BGPServer(Thread):
 
     def run(self):
         logging.debug("BGPServer is waiting for new Router Register Request")
-        pycos.Task(BGPServer.listener_proc, '192.168.0.104', 8012)
+        pycos.Task(BGPServer.listener_proc, '192.168.0.102', 8012)
         while True:
             cmd = sys.stdin.readline().strip().lower()
             if cmd == 'exit' or cmd == 'quit':

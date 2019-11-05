@@ -16,8 +16,9 @@ logging.basicConfig(level=logging.DEBUG)
 
 class BGPAgent(Thread):
 
-    global router_domain
-    global router_id
+    router_domain = "16735"
+    router_id = "192.168.0.202"
+
     routes_state = ""
 
     def __init__(self, ROUTER_ID, ROUTER_DOMAIN):
@@ -26,6 +27,11 @@ class BGPAgent(Thread):
         self.router_domain = ROUTER_DOMAIN
         self.routes_state = self.hash_route_string(str(self.list_routes()))
 
+    def get_router_domain(self):
+        return self.router_domain
+
+    def get_router_id(self):
+        return self.router_id
 
     def hash_route_string(self, routes):
         hash_object = hashlib.sha256(routes.encode('utf-8'))
@@ -61,21 +67,19 @@ class BGPAgent(Thread):
         sock = pycos.AsyncSocket(sock)
         yield sock.connect((host, port))
 
-        print(router_domain)
-        json_msg = """{ "router-id": %s, "asn": %s }"""
+        json_msg = """{"router-id": "%s", "asn": "%s"}"""
         json_msg = str(json_msg % (BGPAgent.router_id, BGPAgent.router_domain))
-        print(str(json_msg))
-        return
 
-        msg = str("ROUTER_IP: 192.168.0.202;ASN: 16735") + '/'
+        msg = str(json_msg) + '/'
         msg = msg.encode()
         yield sock.sendall(msg)
         sock.close()
+        logging.debug("BGPAgent - Register Request sent to BGPServer")
 
     def register_to_bgp_server(self):
         logging.debug("Registering on DomainBGP Server - after it will able to reach the router")
         for n in range(1, 2):
-            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.104", 8012, n)
+            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.102", 8012, n)
 
     def run(self):
         self.register_to_bgp_server()
@@ -84,7 +88,7 @@ class BGPAgent(Thread):
         #         logging.debug("The routes were changed - Sent it to BGPServer")
         #         self.set_routes_state(self.hash_route_string(str(self.list_routes())))
         #         for n in range(1, 2):
-        #             teste = pycos.Task(BGPAgent.speaker_proc, "192.168.0.105", 8011, n)
+        #             teste = pycos.Task(BGPAgent.speaker_proc, "192.168.0.102", 8011, n)
         #     else:
         #         logging.info("As rotas nao mudaram - nada a fazer - dormir por tres segundos")
         #
