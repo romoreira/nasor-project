@@ -143,8 +143,8 @@ if __name__ == '__main__':
 
 
     '''Slice Template Onboarding'''
-    #sb.read_nstd()
-    #sb.network_slice_template()
+    sb.read_nstd()
+    sb.network_slice_template()
 
 
     '''NS Onboarding'''

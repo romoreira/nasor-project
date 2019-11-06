@@ -21,6 +21,11 @@ import CoreDomainTopology
 import eDomainInformationBase
 import iDomainInformationBase
 
+import getpass
+import sys
+import telnetlib
+
+
 sys.path.insert(1, './segment-routing')
 import grpc_client
 import grpc_sid_client
@@ -59,11 +64,36 @@ class NANO(Thread):
         self.ASes = self.NSTD[0]['asns']
         return ct.neighborhood_check(str(self.NSTD[0]['asns']))
 
+    def telnet_agent(self):
+
+        HOST = "192.168.0.202"
+        user = ""
+        password = "zebra\r\n"
+        command = "show ipv6 bgp\r\n"
+
+        tn = telnetlib.Telnet(HOST, 2605)
+
+        l = tn.read_until("Password: ".encode())
+        print("Primeira tela ao requisitar login: " + str(l))
+
+        tn.write(password.encode())
+        l = tn.read_until("border> ".encode())
+        print("Resultado pos entrar com password: " + str(l))
+
+        tn.write(command.encode())
+        l = tn.read_until("Total number of prefixes".encode()).decode()
+        print("Resultado Comando: " + str(l))
+        tn.close()
+
     def eDomain_slice_builder(self):
 
         self.nst_yaml_interpreter(self)
 
         edib = eDomainInformationBase.eDomainInformationBase()
+
+        print(self.NSTD)
+        self.telnet_agent()
+        return
 
         #Check if ASN are neighbor
         if self.nst_yaml_interpreter(self.NSTD):
