@@ -124,7 +124,7 @@ class ServiceBuilder:
         self.VNFD = NSD['nsd:nsd-catalog']
 
     def network_slice_template(self):
-        nano = NANO.NANO(1,self.NSTD,16735)
+        nano = NANO.NANO(1,self.NSTD,26599)
         nano.eDomain_slice_builder()
 
     def virtual_network_function_description(self, VNF_NAME):

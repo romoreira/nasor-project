@@ -1,2 +1,3 @@
 domain_id,asn_name,asn,topology_agent,router_ingress_mgmt,switch_ingress_mgmt,switch_egress_mgmt,router_ingress_iface,swtich_ingress_iface,mano_entity
 1,"AlgarTelecomSA",16735,200.19.151.100,"192.168.0.201","100.100.100.123","100.100.100.125","veth1_1","enp2s0","192.168.0.100"
+2,"Telefonica",26599,"200.19.151.187","192.168.0.200","192.168.0.200","192.168.0.10","eth0","eth1","192.168.0.100"
