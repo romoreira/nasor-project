@@ -10,7 +10,7 @@ import logging
 import hashlib
 import pycos
 import socket
-import json
+from datetime import datetime
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -18,6 +18,7 @@ class BGPAgent(Thread):
 
     router_domain = "16735"
     router_id = "192.168.0.202"
+    timestamp = ""
 
     routes_state = ""
 
@@ -67,8 +68,12 @@ class BGPAgent(Thread):
         sock = pycos.AsyncSocket(sock)
         yield sock.connect((host, port))
 
-        json_msg = """{"router-id": "%s", "asn": "%s"}"""
-        json_msg = str(json_msg % (BGPAgent.router_id, BGPAgent.router_domain))
+        # current date and time
+        now = datetime.now()
+        BGPAgent.timestamp = datetime.timestamp(now)
+
+        json_msg = """{"router-id": "%s", "asn": "%s", "timestamp": "%s"}"""
+        json_msg = str(json_msg % (BGPAgent.router_id, BGPAgent.router_domain, BGPAgent.timestamp))
 
         msg = str(json_msg) + '/'
         msg = msg.encode()
@@ -79,7 +84,7 @@ class BGPAgent(Thread):
     def register_to_bgp_server(self):
         logging.debug("Registering on DomainBGP Server - after it will able to reach the router")
         for n in range(1, 2):
-            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.102", 8012, n)
+            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.105", 8012, n)
 
     def run(self):
         self.register_to_bgp_server()
