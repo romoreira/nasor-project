@@ -42,7 +42,7 @@ def listener_proc(host, port, task=None):
 
 def nano_slice_receier():
 
-    pycos.Task(listener_proc, '192.168.0.104', 8010)
+    pycos.Task(listener_proc, '192.168.0.105', 8010)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
