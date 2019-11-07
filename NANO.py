@@ -14,12 +14,18 @@ Date: 10/09/2019
 #https://openmaniak.com/quagga_tutorial.php
 #https://blog.codybunch.com/2016/07/12/Getting-started-with-BGP-on-Linux-with-Cumuls-Quagga/
 #http://www.occaid.org/tutorial-ipv6bgp.html
-
+from io import StringIO
 from optparse import OptionParser
 import json, logging, sys
+
+import read as read
+
 import CoreDomainTopology
 import eDomainInformationBase
 import iDomainInformationBase
+
+import pandas as pd
+import re
 
 import getpass
 import sys
@@ -118,7 +124,7 @@ class NANO(Thread):
         #Descoprir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
         #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
         as_path = self.telnet_agent(intra_domain_data['router_ingress_mgmt'])
-        print(as_path)
+        #print(as_path)
 
         #Verifico se o router possui rotas para o as path target do slice
         #A lista ASs contem os dois AS do slice, um deles e o da instancia do NANO
@@ -128,6 +134,76 @@ class NANO(Thread):
 
         #Pego o resulta
 
+        as_path = as_path[280:]
+        #print(as_path)
+
+        char1 = '*>'
+        char2 = ' i'
+        print("Teste: "+as_path[as_path.find(char1) + 1: as_path.find(char2)])
+        #as_path = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+        as_path = as_path.replace(" i", " #")
+        print(as_path)
+        as_path = as_path.replace("*>", "#")
+        print("Ultimo: "+str(as_path))
+        as_path = as_path.replace("\t", " ")
+        print("Sem Espaco: "+str(as_path))
+
+
+        char1 = '#'
+        char2 = ' #'
+        print("Start with: "+str(as_path.index("#")))
+        #print("End with: "+str((as_path.index("#")+1).index("#")))
+        rota_a = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+        rota_b = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+
+        rib_entries = []
+        rib1 = as_path[as_path.index("#"): as_path.find(char2)]
+        #print("RIB1: "+str(rib1))
+        print("SEPARA")
+        rib1 = rib1.replace("\r"," ")
+        print("RIB1: "+str(rib1.rstrip()))
+        #print("Index: "+str(as_path.find(char2)).index("#"))
+
+        rib1 = re.sub(' +', ' ', rib1)
+        print("REGEX: "+rib1)
+        rib1 = as_path.replace('\n', ' ').replace('\r', '')
+        rib1 = re.sub(' +', ' ', rib1)
+        print("Remover enters: "+rib1)
+
+        print("Indice do Asterisco: "+str(rib1.index("*")))
+        print("Depois do Asteristo: "+str(rib1[rib1.index("*")+1:].find("#")))
+
+        rib_list = []
+
+        print(rib1[44+1:].find("#"))
+
+        rib_entry = ""
+        index = 0
+        #print("Tamanho da rib1: "+str(len(rib1)))
+        while index != len(rib1):
+            #print("Index1: "+str(index))
+
+            if rib1[index] == "#":
+                #print("Entrou no for com Index1: "+str(index))
+                for index2 in range(index+1, index + rib1[index+1:].find("#")+1):
+                    rib_entry += rib1[index2]
+                    #print("Index2: "+str(index2))
+                    from_index = index2
+                rib_list.append(rib_entry)
+                rib_entry = ""
+                #print(rib_list)
+                index = from_index+2
+                #print("Indice que vai partir: "+str(index))
+            if rib1[index] == "*":
+                #print("Faz nada ate encontrar outro #")
+                for index2 in range(index+1, index+1 + rib1[index+1:].find("#")+1):
+                    from_index = index2
+                index = from_index
+            index = index + 1
+
+        print(rib_list)
+
+        return
         #print("Desencadear aqui chamadas ao grpc para instalar as rotas e os SIDs desse dominio")
         #print("ENDERECO INTERFACE DE PEERING: "+peering_interface_address)
         #print("NOME INTERFACE DE PEERING: "+peering_interface_name)
