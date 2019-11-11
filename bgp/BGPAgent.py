@@ -84,7 +84,7 @@ class BGPAgent(Thread):
     def register_to_bgp_server(self):
         logging.debug("Registering on DomainBGP Server - after it will able to reach the router")
         for n in range(1, 2):
-            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.105", 8012, n)
+            teste = pycos.Task(BGPAgent.speaker_proc_register_in_bgp_server, "192.168.0.104", 8012, n)
 
     def run(self):
         self.register_to_bgp_server()

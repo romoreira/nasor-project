@@ -7,7 +7,7 @@ Date: 06/09/2019
 #https://osm-download.etsi.org/ftp/osm-6.0-six/7th-hackfest/presentations/
 # Each Service Builder in each Domain is able to receive NST to proced with Service Deployment
 
-import logging, glob, os
+import logging, glob, os, pycos, socket, json
 
 import yaml
 import NANO
@@ -20,6 +20,8 @@ class ServiceBuilder:
     NSD = None
     VNFD = None
     NSTD = None
+
+    message = ""
 
     """
     Receives a tar.gz NSD and returns a directory name of extracted files
@@ -123,9 +125,45 @@ class ServiceBuilder:
 
         self.VNFD = NSD['nsd:nsd-catalog']
 
+    #___________________________________________________________________________________________________________________
     def network_slice_template(self):
-        nano = NANO.NANO(1,self.NSTD,26599)
-        nano.eDomain_slice_builder()
+        #nano = NANO.NANO(1,self.NSTD,26599)
+        #nano.eDomain_slice_builder()
+        self.nano_exchange("CREATE_SLICE", self.NSTD,"192.168.0.105",8011)
+
+    def speaker_proc(host, port, n, task=None):
+        # Create a TCP Socket over port 8010 - we may change it further - with pycos we can create more than one socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = pycos.AsyncSocket(sock)
+        yield sock.connect((host, port))
+        msg = str(message) + '/'
+        msg = msg.encode()
+        yield sock.sendall(msg)
+        sock.close()
+
+    def nano_exchange(SOURCE, METHOD, NSTD, NANO_TARGET_HSOT, NANO_TARGET_PORT):
+
+        global message
+        message = NSTD
+
+        print("YAML: "+str(message))
+
+        json_message = json.dumps(message)
+        json_message = """{%smethod%s: %s"""+str(METHOD)+"""%s, %sdetails%s: """+json_message+"""}"""
+        json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"","\""))
+
+        message = json_message
+
+
+        for n in range(1, 2):
+            response = pycos.Task(ServiceBuilder.speaker_proc, NANO_TARGET_HSOT, NANO_TARGET_PORT, n)
+
+        print("Resposta do Servidor Nano Pos requisicao: " + str(response))
+
+    # ___________________________________________________________________________________________________________________
+
+
+
 
     def virtual_network_function_description(self, VNF_NAME):
         mano = MANO.MANO("", self.VNFD)

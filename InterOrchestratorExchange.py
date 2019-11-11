@@ -7,7 +7,9 @@ Date: 27/08/2019
 #https://github.com/Exa-Networks/exabgp
 #LINK Rest API Apache Geode: https://geode.apache.org/docs/guide/11/rest_apps/develop_rest_apps.html
 
-import socket, sys, pycos, csv, logging
+import socket, sys, pycos, csv, logging,json
+
+from NANO import NANO
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -26,8 +28,14 @@ def listener(conn, task=None):
         if data[-1] == '/':
            break
     conn.close()
-    print('Received: %s' % data)
-    print("NANO RECEBEU UM NSTD - DEVE CRIAR O SLICE NO SEU DOMINIO")
+    data = str(data[:-1])
+    data = json.loads(data)
+
+    if data['method'] == "CREATE_SLICE":
+        print("Chamar alguma funcao dentro do nano que faz o CREATE_SLICE")
+        NANO.eDomain_slice_builder("",NSTD=data['details'])
+    elif data['method'] == "GET_PATH":
+        NANO.get_next_hop("",data['details'])
 
 def listener_proc(host, port, task=None):
     task.set_daemon()
@@ -40,9 +48,9 @@ def listener_proc(host, port, task=None):
         conn, addr = yield sock.accept()
         pycos.Task(listener, conn)
 
-def nano_slice_receier():
+def nano_receier(NANO_HOST, NANO_PORT):
 
-    pycos.Task(listener_proc, '192.168.0.105', 8010)
+    pycos.Task(listener_proc, NANO_HOST, NANO_PORT)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
@@ -51,7 +59,7 @@ def nano_slice_receier():
 if __name__ == '__main__':
     logging.debug('Running by IDE - InterOrchestratorExchange')
     oib_loader()
-    nano_slice_receier()
+    nano_receier()
 
 else:
     logging.debug('Imported in somewhere place - InterOrchestratorExchange')

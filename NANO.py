@@ -39,7 +39,6 @@ import grpc_sid_client
 # logger reference
 logging.basicConfig(level=logging.DEBUG)
 
-import InterOrchestratorExchange
 import IOExClient
 
 # Debug option
@@ -57,18 +56,19 @@ class NANO(Thread):
     '''
     Constructor
     '''
-    def __init__(self, val, NSTD, ASN):
+    def __init__(self, val, ASN):
         super(NANO, self).__init__()
         self.val = val
-        self.NSTD = NSTD
         self.ASN = ASN
 
+    def get_recursive_as_path(self, caller):
+        print("TO-DO")
 
 
-    def nst_yaml_interpreter(self, NSTD):
+    def nst_yaml_interpreter(NSTD):
         ct = CoreDomainTopology.CoreTopology()
-        self.ASes = self.NSTD[0]['asns']
-        return ct.neighborhood_check(str(self.NSTD[0]['asns']))
+        return NSTD[0]['asns']
+        #return ct.neighborhood_check(str(self.NSTD[0]['asns']))
 
     def telnet_agent(self, HOST):
 
@@ -90,9 +90,120 @@ class NANO(Thread):
         tn.close()
         return str(l)
 
-    def eDomain_slice_builder(self):
+    def get_nano_agent(self, ASN):
+        "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
+        if str(ASN) == str(7675):
+            return "192.168.0.105"
+        elif str(ASN) == str(16735):
+            return "192.168.0.105"
+        elif str(ASN) == str(26599):
+            return "192.168.0.105"
 
-        self.nst_yaml_interpreter(self)
+    def get_next_hop(self, ASN):
+        #Descobrir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
+        #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
+
+        #as_path = NANO.telnet_agent("",NANO.get_nano_agent("",ASN))
+        as_path = NANO.telnet_agent("", "192.168.0.204")
+
+        as_path = as_path[280:]
+        print(as_path)
+
+        char1 = '*>'
+        char2 = ' i'
+        # print("Teste: "+as_path[as_path.find(char1) + 1: as_path.find(char2)])
+        # as_path = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+        as_path = as_path.replace(" i", " #")
+        # print(as_path)
+        as_path = as_path.replace("*>", "#")
+        # print("Ultimo: "+str(as_path))
+        as_path = as_path.replace("\t", " ")
+        # print("Sem Espaco: "+str(as_path))
+
+        char1 = '#'
+        char2 = ' #'
+        # print("Start with: "+str(as_path.index("#")))
+        # print("End with: "+str((as_path.index("#")+1).index("#")))
+        rota_a = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+        rota_b = as_path[as_path.find(char1) + 1: as_path.find(char2)]
+
+        rib_entries = []
+        rib1 = as_path[as_path.index("#"): as_path.find(char2)]
+        # print("RIB1: "+str(rib1))
+        # print("SEPARA")
+        rib1 = rib1.replace("\r", " ")
+        # print("RIB1: "+str(rib1.rstrip()))
+        # print("Index: "+str(as_path.find(char2)).index("#"))
+
+        rib1 = re.sub(' +', ' ', rib1)
+        # print("REGEX: "+rib1)
+        rib1 = as_path.replace('\n', ' ').replace('\r', '')
+        rib1 = re.sub(' +', ' ', rib1)
+        # print("Remover enters: "+rib1)
+
+        # print("Indice do Asterisco: "+str(rib1.index("*")))
+        print("Depois do Asteristo: " + str(rib1[rib1.index("*") + 1:].find("#")))
+
+        rib_list = []
+
+        # print(rib1[44+1:].find("#"))
+
+        rib_entry = ""
+        index = 0
+        print("Tamanho da rib1: " + str(len(rib1)))
+        while index != len(rib1):
+            # print("Index1: "+str(index))
+
+            if rib1[index] == "#":
+                # print("Entrou no for com Index1: "+str(index))
+                for index2 in range(index + 1, index + rib1[index + 1:].find("#") + 1):
+                    rib_entry += rib1[index2]
+                    # print("Index2: "+str(index2))
+                    from_index = index2
+                rib_list.append(rib_entry)
+                rib_entry = ""
+                # print(rib_list)
+                index = from_index + 2
+                # print("Indice que vai partir: "+str(index))
+            if rib1[index] == "*":
+                # print("Faz nada ate encontrar outro #")
+                for index2 in range(index + 1, index + 1 + rib1[index + 1:].find("#") + 1):
+                    from_index = index2
+                index = from_index
+            index = index + 1
+
+        print("RIB_LIST: " + str(rib_list))
+
+        rib_list_aux = []
+
+        for string in rib_list:
+            rib_list_aux.append(string.replace(" ", ";"))
+
+        rib_list = rib_list_aux
+
+        # Verifico qual entrada da rib_list possui o as_peer_slice, ou seja o AS do outro dominio que foi descrito no template
+        # do slice
+        print(rib_list)
+
+        slice_as_path = []
+        slice_as_path_aux = []
+        next_hop = []
+
+        for entry in rib_list:
+            entry = entry.split(";")
+            for each in entry:
+                if str(each) == str(ASN):
+                    print("Encontrou a entrada que contem o AS target: " + str(entry))
+                    next_hop = entry[2]
+
+        print("Next hop AS: "+str(ASN)+ " para e: "+str(next_hop))
+        return
+
+    def eDomain_slice_builder(self, NSTD):
+
+        ASs = NANO.nst_yaml_interpreter(NSTD)
+        print("ASs do Slice: "+str(ASs))
+
 
         #edib = eDomainInformationBase.eDomainInformationBase()
 
@@ -117,41 +228,40 @@ class NANO(Thread):
         #        peering_router_ip = domain['peering_router']
 
 
-        with open('file.json') as f:
+        with open('inter-domain.json') as f:
             intra_domain_data = json.load(f)
             print(intra_domain_data)
 
-        #Descoprir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
+        #Descobrir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
         #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
-        as_path = self.telnet_agent(intra_domain_data['router_ingress_mgmt'])
-        #print(as_path)
+        as_path = NANO.telnet_agent("",intra_domain_data['router_ingress_mgmt'])
 
         #Verifico se o router possui rotas para o as path target do slice
         #A lista ASs contem os dois AS do slice, um deles e o da instancia do NANO
-        for item in self.ASes:
-            if item != self.ASN:
+        for item in ASs:
+            if str(item) != "26599":
                 as_peer_slice = item
 
-        #Pego o resulta
+        print("AS_PEER_SLICE: "+str(as_peer_slice))
 
         as_path = as_path[280:]
-        #print(as_path)
+        print(as_path)
 
         char1 = '*>'
         char2 = ' i'
-        print("Teste: "+as_path[as_path.find(char1) + 1: as_path.find(char2)])
+        #print("Teste: "+as_path[as_path.find(char1) + 1: as_path.find(char2)])
         #as_path = as_path[as_path.find(char1) + 1: as_path.find(char2)]
         as_path = as_path.replace(" i", " #")
-        print(as_path)
+        #print(as_path)
         as_path = as_path.replace("*>", "#")
-        print("Ultimo: "+str(as_path))
+        #print("Ultimo: "+str(as_path))
         as_path = as_path.replace("\t", " ")
-        print("Sem Espaco: "+str(as_path))
+        #print("Sem Espaco: "+str(as_path))
 
 
         char1 = '#'
         char2 = ' #'
-        print("Start with: "+str(as_path.index("#")))
+        #print("Start with: "+str(as_path.index("#")))
         #print("End with: "+str((as_path.index("#")+1).index("#")))
         rota_a = as_path[as_path.find(char1) + 1: as_path.find(char2)]
         rota_b = as_path[as_path.find(char1) + 1: as_path.find(char2)]
@@ -159,27 +269,27 @@ class NANO(Thread):
         rib_entries = []
         rib1 = as_path[as_path.index("#"): as_path.find(char2)]
         #print("RIB1: "+str(rib1))
-        print("SEPARA")
+        #print("SEPARA")
         rib1 = rib1.replace("\r"," ")
-        print("RIB1: "+str(rib1.rstrip()))
+        #print("RIB1: "+str(rib1.rstrip()))
         #print("Index: "+str(as_path.find(char2)).index("#"))
 
         rib1 = re.sub(' +', ' ', rib1)
-        print("REGEX: "+rib1)
+        #print("REGEX: "+rib1)
         rib1 = as_path.replace('\n', ' ').replace('\r', '')
         rib1 = re.sub(' +', ' ', rib1)
-        print("Remover enters: "+rib1)
+        #print("Remover enters: "+rib1)
 
-        print("Indice do Asterisco: "+str(rib1.index("*")))
+        #print("Indice do Asterisco: "+str(rib1.index("*")))
         print("Depois do Asteristo: "+str(rib1[rib1.index("*")+1:].find("#")))
 
         rib_list = []
 
-        print(rib1[44+1:].find("#"))
+        #print(rib1[44+1:].find("#"))
 
         rib_entry = ""
         index = 0
-        #print("Tamanho da rib1: "+str(len(rib1)))
+        print("Tamanho da rib1: "+str(len(rib1)))
         while index != len(rib1):
             #print("Index1: "+str(index))
 
@@ -201,7 +311,42 @@ class NANO(Thread):
                 index = from_index
             index = index + 1
 
+        print("RIB_LIST: "+str(rib_list))
+
+        rib_list_aux = []
+
+        for string in rib_list:
+            rib_list_aux.append(string.replace(" ",";"))
+
+        rib_list = rib_list_aux
+
+        #Verifico qual entrada da rib_list possui o as_peer_slice, ou seja o AS do outro dominio que foi descrito no template
+        #do slice
         print(rib_list)
+        slice_as_path = []
+        slice_as_path_aux = []
+        next_hop = []
+
+        for entry in rib_list:
+            entry = entry.split(";")
+            for each in entry:
+                if str(each) == str(as_peer_slice):
+                    print("Encontrou a entrada que contem o AS target: "+str(entry))
+                    slice_as_path = entry[-3:]
+                    next_hop = entry[2]
+                    for item in slice_as_path:
+                        if item != "":
+                            slice_as_path_aux.append(item)
+                    slice_as_path = slice_as_path_aux
+
+
+
+        print("Slice AS_PATH: "+str(slice_as_path))
+        print("Next_Hop: "+str(next_hop))
+
+        for item in slice_as_path:
+            print("Consultar o NANO do AS: "+str(item))
+            IOExClient.nano_exchange("","GET_PATH",item,"192.168.0.105",8010)
 
         return
         #print("Desencadear aqui chamadas ao grpc para instalar as rotas e os SIDs desse dominio")
@@ -285,11 +430,12 @@ class NANO(Thread):
 
     def run(self):
         print("NANO ASN: "+str(self.ASN)+" Listenner is running")
-        logging.info("NANO ASN: "+str(self.ASN)+" Listenner is running")
-        InterOrchestratorExchange.nano_slice_receier()
+        logging.debug("NANO ASN: "+str(self.ASN)+" Listenner is running")
+        import InterOrchestratorExchange
+        InterOrchestratorExchange.nano_receier("192.168.0.105",8011)
 
     # Parse options
-    def parse_options():
+    def parse_options(self):
         global SECURE
         parser = OptionParser()
         parser.add_option("-d", "--debug", action="store_true", help="Activate debug logs")
@@ -306,12 +452,12 @@ class NANO(Thread):
             SECURE = True
         else:
             SECURE = False
-        SERVER_DEBUG = logger.getEffectiveLevel() == logging.DEBUG
-        logger.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
+        SERVER_DEBUG = logging.getEffectiveLevel() == logging.DEBUG
+        logging.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
 
 if __name__ == '__main__':
     logging.debug('Running by IDE - NANO')
-    nano_listenner = NANO(4,NANO.NSTD,16735)
+    nano_listenner = NANO(4,26599)
     nano_listenner.setName('NANO Listenner 1')
     nano_listenner.start()
     nano_listenner.join()
