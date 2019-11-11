@@ -19,24 +19,23 @@ def client_recv(sock, task=None):
         if not msg:
             break
         print('Resposta:  %s' % msg.decode())
-        exit(0)
 
 def client_send(sock, task=None):
     # since readline is synchronous (blocking) call, use async thread;
     # alternately, input can be read in 'main' and sent to this task (with
     # message passing)
-    thread_pool = pycos.AsyncThreadPool(1)
+    thread_pool = pycos.AsyncThreadPool(0)
     if sys.version_info.major > 2:
         read_input = input
     else:
         read_input = raw_input
+        print("Escolhido raw")
     while True:
+        print("While")
         try:
-            line = yield thread_pool.async_task(read_input)
-            line = line.strip()
-            if line in ('quit', 'exit'):
-                break
+            line = "msg"
             yield sock.send_msg(line.encode())
+            print("Enviou")
         except:
             break
 
@@ -49,6 +48,9 @@ def speaker_proc(host, port, n, task=None):
     msg = msg.encode()
     yield sock.sendall(msg)
     sock.close()
+
+def get_recursively_next_hop():
+    print("Stablishing connection with to receive next hop")
 
 def nano_exchange(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
     print("Dentro do PYCOS Client")
@@ -65,17 +67,8 @@ def nano_exchange(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
 
     message = json_message
 
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((NANO_TARGET_HOST, NANO_TARGET_PORT))
-    sock = pycos.AsyncSocket(sock)
-    sender = pycos.Task(client_send, sock)
-    recvr = pycos.Task(client_recv, sock)
-    sender.value()
-    recvr.terminate()
-
-
-    #for n in range(1, 2):
-    #        response = pycos.Task(speaker_proc, NANO_TARGET_HSOT, NANO_TARGET_PORT, n)
+    for n in range(1, 2):
+            response = pycos.Task(speaker_proc, NANO_TARGET_HOST, NANO_TARGET_PORT, n)
 
 
 
@@ -117,7 +110,7 @@ if __name__ == "__main__":
 
     if __name__ == '__main__':
         # optional arg 1 is host IP address and arg 2 is port to use
-        host, port = "192.168.0.105", 8011
+        host, port = "192.168.0.104", 8011
         if len(sys.argv) > 1:
             host = sys.argv[1]
         if len(sys.argv) > 2:

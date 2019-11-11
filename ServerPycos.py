@@ -45,7 +45,7 @@ def server_proc(host, port, task=None):
 
 if __name__ == '__main__':
     # optional arg 1 is host IP address and arg 2 is port to use
-    host, port = "192.168.0.105", 8011
+    host, port = "192.168.0.104", 8011
     if len(sys.argv) > 1:
         host = sys.argv[1]
     if len(sys.argv) > 2:

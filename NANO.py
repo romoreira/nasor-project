@@ -196,8 +196,7 @@ class NANO(Thread):
                     print("Encontrou a entrada que contem o AS target: " + str(entry))
                     next_hop = entry[2]
 
-        print("Next hop AS: "+str(ASN)+ " para e: "+str(next_hop))
-        return
+        return next_hop
 
     def eDomain_slice_builder(self, NSTD):
 
@@ -346,7 +345,7 @@ class NANO(Thread):
 
         for item in slice_as_path:
             print("Consultar o NANO do AS: "+str(item))
-            IOExClient.nano_exchange("","GET_PATH",item,"192.168.0.105",8010)
+            IOExClient.nano_exchange("","GET_PATH",item,"192.168.0.104",8011)
 
         return
         #print("Desencadear aqui chamadas ao grpc para instalar as rotas e os SIDs desse dominio")
@@ -432,7 +431,7 @@ class NANO(Thread):
         print("NANO ASN: "+str(self.ASN)+" Listenner is running")
         logging.debug("NANO ASN: "+str(self.ASN)+" Listenner is running")
         import InterOrchestratorExchange
-        InterOrchestratorExchange.nano_receier("192.168.0.105",8011)
+        InterOrchestratorExchange.nano_receier("192.168.0.104",8011)
 
     # Parse options
     def parse_options(self):
