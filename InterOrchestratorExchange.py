@@ -7,7 +7,7 @@ Date: 27/08/2019
 #https://github.com/Exa-Networks/exabgp
 #LINK Rest API Apache Geode: https://geode.apache.org/docs/guide/11/rest_apps/develop_rest_apps.html
 
-import socket, sys, pycos, csv, logging,json
+import socket, sys, pycos, csv, logging,json, threading
 
 from NANO import NANO
 
@@ -34,8 +34,6 @@ def listener(conn, task=None):
     if data['method'] == "CREATE_SLICE":
         print("Chamar alguma funcao dentro do nano que faz o CREATE_SLICE")
         NANO.eDomain_slice_builder("",NSTD=data['details'])
-    elif data['method'] == "GET_PATH":
-        NANO.get_next_hop("",data['details'])
 
 def listener_proc(host, port, task=None):
     task.set_daemon()
@@ -62,4 +60,6 @@ if __name__ == '__main__':
     nano_receier()
 
 else:
+    print("InterOrchestratorExchange is Running on Port: "+str(NANO.NANO_PORT))
+    nano_receier(NANO.NANO_HOST, NANO.NANO_PORT)
     logging.debug('Imported in somewhere place - InterOrchestratorExchange')

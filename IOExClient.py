@@ -10,34 +10,6 @@ RECEIVED_FROM = []
 
 ######################################-Sender-#######################################
 
-def client_recv(sock, task=None):
-    while True:
-        try:
-            msg = yield sock.recv_msg()
-        except:
-            break
-        if not msg:
-            break
-        print('Resposta:  %s' % msg.decode())
-
-def client_send(sock, task=None):
-    # since readline is synchronous (blocking) call, use async thread;
-    # alternately, input can be read in 'main' and sent to this task (with
-    # message passing)
-    thread_pool = pycos.AsyncThreadPool(0)
-    if sys.version_info.major > 2:
-        read_input = input
-    else:
-        read_input = raw_input
-        print("Escolhido raw")
-    while True:
-        print("While")
-        try:
-            line = "msg"
-            yield sock.send_msg(line.encode())
-            print("Enviou")
-        except:
-            break
 
 def speaker_proc(host, port, n, task=None):
     #Create a TCP Socket over port 8010 - we may change it further - with pycos we can create more than one socket
@@ -49,8 +21,21 @@ def speaker_proc(host, port, n, task=None):
     yield sock.sendall(msg)
     sock.close()
 
-def get_recursively_next_hop():
-    print("Stablishing connection with to receive next hop")
+def next_hop_request(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
+
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((NANO_TARGET_HOST, NANO_TARGET_PORT))
+
+    json_message = """{%smethod%s: %s""" + str(METHOD) + """%s, %sdetails%s: """ + MESSAGE + """}"""
+    json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"", "\""))
+
+    message = json_message
+
+    client.send(message.encode())
+    from_server = client.recv(4096)
+    print("Client Received: "+str(from_server.decode()))
+    client.close()
+    return from_server.decode()
 
 def nano_exchange(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
     print("Dentro do PYCOS Client")
@@ -107,25 +92,7 @@ def oib_receier():
 if __name__ == "__main__":
     #nano_exchange("SOURCE","NSTD","","192.168.0.105",8011)
     #logging.debug("Runninb by using IDE")
-
-    if __name__ == '__main__':
-        # optional arg 1 is host IP address and arg 2 is port to use
-        host, port = "192.168.0.104", 8011
-        if len(sys.argv) > 1:
-            host = sys.argv[1]
-        if len(sys.argv) > 2:
-            port = int(sys.argv[2])
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        # in other programs socket is converted to asynchronous and 'connect' is
-        # used with 'yield' for async I/O. Here, for illustration, socket is first
-        # connected synchronously (since 'yield' can not be used in 'main') and then
-        # it is setup for asynchronous I/O
-        sock.connect((host, port))
-        sock = pycos.AsyncSocket(sock)
-        sender = pycos.Task(client_send, sock)
-        recvr = pycos.Task(client_recv, sock)
-        sender.value()
-        recvr.terminate()
+    rib_request("","GET_PATH","16735","192.168.0.104",8010)
 
 else:
     logging.debug('Impomrted in somewhere place - IOExClient')

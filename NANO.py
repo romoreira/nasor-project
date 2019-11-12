@@ -14,10 +14,11 @@ Date: 10/09/2019
 #https://openmaniak.com/quagga_tutorial.php
 #https://blog.codybunch.com/2016/07/12/Getting-started-with-BGP-on-Linux-with-Cumuls-Quagga/
 #http://www.occaid.org/tutorial-ipv6bgp.html
+import threading
 from io import StringIO
 from optparse import OptionParser
 import json, logging, sys
-
+import socket
 import read as read
 
 import CoreDomainTopology
@@ -50,19 +51,19 @@ from threading import Thread
 class NANO(Thread):
 
     NSTD = None
-    ASN = ""
     ASes = []
+    NANO_HOST = "192.168.0.105"
+    NANO_PORT = 8011
+    NANO_ASN = 26599
+
 
     '''
     Constructor
     '''
-    def __init__(self, val, ASN):
+    def __init__(self, val, NANO_ASN):
         super(NANO, self).__init__()
         self.val = val
-        self.ASN = ASN
-
-    def get_recursive_as_path(self, caller):
-        print("TO-DO")
+        self.NANO_ASN = NANO_ASN
 
 
     def nst_yaml_interpreter(NSTD):
@@ -70,13 +71,13 @@ class NANO(Thread):
         return NSTD[0]['asns']
         #return ct.neighborhood_check(str(self.NSTD[0]['asns']))
 
-    def telnet_agent(self, HOST):
+    def telnet_agent(self, HOST, COMMAND, PORT):
 
         user = ""
         password = "zebra\r\n"
         command = "show ipv6 bgp\r\n"
 
-        tn = telnetlib.Telnet(HOST, 2605)
+        tn = telnetlib.Telnet(HOST, PORT)
 
         l = tn.read_until("Password: ".encode())
         #print("Primeira tela ao requisitar login: " + str(l))
@@ -93,18 +94,47 @@ class NANO(Thread):
     def get_nano_agent(self, ASN):
         "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
         if str(ASN) == str(7675):
-            return "192.168.0.105"
+            return NANO.NANO_HOST
         elif str(ASN) == str(16735):
-            return "192.168.0.105"
+            return NANO.NANO_HOST
         elif str(ASN) == str(26599):
-            return "192.168.0.105"
+            return NANO.NANO_HOST
+
+    def telnet_agent_get_iface(self, HOST, PORT, COMMAND):
+        user = ""
+        password = "zebra\r\n"
+        command = "show ipv6 bgp\r\n"
+
+        tn = telnetlib.Telnet(HOST, PORT)
+
+        l = tn.read_until("Password: ".encode())
+        print("Primeira tela ao requisitar login: " + str(l))
+
+        tn.write(password.encode())
+        l = tn.read_until("border> ".encode())
+        print("Resultado pos entrar com password: " + str(l.decode()))
+
+        tn.write(COMMAND.encode())
+        l = tn.read_until("eth0".encode()).decode()
+        tn.close()
+        return str(l[190:])
+
+
+    def get_egress_interface(self, NEXT_HOP):
+        route_entries = []
+        print("Looking for Egress Interface to install Routes")
+        iface = NANO.telnet_agent_get_iface("","192.168.0.203",2601,"show ipv6 route\r\n")
+        route_entries = iface.splitlines()
+        route = []
+        for item in route_entries:
+            print(item.split())
+
 
     def get_next_hop(self, ASN):
-        #Descobrir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
-        #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
+        print("Respondendo a Requisicao de Next HOP para o ASN: "+str(ASN))
 
         #as_path = NANO.telnet_agent("",NANO.get_nano_agent("",ASN))
-        as_path = NANO.telnet_agent("", "192.168.0.204")
+        as_path = NANO.telnet_agent("", "192.168.0.204", "",2605)
 
         as_path = as_path[280:]
         print(as_path)
@@ -142,7 +172,7 @@ class NANO(Thread):
         # print("Remover enters: "+rib1)
 
         # print("Indice do Asterisco: "+str(rib1.index("*")))
-        print("Depois do Asteristo: " + str(rib1[rib1.index("*") + 1:].find("#")))
+        #print("Depois do Asteristo: " + str(rib1[rib1.index("*") + 1:].find("#")))
 
         rib_list = []
 
@@ -150,7 +180,7 @@ class NANO(Thread):
 
         rib_entry = ""
         index = 0
-        print("Tamanho da rib1: " + str(len(rib1)))
+        #print("Tamanho da rib1: " + str(len(rib1)))
         while index != len(rib1):
             # print("Index1: "+str(index))
 
@@ -172,7 +202,7 @@ class NANO(Thread):
                 index = from_index
             index = index + 1
 
-        print("RIB_LIST: " + str(rib_list))
+        #print("RIB_LIST: " + str(rib_list))
 
         rib_list_aux = []
 
@@ -196,12 +226,15 @@ class NANO(Thread):
                     print("Encontrou a entrada que contem o AS target: " + str(entry))
                     next_hop = entry[2]
 
+        print("Roteador consultado.")
         return next_hop
 
     def eDomain_slice_builder(self, NSTD):
 
+        print("Creating a slice from 26599")
+
         ASs = NANO.nst_yaml_interpreter(NSTD)
-        print("ASs do Slice: "+str(ASs))
+        #print("ASs do Slice: "+str(ASs))
 
 
         #edib = eDomainInformationBase.eDomainInformationBase()
@@ -229,22 +262,22 @@ class NANO(Thread):
 
         with open('inter-domain.json') as f:
             intra_domain_data = json.load(f)
-            print(intra_domain_data)
+            #print(intra_domain_data)
 
         #Descobrir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
         #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
-        as_path = NANO.telnet_agent("",intra_domain_data['router_ingress_mgmt'])
+        as_path = NANO.telnet_agent("",intra_domain_data['router_ingress_mgmt'],"",2605)
 
         #Verifico se o router possui rotas para o as path target do slice
         #A lista ASs contem os dois AS do slice, um deles e o da instancia do NANO
         for item in ASs:
-            if str(item) != "26599":
+            if str(item) != str(NANO.NANO_ASN):
                 as_peer_slice = item
 
-        print("AS_PEER_SLICE: "+str(as_peer_slice))
+        #print("AS_PEER_SLICE: "+str(as_peer_slice))
 
         as_path = as_path[280:]
-        print(as_path)
+        #print(as_path)
 
         char1 = '*>'
         char2 = ' i'
@@ -280,7 +313,7 @@ class NANO(Thread):
         #print("Remover enters: "+rib1)
 
         #print("Indice do Asterisco: "+str(rib1.index("*")))
-        print("Depois do Asteristo: "+str(rib1[rib1.index("*")+1:].find("#")))
+        #print("Depois do Asteristo: "+str(rib1[rib1.index("*")+1:].find("#")))
 
         rib_list = []
 
@@ -288,7 +321,7 @@ class NANO(Thread):
 
         rib_entry = ""
         index = 0
-        print("Tamanho da rib1: "+str(len(rib1)))
+        #print("Tamanho da rib1: "+str(len(rib1)))
         while index != len(rib1):
             #print("Index1: "+str(index))
 
@@ -310,7 +343,7 @@ class NANO(Thread):
                 index = from_index
             index = index + 1
 
-        print("RIB_LIST: "+str(rib_list))
+        #print("RIB_LIST: "+str(rib_list))
 
         rib_list_aux = []
 
@@ -321,7 +354,7 @@ class NANO(Thread):
 
         #Verifico qual entrada da rib_list possui o as_peer_slice, ou seja o AS do outro dominio que foi descrito no template
         #do slice
-        print(rib_list)
+        #print(rib_list)
         slice_as_path = []
         slice_as_path_aux = []
         next_hop = []
@@ -330,9 +363,9 @@ class NANO(Thread):
             entry = entry.split(";")
             for each in entry:
                 if str(each) == str(as_peer_slice):
-                    print("Encontrou a entrada que contem o AS target: "+str(entry))
+                    #print("Encontrou a entrada que contem o AS target: "+str(entry))
                     slice_as_path = entry[-3:]
-                    next_hop = entry[2]
+                    next_hop.append(entry[2])
                     for item in slice_as_path:
                         if item != "":
                             slice_as_path_aux.append(item)
@@ -341,13 +374,23 @@ class NANO(Thread):
 
 
         print("Slice AS_PATH: "+str(slice_as_path))
-        print("Next_Hop: "+str(next_hop))
+        print("Primeiro Next_Hop: "+str(next_hop))
+
 
         for item in slice_as_path:
+            if str(item) == str(16735):
+                print("Entrou no if")
+                break
             print("Consultar o NANO do AS: "+str(item))
-            IOExClient.nano_exchange("","GET_PATH",item,"192.168.0.104",8011)
+            next = IOExClient.next_hop_request("","GET_PATH",str(as_peer_slice),NANO.get_nano_agent("",item),8016)
+            next_hop.append(next)
 
-        return
+
+        print("Lista de Next Hop: "+str(next_hop))
+
+        #NANO.get_egress_interface(self)
+
+
         #print("Desencadear aqui chamadas ao grpc para instalar as rotas e os SIDs desse dominio")
         #print("ENDERECO INTERFACE DE PEERING: "+peering_interface_address)
         #print("NOME INTERFACE DE PEERING: "+peering_interface_name)
@@ -371,23 +414,24 @@ class NANO(Thread):
             {
               "via": "%s",
               "device": "%s",
-              "destination": "b::/64",
+              "destination": "a::/64",
               "encapmode": "encap",
               "segments": [
-                "%s"
+                "%s", "%s"
               ]
             }
           ]
         }
       ]
       """
-        data = str(data % ("via", peering_interface_name, neighbor_border_segment_id))
+        data = str(data % ("via", "eth3", next_hop[1], next_hop[0]))
         print(data)
-        teste = grpc_client.gRPC_Route(peering_router_ip,12345,data)
+        teste = grpc_client.gRPC_Route("192.168.0.203",12345,data)
         teste.main()
         print("Egrees Router Config done!")
 
 
+        return
 
         '''
         Getting Informations about other partner domain
@@ -427,12 +471,6 @@ class NANO(Thread):
         nano_sig_agent.main()
 
 
-    def run(self):
-        print("NANO ASN: "+str(self.ASN)+" Listenner is running")
-        logging.debug("NANO ASN: "+str(self.ASN)+" Listenner is running")
-        import InterOrchestratorExchange
-        InterOrchestratorExchange.nano_receier("192.168.0.104",8011)
-
     # Parse options
     def parse_options(self):
         global SECURE
@@ -454,11 +492,45 @@ class NANO(Thread):
         SERVER_DEBUG = logging.getEffectiveLevel() == logging.DEBUG
         logging.info("SERVER_DEBUG:" + str(SERVER_DEBUG))
 
+    def nano_rib_request_listener(self):
+        serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serv.bind((self.NANO_HOST, self.NANO_PORT+1))
+        serv.listen(5)
+        print("RIB Request Listener is Running on Port: "+str(self.NANO_PORT+1))
+        while True:
+            conn, addr = serv.accept()
+            from_client = ''
+            while True:
+                data = conn.recv(4096)
+                if not data: break
+                from_client += data.decode()
+                from_client = json.loads(from_client)
+                print("JSON Cliente: "+str(from_client))
+                response = str(self.get_next_hop(from_client['details']))
+                print("Pronto para devolver para o 26599: "+str(response))
+                conn.send(response.encode())
+            conn.close()
+            print('client disconnected')
+
+    def run(self):
+        print("NANO ASN: " + str(self.NANO_ASN) + " Listenner is running")
+        logging.debug("NANO ASN: " + str(self.NANO_ASN) + " Listenner is running")
+        self.nano_rib_request_listener()
+
+    def service_builder_listener(self):
+        import InterOrchestratorExchange
+        InterOrchestratorExchange.nano_receier(self.NANO_HOST, self.NANO_PORT)
+
+
 if __name__ == '__main__':
+
     logging.debug('Running by IDE - NANO')
-    nano_listenner = NANO(4,26599)
-    nano_listenner.setName('NANO Listenner 1')
+    #NANO.get_egress_interface("", "2607:f0d0:2001:c::14")
+
+    service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,))
+    nano_listenner = NANO(4,NANO.NANO_ASN)
     nano_listenner.start()
+    service_builder_listenner.start()
     nano_listenner.join()
 else:
     logging.debug('Impomrted in somewhere place - NANO')
