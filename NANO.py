@@ -46,24 +46,26 @@ import IOExClient
 SERVER_DEBUG = False
 
 from threading import Thread
-
+import ipaddress
 
 class NANO(Thread):
 
     NSTD = None
     ASes = []
-    NANO_HOST = "192.168.0.105"
-    NANO_PORT = 8011
-    NANO_ASN = 26599
+    NANO_HOST = ""
+    NANO_PORT = ""
+    NANO_ASN = ""
 
 
     '''
     Constructor
     '''
-    def __init__(self, val, NANO_ASN):
+    def __init__(self, val, NANO_ASN, NANO_HOST, NANO_PORT):
         super(NANO, self).__init__()
         self.val = val
         self.NANO_ASN = NANO_ASN
+        self.NANO_HOST = NANO_HOST
+        self.NANO_PORT = NANO_PORT
 
 
     def nst_yaml_interpreter(NSTD):
@@ -94,11 +96,12 @@ class NANO(Thread):
     def get_nano_agent(self, ASN):
         "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
         if str(ASN) == str(7675):
-            return NANO.NANO_HOST
+            return "192.168.0.104"
         elif str(ASN) == str(16735):
             return NANO.NANO_HOST
         elif str(ASN) == str(26599):
             return NANO.NANO_HOST
+
 
     def telnet_agent_get_iface(self, HOST, PORT, COMMAND):
         user = ""
@@ -108,11 +111,11 @@ class NANO(Thread):
         tn = telnetlib.Telnet(HOST, PORT)
 
         l = tn.read_until("Password: ".encode())
-        print("Primeira tela ao requisitar login: " + str(l))
+        #print("Primeira tela ao requisitar login: " + str(l))
 
         tn.write(password.encode())
         l = tn.read_until("border> ".encode())
-        print("Resultado pos entrar com password: " + str(l.decode()))
+        #print("Resultado pos entrar com password: " + str(l.decode()))
 
         tn.write(COMMAND.encode())
         l = tn.read_until("eth0".encode()).decode()
@@ -127,8 +130,17 @@ class NANO(Thread):
         route_entries = iface.splitlines()
         route = []
         for item in route_entries:
-            print(item.split())
-
+            route = item.split()
+            if route:
+                #print("Item Rota Teste: "+str(route[1]))
+                #print("Next Hop: "+str(NEXT_HOP[0]))
+                try:
+                    if ipaddress.ip_address(NEXT_HOP[0]) in ipaddress.ip_network(route[1]):
+                        #print("Return the network interface to Next Hop: "+str(route[5]))
+                        return route[5]
+                except ValueError:
+                    logging.debug("zebra routes * can not be compared with IPv6 to Check network connectivity - get_egress_interface")
+        print("Nothing were found check - get_egress_interface()")
 
     def get_next_hop(self, ASN):
         print("Respondendo a Requisicao de Next HOP para o ASN: "+str(ASN))
@@ -229,12 +241,12 @@ class NANO(Thread):
         print("Roteador consultado.")
         return next_hop
 
-    def eDomain_slice_builder(self, NSTD):
+    def eDomain_slice_builder(self, NSTD, ASN):
 
-        print("Creating a slice from 26599")
+        NANO.NANO_ASN = ASN
 
         ASs = NANO.nst_yaml_interpreter(NSTD)
-        #print("ASs do Slice: "+str(ASs))
+        print("ASs do Slice: "+str(ASs))
 
 
         #edib = eDomainInformationBase.eDomainInformationBase()
@@ -351,6 +363,7 @@ class NANO(Thread):
             rib_list_aux.append(string.replace(" ",";"))
 
         rib_list = rib_list_aux
+        #print("RIB_LIST: "+str(rib_list))
 
         #Verifico qual entrada da rib_list possui o as_peer_slice, ou seja o AS do outro dominio que foi descrito no template
         #do slice
@@ -379,16 +392,14 @@ class NANO(Thread):
 
         for item in slice_as_path:
             if str(item) == str(16735):
-                print("Entrou no if")
+                #print("Entrou no if")
                 break
             print("Consultar o NANO do AS: "+str(item))
-            next = IOExClient.next_hop_request("","GET_PATH",str(as_peer_slice),NANO.get_nano_agent("",item),8016)
+            next = IOExClient.next_hop_request("","GET_PATH",str(as_peer_slice),NANO.get_nano_agent("",item),8014)
             next_hop.append(next)
 
 
         print("Lista de Next Hop: "+str(next_hop))
-
-        #NANO.get_egress_interface(self)
 
 
         #print("Desencadear aqui chamadas ao grpc para instalar as rotas e os SIDs desse dominio")
@@ -424,10 +435,10 @@ class NANO(Thread):
         }
       ]
       """
-        data = str(data % ("via", "eth3", next_hop[1], next_hop[0]))
+        data = str(data % ("via", NANO.get_egress_interface(self, next_hop), next_hop[1], next_hop[0]))
         print(data)
-        teste = grpc_client.gRPC_Route("192.168.0.203",12345,data)
-        teste.main()
+        grpc_route_agent = grpc_client.gRPC_Route("192.168.0.203",12345,data)
+        grpc_route_agent.main()
         print("Egrees Router Config done!")
 
 
@@ -513,24 +524,37 @@ class NANO(Thread):
             print('client disconnected')
 
     def run(self):
-        print("NANO ASN: " + str(self.NANO_ASN) + " Listenner is running")
+        print("ASN: " + str(self.NANO_ASN) + " is Ready")
         logging.debug("NANO ASN: " + str(self.NANO_ASN) + " Listenner is running")
         self.nano_rib_request_listener()
 
-    def service_builder_listener(self):
+    def service_builder_listener(self, NANO_HOST, NANO_PORT):
         import InterOrchestratorExchange
-        InterOrchestratorExchange.nano_receier(self.NANO_HOST, self.NANO_PORT)
-
+        InterOrchestratorExchange.nano_receier(NANO_HOST, NANO_PORT, NANO_ASN)
 
 if __name__ == '__main__':
 
     logging.debug('Running by IDE - NANO')
-    #NANO.get_egress_interface("", "2607:f0d0:2001:c::14")
 
-    service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,))
-    nano_listenner = NANO(4,NANO.NANO_ASN)
+    if int(sys.argv[2]) > 0:
+        NANO_ASN = int(sys.argv[2])
+    else:
+        print("ASN should be a valid number")
+    if str(sys.argv[3]) != "":
+        NANO_HOST = sys.argv[3]
+    else:
+        print("NANO IP soud be a valid IP Address")
+    if int(sys.argv[4]) != "" and int(sys.argv[4]) > 0:
+        NANO_PORT = int(sys.argv[4])
+    else:
+        print("NANO Port should be a valid Port Number")
+
+
+    service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,NANO_HOST,NANO_PORT))
+    nano_listenner = NANO(4,NANO_ASN, NANO_HOST, NANO_PORT)
     nano_listenner.start()
     service_builder_listenner.start()
     nano_listenner.join()
 else:
-    logging.debug('Impomrted in somewhere place - NANO')
+    logging.debug('Imported in somewhere place - NANO')
+

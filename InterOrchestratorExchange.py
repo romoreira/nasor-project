@@ -13,7 +13,9 @@ from NANO import NANO
 
 logging.basicConfig(level=logging.DEBUG)
 
-OIB = ''
+
+ASN = ""
+
 
 def oib_loader():
     with open('./data/edomain_information_base.csv') as OIB:
@@ -22,6 +24,7 @@ def oib_loader():
             print(row)
 
 def listener(conn, task=None):
+
     data = ''
     while True:
         data += (yield conn.recv(128)).decode('utf-8')
@@ -32,10 +35,13 @@ def listener(conn, task=None):
     data = json.loads(data)
 
     if data['method'] == "CREATE_SLICE":
-        print("Chamar alguma funcao dentro do nano que faz o CREATE_SLICE")
-        NANO.eDomain_slice_builder("",NSTD=data['details'])
+        NANO.eDomain_slice_builder("", data['details'], ASN)
 
-def listener_proc(host, port, task=None):
+def listener_proc(host, port, AS, task=None):
+
+    global ASN
+    ASN = AS
+
     task.set_daemon()
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = pycos.AsyncSocket(sock)
@@ -46,9 +52,11 @@ def listener_proc(host, port, task=None):
         conn, addr = yield sock.accept()
         pycos.Task(listener, conn)
 
-def nano_receier(NANO_HOST, NANO_PORT):
+def nano_receier(NANO_HOST, NANO_PORT, NANO_ASN):
 
-    pycos.Task(listener_proc, NANO_HOST, NANO_PORT)
+    print("NANO Receiver is Running on Port: " +str(NANO_PORT))
+
+    pycos.Task(listener_proc, NANO_HOST, NANO_PORT, NANO_ASN)
     while True:
         cmd = sys.stdin.readline().strip().lower()
         if cmd == 'exit' or cmd == 'quit':
@@ -60,6 +68,6 @@ if __name__ == '__main__':
     nano_receier()
 
 else:
-    print("InterOrchestratorExchange is Running on Port: "+str(NANO.NANO_PORT))
-    nano_receier(NANO.NANO_HOST, NANO.NANO_PORT)
+    #print("InterOrchestratorExchange is Running on Port: "+str(NANO.NANO_PORT))
+    #nano_receier(NANO.NANO_HOST, NANO.NANO_PORT)
     logging.debug('Imported in somewhere place - InterOrchestratorExchange')
