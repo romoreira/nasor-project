@@ -263,6 +263,11 @@ class NANO(Thread):
         if not(NANO.NANO_ASN in ASs):
             print("AS nao faz parte do ASs do slice - ele e transito")
             print("end2end_next_hop: "+str(DATA['end2end_next_hop'][0]))
+
+            print("Setting SIDs in Router: " + str("192.168.0.204"))
+            nano_sig_agent = grpc_sid_client.gRPC_SID("192.168.0.204", 123456, "")
+            nano_sig_agent.main()
+
             return
 
         #edib = eDomainInformationBase.eDomainInformationBase()

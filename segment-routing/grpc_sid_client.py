@@ -53,11 +53,9 @@ class gRPC_SID():
     sid.TARGET_IF  = ""
     sid.SOURCE_IF  = ""
 
-
     response = sid_stub.AddSID(sid_request)
     print(str(response))
     channel.close()
-
 
 if __name__ == '__main__':
     logging.debug('Imported by IDE - grpc_sid_client')
