@@ -1,4 +1,4 @@
-import socket, pycos, yaml, sys, logging
+import socket, pycos, json, sys, logging
 
 # yaml_message = yaml.load("- Teste1" +
 #                          "- Teste2" +
@@ -12,14 +12,17 @@ RECEIVED_FROM = []
 
 
 def speaker_proc(host, port, n, task=None):
-    #Create a TCP Socket over port 8010 - we may change it further - with pycos we can create more than one socket
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock = pycos.AsyncSocket(sock)
-    yield sock.connect((host, port))
+    yield sock.connect((host, int(port)))
     msg = str(message) + '/'
     msg = msg.encode()
     yield sock.sendall(msg)
     sock.close()
+
+def create_forwarder(METHOD, MESSAGE, ASN):
+    print("Ola mundo Create Slice Forwarder")
 
 def next_hop_request(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
 
@@ -37,20 +40,27 @@ def next_hop_request(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT
     client.close()
     return from_server.decode()
 
-def nano_exchange(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT):
+def slice_creation_forwarder(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT, NEXT_HOP_LIST):
     print("Dentro do PYCOS Client")
 
+    print("SOURCE: "+str(SOURCE))
+    print("METHOD: "+str(METHOD))
     print("Message: "+str(MESSAGE))
     print("NANO HOST: "+str(NANO_TARGET_HOST))
     print("NANO PORT: "+str(NANO_TARGET_PORT))
+    print("NEXT_HOP_LIST: "+str(NEXT_HOP_LIST))
 
     global message
 
+    message = json.dumps(MESSAGE)
+    NEXT_HOP_LIST = json.dumps(NEXT_HOP_LIST)
 
-    json_message = """{%smethod%s: %s""" + str(METHOD) + """%s, %sdetails%s: """ + MESSAGE + """}"""
-    json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"", "\""))
+    json_message = """{%smethod%s: %s""" + str(METHOD) + """%s, %sdetails%s: """ + str(message) + """, %send2end_next_hop%s: """+str(NEXT_HOP_LIST)+"""}"""
+    json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
 
     message = json_message
+
+    print(message)
 
     for n in range(1, 2):
             response = pycos.Task(speaker_proc, NANO_TARGET_HOST, NANO_TARGET_PORT, n)

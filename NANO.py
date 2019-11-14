@@ -47,6 +47,7 @@ SERVER_DEBUG = False
 
 from threading import Thread
 import ipaddress
+import pycos
 
 class NANO(Thread):
 
@@ -55,6 +56,8 @@ class NANO(Thread):
     NANO_HOST = ""
     NANO_PORT = ""
     NANO_ASN = ""
+
+    message = ""
 
 
     '''
@@ -66,7 +69,6 @@ class NANO(Thread):
         self.NANO_ASN = NANO_ASN
         self.NANO_HOST = NANO_HOST
         self.NANO_PORT = NANO_PORT
-
 
     def nst_yaml_interpreter(NSTD):
         ct = CoreDomainTopology.CoreTopology()
@@ -93,15 +95,23 @@ class NANO(Thread):
         tn.close()
         return str(l)
 
-    def get_nano_agent(self, ASN):
+    def get_nano_agent_host(self, ASN):
         "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
         if str(ASN) == str(7675):
             return "192.168.0.104"
         elif str(ASN) == str(16735):
-            return NANO.NANO_HOST
+            return "192.168.0.104"
         elif str(ASN) == str(26599):
-            return NANO.NANO_HOST
+            return "192.168.0.104"
 
+    def get_nano_agent_port(self, ASN):
+        "Procurar na Base de Orchestradores a Porta do Nano dado um ASN"
+        if str(ASN) == str(7675):
+            return "8013"
+        elif str(ASN) == str(16735):
+            return "8015"
+        elif str(ASN) == str(26599):
+            return "8011"
 
     def telnet_agent_get_iface(self, HOST, PORT, COMMAND):
         user = ""
@@ -143,13 +153,13 @@ class NANO(Thread):
         print("Nothing were found check - get_egress_interface()")
 
     def get_next_hop(self, ASN):
-        print("Respondendo a Requisicao de Next HOP para o ASN: "+str(ASN))
+        #print("Respondendo a Requisicao de Next HOP para o ASN: "+str(ASN))
 
         #as_path = NANO.telnet_agent("",NANO.get_nano_agent("",ASN))
         as_path = NANO.telnet_agent("", "192.168.0.204", "",2605)
 
         as_path = as_path[280:]
-        print(as_path)
+        #print(as_path)
 
         char1 = '*>'
         char2 = ' i'
@@ -241,13 +251,19 @@ class NANO(Thread):
         print("Roteador consultado.")
         return next_hop
 
-    def eDomain_slice_builder(self, NSTD, ASN):
+    def eDomain_slice_builder(self, DATA, ASN):
 
         NANO.NANO_ASN = ASN
 
-        ASs = NANO.nst_yaml_interpreter(NSTD)
+        ASs = NANO.nst_yaml_interpreter(DATA['details'])
         print("ASs do Slice: "+str(ASs))
 
+        print("AS Corrente: "+str(NANO.NANO_ASN))
+
+        if not(NANO.NANO_ASN in ASs):
+            print("AS nao faz parte do ASs do slice - ele e transito")
+            print("end2end_next_hop: "+str(DATA['end2end_next_hop'][0]))
+            return
 
         #edib = eDomainInformationBase.eDomainInformationBase()
 
@@ -286,7 +302,7 @@ class NANO(Thread):
             if str(item) != str(NANO.NANO_ASN):
                 as_peer_slice = item
 
-        #print("AS_PEER_SLICE: "+str(as_peer_slice))
+        print("AS_PEER_SLICE: "+str(as_peer_slice))
 
         as_path = as_path[280:]
         #print(as_path)
@@ -395,7 +411,7 @@ class NANO(Thread):
                 #print("Entrou no if")
                 break
             print("Consultar o NANO do AS: "+str(item))
-            next = IOExClient.next_hop_request("","GET_PATH",str(as_peer_slice),NANO.get_nano_agent("",item),8014)
+            next = IOExClient.next_hop_request("","GET_PATH",str(as_peer_slice),NANO.get_nano_agent_host("",item),8014)
             next_hop.append(next)
 
 
@@ -441,6 +457,15 @@ class NANO(Thread):
         grpc_route_agent.main()
         print("Egrees Router Config done!")
 
+
+
+
+        for item in slice_as_path:
+            #print("ITEM: "+str(item))
+            #print("AS_PEER_SLICE: "+str(as_peer_slice))
+            if str(item) != str(as_peer_slice):
+                print("Encaminhar o Slice Creator para o NANO do AS: "+str(item))
+                next = IOExClient.slice_creation_forwarder(ASN,"CREATE_SLICE", DATA['details'], NANO.get_nano_agent_host("",str(item)),NANO.get_nano_agent_port("",str(item)), next_hop)
 
         return
 

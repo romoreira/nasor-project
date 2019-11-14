@@ -31,11 +31,13 @@ def listener(conn, task=None):
         if data[-1] == '/':
            break
     conn.close()
+    print("7675 Received: "+str(data))
     data = str(data[:-1])
     data = json.loads(data)
 
     if data['method'] == "CREATE_SLICE":
-        NANO.eDomain_slice_builder("", data['details'], ASN)
+        print("RECEBEU O PEDIDO DE CRIACAO DE UM SLICE:")
+        NANO.eDomain_slice_builder("", data, ASN)
 
 def listener_proc(host, port, AS, task=None):
 
