@@ -43,22 +43,26 @@ class gRPC_SID():
     return sid_management_pb2_grpc.SIDManagementStub(channel), channel
 
   def main(self):
+    print("Main - Dados vindo do construtor: "+str(self.data['sid_ip']))
+    print("Main - Dados vindo do construtor: " + str(self.data['sid_behaviour']))
     # Get the reference of the stub
     sid_stub,channel = self.get_grpc_session(self.REMOTE_SERVER_IP, self.REMOTE_SERVER_PORT, SECURE)
     sid_request = sid_management_pb2.SIDMessage()
     sid = sid_request.sid.add()
-    sid.SID = "4::"
-    sid.SID_BEHAVIOR  = "end"
+    sid.SID = str(self.data['sid_ip'])
+    sid.SID_BEHAVIOR  = str(self.data['sid_behaviour'])
     sid.IP_ADDR  = ""
     sid.TARGET_IF  = ""
     sid.SOURCE_IF  = ""
 
     response = sid_stub.AddSID(sid_request)
-    print(str(response))
     channel.close()
+    return str(response)
+
 
 if __name__ == '__main__':
     logging.debug('Imported by IDE - grpc_sid_client')
+    print("Passou pela main sid_client")
     sid_agent = gRPC_SID("192.168.0.202",123456, "")
     sid_agent.main()
 else:

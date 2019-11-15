@@ -98,11 +98,11 @@ class NANO(Thread):
     def get_nano_agent_host(self, ASN):
         "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
         if str(ASN) == str(7675):
-            return "192.168.0.104"
+            return "192.168.0.105"
         elif str(ASN) == str(16735):
-            return "192.168.0.104"
+            return "192.168.0.105"
         elif str(ASN) == str(26599):
-            return "192.168.0.104"
+            return "192.168.0.105"
 
     def get_nano_agent_port(self, ASN):
         "Procurar na Base de Orchestradores a Porta do Nano dado um ASN"
@@ -261,12 +261,19 @@ class NANO(Thread):
         print("AS Corrente: "+str(NANO.NANO_ASN))
 
         if not(NANO.NANO_ASN in ASs):
+            print("NANO.NANO_ASN: "+str(NANO.NANO_ASN))
             print("AS nao faz parte do ASs do slice - ele e transito")
             print("end2end_next_hop: "+str(DATA['end2end_next_hop'][0]))
 
-            print("Setting SIDs in Router: " + str("192.168.0.204"))
-            nano_sig_agent = grpc_sid_client.gRPC_SID("192.168.0.204", 123456, "")
-            nano_sig_agent.main()
+            sid_behaviour = "end"
+            sid_creation_json_message = """{%ssid_ip%s: %s"""+str(DATA['end2end_next_hop'][0])+"""%s, %ssid_behaviour%s: %s"""+str(sid_behaviour)+"""%s}"""
+            sid_creation_json_message = str(sid_creation_json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
+            sid_creation_json_message = json.loads(sid_creation_json_message)
+            print("JSON CRIADO ANTES DE MANSDAR PRO SID CLIENT: "+str(sid_creation_json_message))
+
+            print("Setting SIDs in Router: " + str(NANO.get_nano_agent_host("",NANO.NANO_ASN)))
+            nano_sig_agent = grpc_sid_client.gRPC_SID("192.168.0.204", 123456, sid_creation_json_message)
+            print("Nano SID Creation Response: "+str(nano_sig_agent.main()))
 
             return
 
