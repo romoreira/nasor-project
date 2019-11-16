@@ -132,10 +132,32 @@ class NANO(Thread):
         tn.close()
         return str(l[190:])
 
+    def target_encounter_check(self, NEXT_HOP, ROUTER_IP):
+        route_entries = []
+        print("Looking in Target something")
+        print("TARGET-CHECK NEXT_HOP: "+str(NEXT_HOP))
+        print("TARGET-CHECK ROUTER_IP: " + str(ROUTER_IP))
+        iface = NANO.telnet_agent_get_iface("",ROUTER_IP,2601,"show ipv6 route\r\n")
+        route_entries = iface.splitlines()
+        route = []
+        print("TARGET-CHECK ROUTE-ENTRIES: "+str(route_entries))
+        for item in route_entries:
+            route = item.split()
+            print("ROUTE: "+str(route))
+            if route:
+                #print("Item Rota Teste: "+str(route[1]))
+                #print("Next Hop: "+str(NEXT_HOP[0]))
+                try:
+                    if ipaddress.ip_address(NEXT_HOP) in ipaddress.ip_network(route[1]):
+                        #print("Return the network interface to Next Hop: "+str(route[5]))
+                        return True
+                except ValueError:
+                    logging.debug("zebra routes * can not be compared with IPv6 to Check network connectivity - get_egress_interface")
+        print("Nothing were found check - get_egress_interface()")
 
     def get_egress_interface(self, NEXT_HOP):
         route_entries = []
-        print("Looking for Egress Interface to install Routes")
+        #print("Looking for Egress Interface to install Routes")
         iface = NANO.telnet_agent_get_iface("","192.168.0.203",2601,"show ipv6 route\r\n")
         route_entries = iface.splitlines()
         route = []
@@ -260,6 +282,9 @@ class NANO(Thread):
 
         print("AS Corrente: "+str(NANO.NANO_ASN))
 
+        print("DATA: "+str(DATA))
+        print("END TO END NEXT HOP: "+str(DATA['end2end_next_hop']))
+
         if not(NANO.NANO_ASN in ASs):
             print("NANO.NANO_ASN: "+str(NANO.NANO_ASN))
             print("AS nao faz parte do ASs do slice - ele e transito")
@@ -269,13 +294,23 @@ class NANO(Thread):
             sid_creation_json_message = """{%ssid_ip%s: %s"""+str(DATA['end2end_next_hop'][0])+"""%s, %ssid_behaviour%s: %s"""+str(sid_behaviour)+"""%s}"""
             sid_creation_json_message = str(sid_creation_json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
             sid_creation_json_message = json.loads(sid_creation_json_message)
-            print("JSON CRIADO ANTES DE MANSDAR PRO SID CLIENT: "+str(sid_creation_json_message))
+            print("JSON CRIADO ANTES DE MANDAR PRO SID CLIENT: "+str(sid_creation_json_message))
 
             print("Setting SIDs in Router: " + str(NANO.get_nano_agent_host("",NANO.NANO_ASN)))
             nano_sig_agent = grpc_sid_client.gRPC_SID("192.168.0.204", 123456, sid_creation_json_message)
             print("Nano SID Creation Response: "+str(nano_sig_agent.main()))
 
+            for item in ASs:
+                if str(item) != str(DATA['source']):
+                    print("Encaminhar o Slice Creator para o NANO do AS: " + str(item))
+                    next = IOExClient.slice_creation_forwarder(ASN, "CREATE_SLICE", DATA['details'],
+                                                               NANO.get_nano_agent_host("", str(item)),
+                                                               NANO.get_nano_agent_port("", str(item)), DATA['end2end_next_hop'][1])
+
             return
+
+
+
 
         #edib = eDomainInformationBase.eDomainInformationBase()
 
@@ -300,9 +335,43 @@ class NANO(Thread):
         #        peering_router_ip = domain['peering_router']
 
 
-        with open('inter-domain.json') as f:
-            intra_domain_data = json.load(f)
-            #print(intra_domain_data)
+        if int(ASN) == 16735:
+            with open('inter-domain-16735.json') as f:
+                intra_domain_data = json.load(f)
+                #print(intra_domain_data)
+
+        else:
+            with open('inter-domain.json') as f:
+                intra_domain_data = json.load(f)
+                #print(intra_domain_data)
+
+
+        if NANO.target_encounter_check("",DATA['end2end_next_hop'], intra_domain_data['router_ingress_mgmt']):
+            print("Encontrou o AS 16735, instalar as rotas e os SIDs")
+
+
+            print("NANO.NANO_ASN: "+str(NANO.NANO_ASN))
+            print("end2end_next_hop: "+str(DATA['end2end_next_hop']))
+
+            sid_behaviour = "end"
+            sid_creation_json_message = """{%ssid_ip%s: %s"""+str(DATA['end2end_next_hop'])+"""%s, %ssid_behaviour%s: %s"""+str(sid_behaviour)+"""%s}"""
+            sid_creation_json_message = str(sid_creation_json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
+            sid_creation_json_message = json.loads(sid_creation_json_message)
+            print("JSON CRIADO ANTES DE MANDAR PRO SID CLIENT: "+str(sid_creation_json_message))
+
+            print("Setting SIDs in Router: " + str(NANO.get_nano_agent_host("",NANO.NANO_ASN)))
+            nano_sig_agent = grpc_sid_client.gRPC_SID(intra_domain_data['router_ingress_mgmt'], 123456, sid_creation_json_message)
+            print("Nano SID Creation Response: "+str(nano_sig_agent.main()))
+
+
+            return
+
+
+
+
+
+
+
 
         #Descobrir o AS_PATH que precisa ser percorrido para estabelecer o slice inter_domain
         #Conecta no router de ingresso do dominio e pesquisa as rotas BGP
@@ -317,7 +386,7 @@ class NANO(Thread):
         print("AS_PEER_SLICE: "+str(as_peer_slice))
 
         as_path = as_path[280:]
-        #print(as_path)
+        print(as_path)
 
         char1 = '*>'
         char2 = ' i'
@@ -465,7 +534,7 @@ class NANO(Thread):
       """
         data = str(data % ("via", NANO.get_egress_interface(self, next_hop), next_hop[1], next_hop[0]))
         print(data)
-        grpc_route_agent = grpc_client.gRPC_Route("192.168.0.203",12345,data)
+        grpc_route_agent = grpc_client.gRPC_Route(intra_domain_data['router_ingress_mgmt'],12345,data)
         grpc_route_agent.main()
         print("Egrees Router Config done!")
 

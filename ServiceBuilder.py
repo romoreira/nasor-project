@@ -148,12 +148,16 @@ class ServiceBuilder:
 
         print("YAML: "+str(message))
 
+        #'end2end_next_hop': '2607:f0d0:2001:b::15', 'source': 7675}
+        next_hop = "NOTHING"
+        source = "NOTHING"
+
+
         json_message = json.dumps(message)
-        json_message = """{%smethod%s: %s"""+str(METHOD)+"""%s, %sdetails%s: """+json_message+"""}"""
-        json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"","\""))
+        json_message = """{%smethod%s: %s"""+str(METHOD)+"""%s, %sdetails%s: """+json_message+""", %send2end_next_hop%s: %s"""+next_hop+"""%s, %ssource%s: %s"""+source+"""%s}"""
+        json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"","\"", "\"","\"","\"","\"","\"","\"","\"","\""))
 
         message = json_message
-
 
         for n in range(1, 2):
             response = pycos.Task(ServiceBuilder.speaker_proc, NANO_TARGET_HSOT, NANO_TARGET_PORT, n)

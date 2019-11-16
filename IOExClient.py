@@ -55,12 +55,12 @@ def slice_creation_forwarder(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TAR
     message = json.dumps(MESSAGE)
     NEXT_HOP_LIST = json.dumps(NEXT_HOP_LIST)
 
-    json_message = """{%smethod%s: %s""" + str(METHOD) + """%s, %sdetails%s: """ + str(message) + """, %send2end_next_hop%s: """+str(NEXT_HOP_LIST)+"""}"""
-    json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
+    json_message = """{%smethod%s: %s""" + str(METHOD) + """%s, %sdetails%s: """ + str(message) + """, %send2end_next_hop%s: """+str(NEXT_HOP_LIST)+""", %ssource%s: """+str(SOURCE)+"""}"""
+    json_message = str(json_message % ("\"", "\"", "\"", "\"", "\"", "\"", "\"", "\"", "\"", "\""))
 
     message = json_message
 
-    print(message)
+    #print(message)
 
     for n in range(1, 2):
             response = pycos.Task(speaker_proc, NANO_TARGET_HOST, NANO_TARGET_PORT, n)

@@ -31,7 +31,7 @@ def listener(conn, task=None):
         if data[-1] == '/':
            break
     conn.close()
-    print("7675 Received: "+str(data))
+    #print("7675 Received: "+str(data))
     data = str(data[:-1])
     data = json.loads(data)
 
