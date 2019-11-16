@@ -36,7 +36,7 @@ def listener(conn, task=None):
     data = json.loads(data)
 
     if data['method'] == "CREATE_SLICE":
-        print("RECEBEU O PEDIDO DE CRIACAO DE UM SLICE:")
+        print("\n***RECEBEU O PEDIDO DE CRIACAO DE UM SLICE***\n")
         NANO.eDomain_slice_builder("", data, ASN)
 
 def listener_proc(host, port, AS, task=None):
