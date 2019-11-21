@@ -490,9 +490,10 @@ class NANO(Thread):
                         print("ENTRY[2]: " + str(entry[1])+ " Slice AS PATH: "+str(slice_as_path))
                         exit = 1
                         break
-                    slice_as_path = entry[-3:]
-                    next_hop.append(entry[2])
-                    print("SLICE AS PATH: " + str(slice_as_path) + " and next_hop: "+str(next_hop))
+                    else:
+                        slice_as_path = entry[-3:]
+                        next_hop.append(entry[2])
+                        print("SLICE AS PATH: " + str(slice_as_path) + " and next_hop: "+str(next_hop))
                     for item in slice_as_path:
                         if item != "":
                             slice_as_path_aux.append(item)
