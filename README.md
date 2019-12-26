@@ -7,6 +7,13 @@
 ```
 
 
+# Multi-Domain Routers (VMs) and Config
+
+[Download it here](http://bit.ly/Multi-Domain-Routers-AINA2020)
+
+> TIP: Need be launched on an environment with Open vSwitch with interfaces connected through a Bridge.
+> TIP: ./multi-domain-sr.sh (to create and configure the connectivity among the routers)
+
 # Edge Computing Slice
 Edge Computing Slice aims to provide network and computing sharing resources to handle many user applications with special requirements over the unique infrastructure.
 
