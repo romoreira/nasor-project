@@ -47,7 +47,7 @@ class BGPServer(Thread):
                 break
         conn.close()
         data = data[:-1]
-        logging.debug("Router Register Received - " + str(data))
+        logging.debug("Router Register Received -- " + str(data))
         BGPServer.addTo_routers_domain_list(json.loads(data))
 
     def listener_proc(host, port, task=None):

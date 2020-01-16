@@ -112,4 +112,4 @@ if __name__ == '__main__':
     routeListener.start()
 
 else:
-    logging.debug('Imported in somewhere place - BGPAgent')
+    logging.debug('Imported in somewhere place -- BGPAgent')

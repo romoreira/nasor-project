@@ -7,7 +7,7 @@ def client_conn_proc(conn, task=None):
     while True:
         try:
             line = yield conn.recv_msg()
-            print("Recebeu: "+str(line))
+            print("Received: "+str(line))
         except:
             break
         if not line:

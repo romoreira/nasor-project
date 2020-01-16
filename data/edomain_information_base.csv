@@ -1,4 +1,4 @@
 domain_id,as_number,as_name,peering_router,nano_agent,routing_algorithm
 1,16735,AlgarTelecomSA,"192.168.0.202","192.168.0.102","BGP"
-2,26599,TelefonicaSA,"192.168.0.204","192.168.0.104","BGP"
+2,26599,TelefonicaSA,"192.168.0.204","192.168.0.102","BGP"
 3,7675,TimBrasil,"192.168.0.203","192.168.0.104","OSPF"

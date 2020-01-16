@@ -10,7 +10,7 @@
   {
     "domain_id": 2,
     "as_number": 26599,
-    "as_name": "TelefonicaSA",
+    "as_name": "TelefonicaS/A",
     "peering_router": "192.168.0.204",
     "nano_agent": "192.168.0.104",
     "routing_algorithm": "BGP"
