@@ -1,0 +1,4 @@
+routerA,routerB,network_metric,color
+r1,r2,2,red
+r1,r3,6,blue
+r2,r3,3,red
