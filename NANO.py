@@ -345,12 +345,12 @@ class NANO(Thread):
 
 
         if int(ASN) == 16735:
-            with open('inter-domain-16735.json') as f:
+            with open('\data\inter-domain-16735.json') as f:
                 intra_domain_data = json.load(f)
                 #print(intra_domain_data)
 
         else:
-            with open('inter-domain.json') as f:
+            with open('\data\inter-domain-26599.json') as f:
                 intra_domain_data = json.load(f)
                 #print(intra_domain_data)
 

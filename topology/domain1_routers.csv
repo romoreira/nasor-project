@@ -1,4 +1,4 @@
-routerID,type,ASN,AS,contry,lati,long
-r1,core,1916,RNP,Brazil,"-15.77972","-47.92972"
-r2,core,1916,RNP,Brazil,"-23.5475","-46.63611"
-r3,border,1916,RNP,Brazil,"-19.92083","-43.93778"
+routerID,management_ip,type,ASN,AS,contry,lati,long
+r1,192.168.0.1,core,1916,RNP,Brazil,"-15.77972","-47.92972"
+r2,192.168.0.2,core,1916,RNP,Brazil,"-23.5475","-46.63611"
+r3,192.168.0.3,border,1916,RNP,Brazil,"-19.92083","-43.93778"

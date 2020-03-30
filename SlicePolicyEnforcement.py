@@ -47,7 +47,12 @@ print("\nAll Paths:")
 for path in all_simple_paths(g, 'r1', 'r3'):
     print (path)
 
+
+
+#Path chosen according Djikstra will be the palce where the Slice SID-based will be setted.
 print("\nDjikstra")
 print(nx.dijkstra_path(g,'r1','r3',weight = lambda u, v, d: d['attr_dict']['network_metric'] ))
+
+
 
 
