@@ -2,7 +2,6 @@
 
 
 #Creating interfaces in Hosts
-
 sudo ip tuntap add mode tap r1-r2-port
 sudo ip link set r1-r2-port up
 
