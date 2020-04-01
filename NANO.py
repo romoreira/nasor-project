@@ -692,6 +692,11 @@ class NANO(Thread):
         import InterOrchestratorExchange
         InterOrchestratorExchange.nano_receier(NANO_HOST, NANO_PORT, NANO_ASN)
 
+    def slice_policy_listener(self, NANO_HOST, NANO_PORT, NANO_ASN):
+        import SlicePolicyAPI
+        logging.debug("Policy ASN: " + str(NANO_ASN) + " Listenner is running")
+        SlicePolicyAPI.slice_policy_listener(NANO_HOST, int(NANO_PORT)+10, NANO_ASN)
+
 if __name__ == '__main__':
 
     logging.debug('Running by IDE - NANO')
@@ -710,10 +715,12 @@ if __name__ == '__main__':
         print("NANO Port should be a valid Port Number")
 
 
+    slice_policy_listener = threading.Thread(target=NANO.slice_policy_listener, args=(1,NANO_HOST,NANO_PORT, NANO_ASN))
     service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,NANO_HOST,NANO_PORT))
     nano_listenner = NANO(4,NANO_ASN, NANO_HOST, NANO_PORT)
     nano_listenner.start()
     service_builder_listenner.start()
+    slice_policy_listener.start()
     nano_listenner.join()
 else:
     logging.debug('Imported in somewhere place - NANO')
