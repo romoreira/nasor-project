@@ -1,80 +1,72 @@
-
-import socket
-import pycos
-from threading import Thread
+from networkx.algorithms.simple_paths import all_simple_paths
 import logging
-import json
-import sys
+import networkx as nx
+import pandas as pd
+from networkx.readwrite import json_graph
+from flask import Flask
+
+SlicePolicyAPI = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
-class SlicePolicyAPI(Thread):
-
-    NANO_HOST = ""
-    NANO_PORT = ""
-    NANO_ASN = ""
-
-    message = ""
-
-
-    '''
-    Constructor
-    '''
-def __init__(self, NANO_ASN, NANO_HOST, NANO_PORT):
-    super(SlicePolicyAPI, self).__init__()
-    self.NANO_ASN = NANO_ASN
-    self.NANO_HOST = NANO_HOST
-    self.NANO_PORT = NANO_PORT
-
-
-
-def listener(conn, task=None):
-
-    data = ''
-    while True:
-        data += (yield conn.recv(128)).decode('utf-8')
-        if data[-1] == '/':
-            break
-    conn.close()
-    # print("7675 Received: "+str(data))
-    data = str(data[:-1])
-    data = json.loads(data)
-
-    if data['method'] == "CREATE_SLICE":
-        print("\n***RECEBEU O PEDIDO DE APLICACAO DE POLITICA***\n")
-
-
-def listener_proc(host, port, AS, task=None):
-
-    global ASN
-    ASN = AS
-
-    task.set_daemon()
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock = pycos.AsyncSocket(sock)
-    sock.bind((host, port))
-    sock.listen(8)
-
-    while True:
-        conn, addr = yield sock.accept()
-        pycos.Task(listener, conn)
-
-
-def slice_policy_listener(NANO_HOST, NANO_PORT, NANO_ASN):
-
-    print("SlicePolicy Receiver is Running on Port: " + str(NANO_PORT))
-
-    pycos.Task(listener_proc, NANO_HOST, NANO_PORT, NANO_ASN)
-    while True:
-        cmd = sys.stdin.readline().strip().lower()
-        if cmd == 'exit' or cmd == 'quit':
-             break
-
 def get_topology():
-    print("Pronto para retornar a topologia")
 
+    # Grab edge list
+    edgelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_links.csv")
+    # print(edgelist)
+
+    # Grab node list data
+    nodelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_routers.csv")
+    # print(nodelist)
+
+    # Create empty graph
+    g = nx.DiGraph()
+
+    # Add edges and edge attributes
+    for i, elrow in edgelist.iterrows():
+        g.add_edge(elrow[0], elrow[1], attr_dict=elrow[2:].to_dict())
+
+    # Add node attributes
+    for i, nlrow in nodelist.iterrows():
+        g.node[nlrow['routerID']].update(nlrow[1:].to_dict())
+
+    print("\nLinks:")
+    print(g.edges(data=True))
+
+    print("\nRoteadores")
+    print(g.nodes(data=True))
+
+    # Define node positions data structure (dict) for plotting
+    node_positions = {node[0]: (node[1]['lati'], -node[1]['long']) for node in g.nodes(data=True)}
+
+    # Define data structure (list) of edge colors for plotting
+    for e in g.edges(data=True):
+        edge_colors = [e[2]['attr_dict']['color'] for e in g.edges(data=True)]
+
+    # plt.figure(figsize=(19, 10))
+    # plt.xlabel('Domain1-Connectivity')
+    # nx.draw(g, pos=node_positions, edge_color=edge_colors, node_size=6, node_color='black',with_labels = True, font_family='sans-serif', font_size=30)
+    # plt.title('Graph Representation of Sleeping Giant Trail Map', size=15)
+    # plt.show()
+    # plt.savefig('/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/Domain1.png')
+
+    print("\nAll Paths:")
+    for path in all_simple_paths(g, 'r1', 'r3'):
+        print (path)
+
+    return json_graph.node_link_data(g)
+
+@SlicePolicyAPI.route('/v1.0/getTopology', methods=['GET'])
+def api_topology():
+    return get_topology()
+
+@SlicePolicyAPI.route('/v1.0/applyPolicy', methods=['POST'])
+def apply_policy():
+    print("Pronto para aplicar a politica do caminho do slice")
 
 if __name__ == '__main__':
     logging.debug('Running by IDE - SlicePolicyAPI')
+    SlicePolicyAPI.run(debug=True)
 else:
     logging.debug('Imported in somewhere place - SlicePolicyAPI')
+    SlicePolicyAPI.run(debug=True)
