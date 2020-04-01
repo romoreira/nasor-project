@@ -28,7 +28,6 @@ def __init__(self, NANO_ASN, NANO_HOST, NANO_PORT):
 
 
 
-
 def listener(conn, task=None):
 
     data = ''
