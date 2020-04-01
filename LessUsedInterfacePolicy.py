@@ -73,6 +73,7 @@ class LUIP():
         for node1, node2, data in g.edges(data=True):
             print("Cada Item do Edges: "+str(data))
 
+
         print("\nPos supostamente fazer o update")
         for node1, node2, data in g.edges(data=True):
             color = nx.get_edge_attributes(g, data[1:])
