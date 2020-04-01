@@ -1,4 +1,5 @@
 import requests
+from networkx import get_edge_attributes
 from networkx.algorithms.simple_paths import all_simple_paths
 import json
 from networkx.readwrite import json_graph
@@ -52,7 +53,8 @@ for path in all_simple_paths(g, 'r1', 'r3'):
     print (path)
     print("Test if the path bandwidth consumption is lowest")
 
-#exit()
+for node1, node2, data in g.edges(data=True):
+    print(data["attr_dict"])
 
 
 #Path chosen according Djikstra will be the palce where the Slice SID-based will be setted.
