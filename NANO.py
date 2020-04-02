@@ -15,23 +15,16 @@ Date: 10/09/2019
 #https://blog.codybunch.com/2016/07/12/Getting-started-with-BGP-on-Linux-with-Cumuls-Quagga/
 #http://www.occaid.org/tutorial-ipv6bgp.html
 import threading
-from io import StringIO
 from optparse import OptionParser
-import json, logging, sys
+import json, logging
 import socket
-import read as read
 
 import CoreDomainTopology
-import eDomainInformationBase
-import iDomainInformationBase
 
-import pandas as pd
 import re
 
-import getpass
 import sys
 import telnetlib
-import csv
 
 sys.path.insert(1, './segment-routing')
 import grpc_client
@@ -47,7 +40,7 @@ SERVER_DEBUG = False
 
 from threading import Thread
 import ipaddress
-import pycos
+
 
 class NANO(Thread):
 
@@ -590,7 +583,7 @@ class NANO(Thread):
                         }
                       ]
                       """
-            data = str(data % ("via", NANO.get_egress_interface(self, next_hop), next_hop[0]    ))
+            data = str(data % ("via", NANO.get_egress_interface(self, next_hop), next_hop[0]))
             print(data)
             grpc_route_agent = grpc_client.gRPC_Route(intra_domain_data['router_ingress_mgmt'], 12345, data)
             grpc_route_agent.main()
@@ -693,9 +686,9 @@ class NANO(Thread):
         InterOrchestratorExchange.nano_receier(NANO_HOST, NANO_PORT, NANO_ASN)
 
     def slice_policy_listener(self, NANO_HOST, NANO_PORT, NANO_ASN):
-        import SlicePolicyAPI
+        from Policies import SlicePolicyAPI
         logging.debug("Policy ASN: " + str(NANO_ASN) + " Listenner is running")
-        SlicePolicyAPI.slice_policy_listener(NANO_HOST, int(NANO_PORT)+10, NANO_ASN)
+        SlicePolicyAPI.slice_policy_listener(NANO_HOST, int(NANO_PORT) + 10, NANO_ASN)
 
 if __name__ == '__main__':
 

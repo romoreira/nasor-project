@@ -4,6 +4,10 @@ import networkx as nx
 import pandas as pd
 from networkx.readwrite import json_graph
 from flask import Flask
+import sys
+sys.path.insert(1, '../segment-routing')
+import grpc_client
+import json
 
 SlicePolicyAPI = Flask(__name__)
 
@@ -12,11 +16,11 @@ logging.basicConfig(level=logging.DEBUG)
 def get_topology():
 
     # Grab edge list
-    edgelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_links.csv")
+    edgelist = pd.read_csv("/topology/domain1_links.csv")
     # print(edgelist)
 
     # Grab node list data
-    nodelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_routers.csv")
+    nodelist = pd.read_csv("/topology/domain1_routers.csv")
     # print(nodelist)
 
     # Create empty graph
@@ -55,6 +59,19 @@ def get_topology():
         print (path)
 
     return json_graph.node_link_data(g)
+
+@SlicePolicyAPI.route('/v1.0/installRouteR1', methods=['GET'])
+def route_installR1():
+    data = """[{"paths": [{"via": "1:2::2", "device": "eth1", "destination": "b::/64", "encapmode": "encap", "segments": ["3::D6","2::AD6:F2","2::AD6:F1"]}]}]"""
+    global message
+    json_m = json.loads(data)
+    message = json.dumps(json_m)
+
+    print("Message: "+str(message))
+
+    grpc_route_agent = grpc_client.gRPC_Route("192.168.0.247",12345,message)
+    print(grpc_route_agent.main())
+
 
 @SlicePolicyAPI.route('/v1.0/getTopology', methods=['GET'])
 def api_topology():
