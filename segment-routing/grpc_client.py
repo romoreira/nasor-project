@@ -144,6 +144,7 @@ class gRPC_Route():
           path.device = jpath['device']
           path.encapmode = jpath['encapmode']
           path.via = jpath['via']
+          print("Passando...")
           for segment in jpath['segments']:
             srv6_segment = path.sr_path.add()
             srv6_segment.segment = segment

@@ -51,8 +51,8 @@ class gRPC_SID():
     sid = sid_request.sid.add()
     sid.SID = str(self.data['sid_ip'])
     sid.SID_BEHAVIOR  = str(self.data['sid_behaviour'])
-    sid.IP_ADDR  = ""
-    sid.TARGET_IF  = ""
+    sid.IP_ADDR  = str(self.data['ip_addr'])
+    sid.TARGET_IF  = str(self.data['target_if'])
     sid.SOURCE_IF  = ""
 
     response = sid_stub.AddSID(sid_request)

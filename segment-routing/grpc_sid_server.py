@@ -53,7 +53,7 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
         self.server_port = 46001
 
     def AddSID(self, request, context):
-        logger.debug("SID Config received:\n%s", request)
+        logger.debug("\nSID Config received:\n%s", request)
 
         for sid in request.sid:
 
@@ -62,8 +62,9 @@ class SIDManagement(sid_management_pb2_grpc.SIDManagementServicer):
                 command  = 'sudo srconf localsid add '+str(sid.SID)+' '+sid.SID_BEHAVIOR
                 p = os.popen(command).read()
                 logging.info("SID Added - " + str(command) + " Result: " + str(p))
-            elif str(sid.SID_BEHAVIOR) == "end.ad6":
-                # Base: sudo srconf localsid add 2::AD6:F1 end.ad6 ip 2:f1::f1 veth1_2 veth1_2
+            elif str(sid.SID_BEHAVIOR) == "end.dx6":
+                # Base: srconf localsid add 2607:f0d0:2001::2 end.dx6 ip b::2 veth1_3
+
                 command = 'sudo srconf localsid add ' + str(sid.SID) + ' ' + str(sid.SID_BEHAVIOR) + ' ip ' + str(
                 sid.IP_ADDR) + ' ' + str(sid.TARGET_IF)# + ' ' + str(sid.SOURCE_IF)
 
