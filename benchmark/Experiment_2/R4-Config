@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#Creating a VNF
+sudo /home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add server veth1_3 inet6 b::1/64 b::2/64
+
+#Enabling the Kernel forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+
+#Enabling the Kernel Module
+cd /home/sr6/SRv6-net-prog/srext/
+sudo make && sudo make install && depmod -a
+
+#Load the module Kernel
+sudo modprobe srext

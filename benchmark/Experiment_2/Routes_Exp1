@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#All nodes should run below script simultaneously
+python /home/sr6/grpc/grpc_server.py --debug & python /home/sr6/grpc/sid_grpc/grpc_sid_server.py --debug
+
+#Routes R1
+sudo ip -6 route add 2001:470:28:5a1::/64 via 2001:470:28:5a1::2 dev eth1
+sudo ip -6 route add 2001::/64 via 2001:470:28:5a1::2 dev eth1
+
+#Routes R3
+sudo ip -6 route add 2607:f0d0:2001::/64 via 2607:f0d0:2001::2 dev eth2
+sudo ip -6 route add 3::d6/64 via 2607:f0d0:2001::2 dev eth2
+
+sudo ip -6 route add 2001:470:28:5a1::/64 via 2001:470:28:5a1::1 dev eth0
+sudo ip -6 route add 1::d6/64 via 2001:470:28:5a1::1 dev eth0
+
+#Router R4
+sudo ip -6 route add 2607:f0d0:2001::/64 via 2607:f0d0:2001::1 dev eth0
+sudo ip -6 route add 2607::/64 via 2607:f0d0:2001::1 dev eth0
+

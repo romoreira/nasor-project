@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#Enabling the Kernel forwarding
+sysctl -w net.ipv6.conf.all.forwarding=1
+
+#Enabling the Kernel Module
+cd /home/sr6/SRv6-net-prog/srext/
+sudo make && sudo make install && depmod -a
+
+#Load the module Kernel
+sudo modprobe srext
