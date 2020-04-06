@@ -1,11 +1,14 @@
 from __future__ import division
 import requests
+import time
 from networkx import get_edge_attributes
 from networkx.algorithms.simple_paths import all_simple_paths
 import json
 import networkx as nx
 import socket
 import pycos
+import sys
+sys.path.insert(1, '/home/rodrigo/PycharmProjects/EdgeComputingSlice/Policies')
 
 message = ""
 
@@ -31,6 +34,7 @@ class LUIP():
         #jsongraph = json.dumps(json.loads(r.content.encode("utf-8")), sort_keys=True)
         #jsongraph = str.replace(str(jsongraph),"u'","'")
 
+        print("Resposta: "+str(resposta))
 
         jsongraph = json.loads(resposta)
         jsongraph = json.dumps(jsongraph)
@@ -156,8 +160,10 @@ class LUIP():
 
         if channal_utilization1 > channal_utilization2:
             print("Path escollhido: 2 - Instalar os SIDs")
+            import PolicySpeaker
         elif channal_utilization1 < channal_utilization2:
             print("Path escollhido: 1 - Instalar os SIDs")
+            import PolicySpeaker
 
     def instalar_rotas_r1(self):
         data = """
@@ -203,6 +209,6 @@ if __name__ == '__main__':
     print('Running by IDE - NANO')
     topo = LUIP()
     #topo.topology_operations()
-    topo.instalar_rotas_r1()
+    #topo.instalar_rotas_r1()
 else:
     print('Imported in somewhere place - NANO')

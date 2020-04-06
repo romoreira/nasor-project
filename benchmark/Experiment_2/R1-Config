@@ -3,7 +3,6 @@
 #Create a VNF Client
 /home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add client veth1_1 inet6 a::1/64 a::2/64
 
-
 #Enabling the Kernel forwarding
 sysctl -w net.ipv6.conf.all.forwarding=1
 

@@ -2,8 +2,9 @@ import pycos
 import socket
 import logging
 import json
+import time
 import sys
-sys.path.insert(1, '../segment-routing')
+sys.path.insert(1, '/home/rodrigo/PycharmProjects/EdgeComputingSlice/segment-routing')
 import grpc_client
 import grpc_sid_client
 
@@ -225,6 +226,20 @@ def exp2_policy_installR4():
     print("Policy SID Creation Response: " + str(sid_installer.main()))
 
 
+def experimento_deployment_time1():
+    with open("/home/rodrigo/PycharmProjects/EdgeComputingSlice/benchmark/Experiment_2/Data-DeploymentTime/Round1.txt", "a+") as file_object:
+
+        start_time = time.time()
+
+        route_installR1()
+        sr_policy_installR1()
+        policy_installR3_left_right()
+        policy_installR3_right_left()
+        route_installR4()
+        sr_policy_installR4()
+
+        file_object.write(str((time.time() - start_time))+"\n")
+
 if __name__ == "__main__":
 
     logging.debug('Running by IDE - PolicySpeaker')
@@ -254,3 +269,5 @@ if __name__ == "__main__":
 
 else:
     logging.debug('Running throug import - PolicySpeaker')
+
+

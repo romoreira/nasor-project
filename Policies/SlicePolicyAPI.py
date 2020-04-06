@@ -4,9 +4,14 @@ import networkx as nx
 import pandas as pd
 from networkx.readwrite import json_graph
 from flask import Flask
+from flask import request
+import PolicySpeaker
 import sys
-sys.path.insert(1, '../segment-routing')
-import grpc_client
+sys.path.insert(1, '/home/rodrigo/PycharmProjects/EdgeComputingSlice/Policies')
+
+#import sys
+#sys.path.insert(1, '/home/rodrigo/PycharmProjects/EdceComputingSlice/segment-routing')
+#import grpc_client
 import json
 
 SlicePolicyAPI = Flask(__name__)
@@ -16,11 +21,11 @@ logging.basicConfig(level=logging.DEBUG)
 def get_topology():
 
     # Grab edge list
-    edgelist = pd.read_csv("/topology/domain1_links.csv")
-    # print(edgelist)
+    edgelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_links.csv")
+    #print(edgelist)
 
     # Grab node list data
-    nodelist = pd.read_csv("/topology/domain1_routers.csv")
+    nodelist = pd.read_csv("/home/rodrigo/PycharmProjects/EdgeComputingSlice/topology/domain1_routers.csv")
     # print(nodelist)
 
     # Create empty graph
@@ -60,26 +65,35 @@ def get_topology():
 
     return json_graph.node_link_data(g)
 
-@SlicePolicyAPI.route('/v1.0/installRouteR1', methods=['GET'])
-def route_installR1():
-    data = """[{"paths": [{"via": "1:2::2", "device": "eth1", "destination": "b::/64", "encapmode": "encap", "segments": ["3::D6","2::AD6:F2","2::AD6:F1"]}]}]"""
-    global message
-    json_m = json.loads(data)
-    message = json.dumps(json_m)
+#@SlicePolicyAPI.route('/v1.0/installRouteR1', methods=['GET'])
+#def route_installR1():
+#    data = """[{"paths": [{"via": "1:2::2", "device": "eth1", "destination": "b::/64", "encapmode": "encap", "segments": ["3::D6","2::AD6:F2","2::AD6:F1"]}]}]"""
+#    global message
+#    json_m = json.loads(data)
+#    message = json.dumps(json_m)
 
-    print("Message: "+str(message))
+#    print("Message: "+str(message))
 
-    grpc_route_agent = grpc_client.gRPC_Route("192.168.0.247",12345,message)
-    print(grpc_route_agent.main())
+#    grpc_route_agent = grpc_client.gRPC_Route("192.168.0.247",12345,message)
+#    print(grpc_route_agent.main())
 
 
 @SlicePolicyAPI.route('/v1.0/getTopology', methods=['GET'])
 def api_topology():
     return get_topology()
 
-@SlicePolicyAPI.route('/v1.0/applyPolicy', methods=['POST'])
+@SlicePolicyAPI.route('/v1.0/applyPolicy', methods=['GET'])
 def apply_policy():
-    print("Pronto para aplicar a politica do caminho do slice")
+    print("Applying Slice Policy")
+    args = request.args
+    if args["policy_type"] == "bgp":
+        print("BGP Policy Chosed")
+        PolicySpeaker.experimento_deployment_time1()
+        return "Applying BGP-aware"
+    elif args["policy_type"] == "networK_aware":
+        print("Netowrk Aware chosed")
+    else:
+        return "Policy Unavailable"
 
 if __name__ == '__main__':
     logging.debug('Running by IDE - SlicePolicyAPI')
