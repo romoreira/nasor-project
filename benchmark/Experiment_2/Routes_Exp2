@@ -13,7 +13,7 @@ sudo ip -6 route add 2::/64 via 2001:470:28:5a2::2 dev eth0
 #Router R2
 
 sudo ip -6 route add 2001:470:28:5a3::/64 via 2001:470:28:5a3::2 dev eth1
-sudo ip -6 route add 2::/64 via 2001:470:28:5a3::2 dev eth1
+sudo ip -6 route add 3::/64 via 2001:470:28:5a3::2 dev eth1
 
 sudo ip -6 route add 2001:470:28:5a2::/64 via 2001:470:28:5a2::1 dev eth0
 sudo ip -6 route add 1::d6/64 via 2001:470:28:5a2::1 dev eth0

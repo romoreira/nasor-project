@@ -1,5 +1,6 @@
 from __future__ import division
 import requests
+import logging
 import time
 from networkx import get_edge_attributes
 from networkx.algorithms.simple_paths import all_simple_paths
@@ -7,12 +8,16 @@ import json
 import networkx as nx
 import socket
 import pycos
+import PolicySpeaker
 import sys
 sys.path.insert(1, '/home/rodrigo/PycharmProjects/EdgeComputingSlice/Policies')
 
 message = ""
 
 class LUIP():
+
+    def __init__(self):
+        a = ""
 
     def speaker_proc(host, port, n, task=None):
 
@@ -29,7 +34,7 @@ class LUIP():
 
         r = requests.get('http://127.0.0.1:5000/v1.0/getTopology')
         #print("\n Response: "+str(r.content))
-        resposta = str(r.text.decode("utf-8"))
+        resposta = str(r.text).encode("utf-8")
         #resposta = resposta.replace("\"", "'")
         #jsongraph = json.dumps(json.loads(r.content.encode("utf-8")), sort_keys=True)
         #jsongraph = str.replace(str(jsongraph),"u'","'")
@@ -86,15 +91,19 @@ class LUIP():
 
         utilization_path_1 = []
 
-        r = requests.get('http://192.168.0.247:1414/network/statistics?interface=eth0&stamp=2')
+        r = requests.get('http://192.168.0.247:1414/network/statistics?interface=eth0&stamp=8')
         result = r.json()
         utilization_path_1.append(str(result["tx"]["ratestring"]))
 
-        r = requests.get('http://192.168.0.248:1414/network/statistics?interface=eth1&stamp=2')
+        r = requests.get('http://192.168.0.248:1414/network/statistics?interface=eth1&stamp=8')
         result = r.json()
         utilization_path_1.append(str(result["tx"]["ratestring"]))
 
-        r = requests.get('http://192.168.0.249:1414/network/statistics?interface=eth2&stamp=2')
+        r = requests.get('http://192.168.0.249:1414/network/statistics?interface=eth2&stamp=8')
+        result = r.json()
+        utilization_path_1.append(str(result["tx"]["ratestring"]))
+
+        r = requests.get('http://192.168.0.250:1414/network/statistics?interface=eth0&stamp=8')
         result = r.json()
         utilization_path_1.append(str(result["tx"]["ratestring"]))
 
@@ -103,11 +112,11 @@ class LUIP():
 
         utilization_path_2 = []
 
-        r = requests.get('http://192.168.0.247:1414/network/statistics?interface=eth1&stamp=2')
+        r = requests.get('http://192.168.0.247:1414/network/statistics?interface=eth1&stamp=8')
         result = r.json()
         utilization_path_2.append(str(result["tx"]["ratestring"]))
 
-        r = requests.get('http://192.168.0.249:1414/network/statistics?interface=eth2&stamp=2')
+        r = requests.get('http://192.168.0.249:1414/network/statistics?interface=eth2&stamp=8')
         result = r.json()
         utilization_path_2.append(str(result["tx"]["ratestring"]))
 
@@ -160,36 +169,10 @@ class LUIP():
 
         if channal_utilization1 > channal_utilization2:
             print("Path escollhido: 2 - Instalar os SIDs")
-            import PolicySpeaker
-        elif channal_utilization1 < channal_utilization2:
+            return
+        elif channal_utilization1 <= channal_utilization2:
             print("Path escollhido: 1 - Instalar os SIDs")
-            import PolicySpeaker
-
-    def instalar_rotas_r1(self):
-        data = """
-                  [
-                    {
-                      "paths": [
-                        {
-                          "via": "2001:470:28:5a1::1",
-                          "device": "eth1",
-                          "destination": "b::/64",
-                          "encapmode": "encap",
-                          "segments": [
-                            "2::AD6:F1","2::AD6:F2","2::AD6:F3","3::D6"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                  """
-        #data = str(data % ("via", NANO.get_egress_interface(self, next_hop), next_hop[1], next_hop[0]))
-        print(data)
-        global message
-
-        message = json.dumps(data)
-
-        response = pycos.Task(self.speaker_proc, "192.168.0.247",12345,"")
+            return
 
 
 
@@ -201,14 +184,10 @@ class LUIP():
 
 
 
+#if __name__ == '__main__':
+#    print('Running by IDE - NANO')
+#    topo = LUIP()
+#    topo.topology_operations()
 
-    def teste(self):
-        print("Ola mundo")
-
-if __name__ == '__main__':
-    print('Running by IDE - NANO')
-    topo = LUIP()
-    #topo.topology_operations()
-    #topo.instalar_rotas_r1()
-else:
-    print('Imported in somewhere place - NANO')
+#else:
+#    logging.debug("Imported in somewhere place - Less Used Interfaec Policy")

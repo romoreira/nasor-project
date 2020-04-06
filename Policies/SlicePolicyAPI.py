@@ -87,11 +87,13 @@ def apply_policy():
     print("Applying Slice Policy")
     args = request.args
     if args["policy_type"] == "bgp":
-        print("BGP Policy Chosed")
+        print("BGP-based Policy Chosed")
         PolicySpeaker.experimento_deployment_time1()
-        return "Applying BGP-aware"
+        return "Applying BGP-aware..."
     elif args["policy_type"] == "networK_aware":
-        print("Netowrk Aware chosed")
+        print("Netowrk-aware  Policy Chosed")
+        PolicySpeaker.experimento_deployment_time2()
+        return "Applying Network-aware..."
     else:
         return "Policy Unavailable"
 
