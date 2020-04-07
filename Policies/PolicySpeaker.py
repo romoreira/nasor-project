@@ -335,15 +335,19 @@ if __name__ == "__main__":
 
     #Experimento 2-------------------------------------------------------------------
 
+    #exp2_route_installR1()
     #exp2_policy_installR2_left_right()
     #exp2_policy_installR3_left_right()
     #exp2_policy_installR4()
 
+    #exp2_route_installR4()
     #exp2_policy_installR3_right_left()
     #exp2_policy_installR2_right_left()
     #exp2_policy_installR1()
 
-    experimento_deployment_time2()
+
+    #Automatic experiment
+    #experimento_deployment_time2()
 
 else:
     logging.debug('Running throug import - PolicySpeaker')

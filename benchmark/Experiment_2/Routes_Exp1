@@ -11,6 +11,7 @@ sudo ip -6 route add 2001::/64 via 2001:470:28:5a1::2 dev eth1
 sudo ip -6 route add 2607:f0d0:2001::/64 via 2607:f0d0:2001::2 dev eth2
 sudo ip -6 route add 3::d6/64 via 2607:f0d0:2001::2 dev eth2
 
+
 sudo ip -6 route add 2001:470:28:5a1::/64 via 2001:470:28:5a1::1 dev eth0
 sudo ip -6 route add 1::d6/64 via 2001:470:28:5a1::1 dev eth0
 
@@ -18,3 +19,23 @@ sudo ip -6 route add 1::d6/64 via 2001:470:28:5a1::1 dev eth0
 sudo ip -6 route add 2607:f0d0:2001::/64 via 2607:f0d0:2001::1 dev eth0
 sudo ip -6 route add 2607::/64 via 2607:f0d0:2001::1 dev eth0
 
+
+
+#Experiment two channel simultaneously - with Brust traffic and light traffic
+
+#R1
+sudo srconf localsid add 8::D6 end.dx6 ip d::2 veth2_2
+sudo ip -6 route add e::/64 via 2001:470:28:5a1::2 encap seg6 mode encap segs 2001::,7::D6
+sudo ip -6 route add 2001::/64 via 2001:470:28:5a1::2 dev eth1
+
+#R3
+sudo ip -6 route add 7::/64 via 2607:f0d0:2001::2 dev eth2
+sudo srconf localsid add 2001:: end
+
+sudo ip -6 route add 8::/64 via 2001:470:28:5a1::1 dev eth0
+sudo srconf localsid add 2607:: end
+
+#R4
+sudo srconf localsid add 7::D6 end.dx6 ip e::2 veth4_4
+sudo ip -6 route add d::/64 via 2607:f0d0:2001::1 encap seg6 mode encap segs 2607::,8::D6
+sudo ip -6 route add 2607::/64 via 2607:f0d0:2001::1 dev eth0
