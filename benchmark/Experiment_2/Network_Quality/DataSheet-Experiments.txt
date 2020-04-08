@@ -19,3 +19,6 @@ pcap11 Jitter 30 and Latency 10
 pcap12 Jitter 50 and Latency 20
 pcap13 Jitter 40 and Latency 10
 pcap14 Jitter 40 and Latency 20
+
+
+Packet;Sequence;Delta;Jitter;Skew;Bandwidth;Marker;Status
