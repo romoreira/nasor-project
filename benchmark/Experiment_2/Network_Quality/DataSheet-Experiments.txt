@@ -1,0 +1,21 @@
+Slice Stablished by NASOR taking into account the bottom path
+
+Client
+sudo ip netns exec client ./sipp -sf scenarios/uac_g711.xml -i [a::2] [b::2]:5063 -r 1
+
+Server
+sudo ip netns exec server ./sipp -sn uas -i [b::2] -p 5063
+
+
+
+
+Delay on output port of Router 1
+tc qdisc add dev eth1 root netem delay 10ms 30ms 25% distribution normal
+
+pcap2-8 Jitter and Latency on the Next Router Interface - Did not work well
+pcap9 Jitter 10 and Latency 100
+pcap10 Jitter 10 and Latency 200
+pcap11 Jitter 30 and Latency 10
+pcap12 Jitter 50 and Latency 20
+pcap13 Jitter 40 and Latency 10
+pcap14 Jitter 40 and Latency 20
