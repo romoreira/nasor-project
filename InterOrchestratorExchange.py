@@ -8,6 +8,7 @@ Date: 27/08/2019
 #LINK Rest API Apache Geode: https://geode.apache.org/docs/guide/11/rest_apps/develop_rest_apps.html
 
 import socket, sys, pycos, csv, logging,json, threading
+from datetime import datetime
 
 from NANO import NANO
 
@@ -36,7 +37,8 @@ def listener(conn, task=None):
     data = json.loads(data)
 
     if data['method'] == "CREATE_SLICE":
-        print("\n***RECEBEU O PEDIDO DE CRIACAO DE UM SLICE***\n")
+        datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+        print("\n***RECEBEU O PEDIDO DE CRIACAO DE UM SLICE***\n***TIME: "+str(datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]+"***"))
         NANO.eDomain_slice_builder("", data, ASN)
 
 def listener_proc(host, port, AS, task=None):

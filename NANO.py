@@ -91,11 +91,11 @@ class NANO(Thread):
     def get_nano_agent_host(self, ASN):
         "Procurar na Base de Orchestradores do IP do Nano dado um ASN"
         if str(ASN) == str(7675):
-            return "192.168.0.105"
+            return "192.168.0.130"
         elif str(ASN) == str(16735):
-            return "192.168.0.105"
+            return "192.168.0.130"
         elif str(ASN) == str(26599):
-            return "192.168.0.105"
+            return "192.168.0.130"
 
     def get_nano_agent_port(self, ASN):
         "Procurar na Base de Orchestradores a Porta do Nano dado um ASN"
@@ -338,12 +338,12 @@ class NANO(Thread):
 
 
         if int(ASN) == 16735:
-            with open('\data\inter-domain-16735.json') as f:
+            with open('data/inter-domain-16735.json') as f:
                 intra_domain_data = json.load(f)
                 #print(intra_domain_data)
 
         else:
-            with open('\data\inter-domain-26599.json') as f:
+            with open('data/inter-domain-26599.json') as f:
                 intra_domain_data = json.load(f)
                 #print(intra_domain_data)
 
@@ -685,10 +685,9 @@ class NANO(Thread):
         import InterOrchestratorExchange
         InterOrchestratorExchange.nano_receier(NANO_HOST, NANO_PORT, NANO_ASN)
 
-    def slice_policy_listener(self, NANO_HOST, NANO_PORT, NANO_ASN):
-        from Policies import SlicePolicyAPI
-        logging.debug("Policy ASN: " + str(NANO_ASN) + " Listenner is running")
-        SlicePolicyAPI.slice_policy_listener(NANO_HOST, int(NANO_PORT) + 10, NANO_ASN)
+#    def slice_policy_listener(self, NANO_HOST, NANO_PORT, NANO_ASN):
+#        logging.debug("Policy ASN: " + str(NANO_ASN) + " Listenner is running")
+#        SlicePolicyAPI.slice_policy_listener(NANO_HOST, int(NANO_PORT) + 10, NANO_ASN)
 
 if __name__ == '__main__':
 
@@ -708,12 +707,12 @@ if __name__ == '__main__':
         print("NANO Port should be a valid Port Number")
 
 
-    slice_policy_listener = threading.Thread(target=NANO.slice_policy_listener, args=(1,NANO_HOST,NANO_PORT, NANO_ASN))
+    #slice_policy_listener = threading.Thread(target=NANO.slice_policy_listener, args=(1,NANO_HOST,NANO_PORT, NANO_ASN))
     service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,NANO_HOST,NANO_PORT))
     nano_listenner = NANO(4,NANO_ASN, NANO_HOST, NANO_PORT)
     nano_listenner.start()
     service_builder_listenner.start()
-    slice_policy_listener.start()
+    #slice_policy_listener.start()
     nano_listenner.join()
 else:
     logging.debug('Imported in somewhere place - NANO')
