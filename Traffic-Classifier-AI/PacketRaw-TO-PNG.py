@@ -6,7 +6,7 @@ import pandas as pd
 def process_text():
 
     lines = ""
-    with open('rawdata') as f:
+    with open('dns_request') as f:
         lines = f.readlines()
 
     i = 0#Comeca sem nada
@@ -14,29 +14,39 @@ def process_text():
     n = 0;
     lst = []
     count = 0
+    x = 0;
+    y = 0
     for each in lines:
         print("Linha arquivo: "+str(each))
         if i == 1:
             if "};" in each:
                 each = each.split("};")
-                #print("Dentro do fim: "+str(each[0]))
+                print("Dentro do fim: "+str(each[0]))
                 l = each[0].split(", ")
-                #print(l[3].split(" ")[0])
+                print("Valor de L após split: "+str(l))
+                print("Tamanho de L: "+str(len(l)))
+
                 l[0] = str(l[0].split(" ")[0])
-                l[1] = str(l[1].split(" ")[0])
-                l[2] = str(l[3].split(" ")[0])
-                l[3] = str(l[3].split(" ")[0])
-                l.insert(len(l),"0xFF")
-                l.insert(len(l), "0xFF")
-                l.insert(len(l), "0xFF")
-                l.insert(len(l), "0xFF")
+                print("Valor de L aposo formatado: "+str(l))
+
+                for i in range(len(l)):
+                    l[i] = str(l[i].split(" ")[0])
+
+                acrescimo = 8 - len(l)
+                print("Acrescimo: "+str(acrescimo))
+                for i in range(acrescimo):
+                    l.insert(len(l), "0xFF")
+
                 #print("L FINAL2: "+str(l))
                 lst.append(l)
                 count = count + 1
-                create_image(lst,count)
+                x = x + 1
+                create_image(lst,count,x)
+                x = 0
                 lst = []
                 i = 0
                 print("Continua...")
+
             else:
                 #print(each)
                 l = each.split(", ")
@@ -50,11 +60,14 @@ def process_text():
                 lst.append(l)
                 #print(str(n+1) + " Line: "+str(string))
                 n = n + 1
+                x = x + 1
         if i == 0:
             if "Packet" in each:
                 i = 1
 
-def create_image(lst, n):
+def create_image(lst, n,x):
+
+    print("Tamanho de X: "+str(x))
 
     #print(lst)
     #exit()
@@ -70,7 +83,7 @@ def create_image(lst, n):
     #if np.size(teste,1) > 169 and np.size(teste,1) <=196:
     #    print("Criar uma matriz 14 x 14")
 
-    for i in range(22):
+    for i in range(x):
         for j in range(8):
             #print(str(teste[i,j]))
             teste[i,j] = int(teste[i,j],16)
@@ -91,7 +104,7 @@ def create_image(lst, n):
     data = data.tolist()
     #print(data[0][7])
 
-    for i in range(22):
+    for i in range(x):
         for j in range(8):
             data[i][j] = [data[i][j],data[i][j],data[i][j]]
 
@@ -108,7 +121,7 @@ def create_image(lst, n):
     #img = Image.fromarray(arr.astype('uint8'), 'RGB')
 
     print("\nPronto pra salvar: " + str(n))
-    img.save("video"+str(n)+".png")
+    img.save("dns"+str(n)+".png")
     return
 
 process_text()
