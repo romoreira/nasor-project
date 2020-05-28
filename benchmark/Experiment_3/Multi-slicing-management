@@ -14,6 +14,7 @@ sudo modprobe srext
 sudo ip -6 route add 2001:470:28:5a1::/64 via 2001:470:28:5a1::2 dev eth1
 sudo ip -6 route add b::/64 via 2001:470:28:5a1::2 encap seg6 mode encap segs 1001::,2::D6
 sudo ip -6 route add 1001::/64 via 2001:470:28:5a1::2 dev eth1
+
 #Chegada
 sudo srconf localsid add 3::D6 end.dx6 ip a::2 veth1_1
 
