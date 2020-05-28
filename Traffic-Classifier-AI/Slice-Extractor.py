@@ -4,6 +4,7 @@ import pandas as pd
 
 
 def process_text():
+    print("Inicio")
 
     lines = ""
     with open('slice-2') as f:
@@ -14,54 +15,73 @@ def process_text():
     n = 0;
     lst = []
     count = 0
+    x = 0;
+    y = 0
     for each in lines:
         print("Linha arquivo: "+str(each))
         if i == 1:
             if "};" in each:
-                each = each.split("};")
-                #print("Dentro do fim: "+str(each[0]))
+                print("Each: "+str(each))
+                each = each.split(" };")
+                print(str(each))
+                print("Dentro do fim: "+str(each[0]))
                 l = each[0].split(", ")
-                #print(l[3].split(" ")[0])
+                print("Valor de L após split: "+str(l))
+                print("Tamanho de L: "+str(len(l)))
+
                 l[0] = str(l[0].split(" ")[0])
-                l[1] = str(l[1].split(" ")[0])
-                l[2] = str(l[3].split(" ")[0])
-                l[3] = str(l[3].split(" ")[0])
-                l.insert(len(l),"0xFF")
-                l.insert(len(l), "0xFF")
-                l.insert(len(l), "0xFF")
-                l.insert(len(l), "0xFF")
-                #print("L FINAL2: "+str(l))
+                print("Valor de L aposo formatado: "+str(l))
+
+                for i in range(len(l)):
+                    print("Arrumando...")
+                    l[i] = str(l[i].split(" ")[0])
+
+                print("Arrumada: "+str(l))
+
+                acrescimo = 8 - len(l)
+                print("Acrescimo: "+str(acrescimo))
+                for i in range(acrescimo):
+                    l.insert(len(l), "0xFF")
+
+                print("L FINAL2: "+str(l))
                 lst.append(l)
                 count = count + 1
-                create_image(lst,count)
+                x = x + 1
+                create_image(lst,count,x)
+                x = 0
                 lst = []
                 i = 0
                 print("Continua...")
+
             else:
                 #print(each)
                 l = each.split(", ")
-                #print(l)
-                #print(str((l[7].split(",\n")[0])))
+                print("Lista: "+str(l))
+                print(str((l[7].split(",\n")[0])))
                 l[7] = str((l[7].split(",\n")[0]))
-                if l[8] == "\n":
+                print("Lista Pos Split: " + str(l))
+                if l[7] == "\n":
                     #print("Ultimo e barra-n")
-                    l.pop(8)
+                    l.pop(7)
                 #print(l)
                 lst.append(l)
                 #print(str(n+1) + " Line: "+str(string))
                 n = n + 1
+                x = x + 1
         if i == 0:
-            if "Packet" in each:
+            if "{" in each:
                 i = 1
 
-def create_image(lst, n):
+def create_image(lst, n,x):
+
+    print("Tamanho de X: "+str(x))
 
     #print(lst)
     #exit()
 
     #print(string)
     teste = np.asmatrix(lst)
-    #print(teste)
+    print(teste)
     #print(np.size(teste))
     #print(np.shape(teste))
     #print(teste[20,5])
@@ -70,7 +90,7 @@ def create_image(lst, n):
     #if np.size(teste,1) > 169 and np.size(teste,1) <=196:
     #    print("Criar uma matriz 14 x 14")
 
-    for i in range(22):
+    for i in range(x):
         for j in range(8):
             #print(str(teste[i,j]))
             teste[i,j] = int(teste[i,j],16)
@@ -91,7 +111,7 @@ def create_image(lst, n):
     data = data.tolist()
     #print(data[0][7])
 
-    for i in range(22):
+    for i in range(x):
         for j in range(8):
             data[i][j] = [data[i][j],data[i][j],data[i][j]]
 
@@ -100,7 +120,7 @@ def create_image(lst, n):
 
 
     img = Image.fromarray(data.astype('uint8'), 'RGB')
-    size=176
+    size=n*8
     #arr = np.zeros((size,size,3))
     #arr[:,:,0] = [[255]*size]*size
     #arr[:,:,1] = [[255]*size]*size
