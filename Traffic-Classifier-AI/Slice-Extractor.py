@@ -7,7 +7,7 @@ def process_text():
     print("Inicio")
 
     lines = ""
-    with open('slice-2') as f:
+    with open('slice-1') as f:
         lines = f.readlines()
 
     i = 0#Comeca sem nada
@@ -128,7 +128,7 @@ def create_image(lst, n,x):
     #img = Image.fromarray(arr.astype('uint8'), 'RGB')
 
     print("\nPronto pra salvar: " + str(n))
-    img.save("slice_2-"+str(n)+".png")
+    img.save("slice_1-"+str(n)+".png")
     return
 
 process_text()
