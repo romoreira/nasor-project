@@ -1,0 +1,49 @@
+#All-Routers
+cd /home/sr6/SRv6-net-prog/srext/
+sudo make && sudo make install && depmod -a
+sysctl -w net.ipv6.conf.all.forwarding=1
+sudo modprobe srext
+
+
+#Route-1
+#Computte-1
+/home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add client veth1_1 inet6 a::1/64 a::2/64
+
+
+#Ida
+sudo ip -6 route add 2001:470:28:5a1::/64 via 2001:470:28:5a1::2 dev eth1
+sudo ip -6 route add b::/64 via 2001:470:28:5a1::2 encap seg6 mode encap segs 1001::,2::D6
+sudo ip -6 route add 1001::/64 via 2001:470:28:5a1::2 dev eth1
+#Chegada
+sudo srconf localsid add 3::D6 end.dx6 ip a::2 veth1_1
+
+#Router1-Application
+cd /home/sr6/sipp_bench/sipp-3.4.1
+sudo ip netns exec client ./sipp -sf scenarios/uac_g711.xml -i [a::2] [b::2]:5063 -r 1
+
+
+#Route-3
+#Ida
+sudo srconf localsid add 1001:: end
+sudo ip -6 route add 2::/64 via 2607:f0d0:2001::2 dev eth2
+#Volta
+sudo ip -6 route add 3::/64 via 2001:470:28:5a1::1 dev eth0
+sudo srconf localsid add 2001:: end
+
+#Route-4
+#Compute-2
+sudo /home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add server veth1_3 inet6 b::1/64 b::2/64
+
+#Chegada
+sudo srconf localsid add 2::D6 end.dx6 ip b::2 veth1_3
+#Ida
+sudo ip -6 route add 2607:f0d0:2001::/64 via 2607:f0d0:2001::1 dev eth0
+sudo ip -6 route add 2001::/64 via 2607:f0d0:2001::1 dev eth0
+sudo ip -6 route add a::/64 via 2607:f0d0:2001::1 encap seg6 mode encap segs 2001::,3::D6
+
+
+#Router4-Application
+cd /home/sr6/sipp_bench/sipp-3.4.1
+sudo ip netns exec server ./sipp -sn uas -i [b::2] -p 5063
+ip netns exec server tcpdump -w payload-1.pcap
+
