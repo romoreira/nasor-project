@@ -1,6 +1,7 @@
 import numpy as np
 from PIL import Image
 import pandas as pd
+import random
 
 
 def process_text():
@@ -108,8 +109,32 @@ def create_image(lst, n,x):
     dataFrame = pd.DataFrame(numeros)
     data = dataFrame.to_numpy()
 
-    data = data.tolist()
+
+    new = np.array(data).flatten().tolist()
+    #print("Antes do Shuffle \n" + str(new))
+    random.shuffle(new)
+    #print("Depois do Shuffle: "+str(new))
+    list_size = len(new)
+    i = 1
+    lst = []
+    lst_maior = []
+    for i in range(list_size):
+        lst.insert(i-1, new[i-1])
+        #print("Etapa lst: "+str(lst))
+        if len(lst) == 8:
+            #print("Controle")
+            lst_maior.append(lst)
+            #print("Etapa lista maior: "+str(lst_maior))
+            lst = []
+
+    #print("Lista Maior: "+str(lst_maior))
+
+
+    #data = data.tolist() #Voltar como estava
     #print(data[0][7])
+    #print(data)
+
+    data = lst_maior
 
     for i in range(x):
         for j in range(8):
