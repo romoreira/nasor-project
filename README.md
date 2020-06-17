@@ -7,6 +7,8 @@
 ```
 
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3899171.svg)](https://doi.org/10.5281/zenodo.3899171)
+
 # Multi-Domain Routers (3 VMs) and Configs
 
 [Download it here](http://bit.ly/Multi-Domain-Routers-AINA2020)
@@ -140,8 +142,6 @@ Here we bring some steps to follow to deploy and try our solution.
 
 > TIP: Now the RestAPI should be working fine (check it - GET http://InterOIB:1026/gemfire-api/v1/regionA)
 
-
-https://doi.org/10.5281/zenodo.3899171
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
