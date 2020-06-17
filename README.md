@@ -141,6 +141,8 @@ Here we bring some steps to follow to deploy and try our solution.
 > TIP: Now the RestAPI should be working fine (check it - GET http://InterOIB:1026/gemfire-api/v1/regionA)
 
 
+https://doi.org/10.5281/zenodo.3899171
+
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
 *E-mail*:
 ![alt text](https://github.com/romoreira/EdgeComputingSlice/blob/master/mail.PNG)
