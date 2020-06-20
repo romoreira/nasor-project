@@ -41,6 +41,7 @@ def next_hop_request(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT
     return from_server.decode()
 
 def slice_creation_forwarder(SOURCE, METHOD, MESSAGE, NANO_TARGET_HOST, NANO_TARGET_PORT, NEXT_HOP_LIST):
+
     print("Dentro do PYCOS Client")
 
     print("SOURCE: "+str(SOURCE))
@@ -105,4 +106,4 @@ if __name__ == "__main__":
     rib_request("","GET_PATH","16735","192.168.0.104",8010)
 
 else:
-    logging.debug('Impomrted in somewhere place - IOExClient')
+    logging.debug('Imported in somewhere place - IOExClient')
