@@ -7,6 +7,8 @@
 ```
 
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3899171.svg)](https://doi.org/10.5281/zenodo.3899171)
+
 # Multi-Domain Routers (3 VMs) and Configs
 
 [Download it here](http://bit.ly/Multi-Domain-Routers-AINA2020)
