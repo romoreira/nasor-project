@@ -129,7 +129,7 @@ class ServiceBuilder:
     def network_slice_template(self):
         #nano = NANO.NANO(1,self.NSTD,26599)
         #nano.eDomain_slice_builder()
-        self.nano_exchange("CREATE_SLICE", self.NSTD,"192.168.0.130",8015)
+        self.nano_exchange("CREATE_SLICE", self.NSTD,"192.168.0.105",8015)
 
     def speaker_proc(host, port, n, task=None):
         # Create a TCP Socket over port 8010 - we may change it further - with pycos we can create more than one socket

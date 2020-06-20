@@ -26,9 +26,12 @@ import re
 import sys
 import telnetlib
 
+
+
 sys.path.insert(1, './segment-routing')
 import grpc_client
 import grpc_sid_client
+
 
 # logger reference
 logging.basicConfig(level=logging.DEBUG)
@@ -706,6 +709,7 @@ if __name__ == '__main__':
     else:
         print("NANO Port should be a valid Port Number")
 
+    import OpenPolicyInterface
 
     #slice_policy_listener = threading.Thread(target=NANO.slice_policy_listener, args=(1,NANO_HOST,NANO_PORT, NANO_ASN))
     service_builder_listenner = threading.Thread(target=NANO.service_builder_listener, args=(1,NANO_HOST,NANO_PORT))
@@ -714,6 +718,9 @@ if __name__ == '__main__':
     service_builder_listenner.start()
     #slice_policy_listener.start()
     nano_listenner.join()
+
+
+    print("Algo apos o openpolicy import - NANO")
 else:
     logging.debug('Imported in somewhere place - NANO')
 
