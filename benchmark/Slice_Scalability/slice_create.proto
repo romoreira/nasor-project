@@ -1,0 +1,26 @@
+// The greeting service definition.
+service SliceCreator {
+  // Sends a greeting
+  rpc CreateSlice (CreateRequest) returns (CreationReply) {}
+  rpc DeleteSlice (DeleteRequest) returns (DeletionReply) {}
+}
+
+// The request message containing the user's name.
+message CreateSlice {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message CreationReply {
+  string message = 1;
+}
+
+
+// The delete request message containing the SIDs
+message DeleteSlice {
+  string name = 1;
+}
+
+message DeletionReply {
+  string message = 1;
+}
