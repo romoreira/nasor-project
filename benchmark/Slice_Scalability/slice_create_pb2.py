@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x12slice_create.proto\"\x1d\n\rCreateRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\" \n\rCreationReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x1d\n\rDeleteRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\" \n\rDeletionReply\x12\x0f\n\x07message\x18\x01 \x01(\t2p\n\x0cSliceManager\x12/\n\x0b\x43reateSlice\x12\x0e.CreateRequest\x1a\x0e.CreationReply\"\x00\x12/\n\x0b\x44\x65leteSlice\x12\x0e.DeleteRequest\x1a\x0e.DeletionReply\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x12slice_create.proto\"\x1c\n\rCreateRequest\x12\x0b\n\x03SID\x18\x01 \x01(\t\" \n\rCreationReply\x12\x0f\n\x07message\x18\x01 \x01(\t\"\x1c\n\rDeleteRequest\x12\x0b\n\x03SID\x18\x01 \x01(\t\" \n\rDeletionReply\x12\x0f\n\x07message\x18\x01 \x01(\t2p\n\x0cSliceManager\x12/\n\x0b\x43reateSlice\x12\x0e.CreateRequest\x1a\x0e.CreationReply\"\x00\x12/\n\x0b\x44\x65leteSlice\x12\x0e.DeleteRequest\x1a\x0e.DeletionReply\"\x00\x62\x06proto3'
 )
 
 
@@ -32,7 +32,7 @@ _CREATEREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='CreateRequest.name', index=0,
+      name='SID', full_name='CreateRequest.SID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -51,7 +51,7 @@ _CREATEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=22,
-  serialized_end=51,
+  serialized_end=50,
 )
 
 
@@ -81,8 +81,8 @@ _CREATIONREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=53,
-  serialized_end=85,
+  serialized_start=52,
+  serialized_end=84,
 )
 
 
@@ -94,7 +94,7 @@ _DELETEREQUEST = _descriptor.Descriptor(
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='name', full_name='DeleteRequest.name', index=0,
+      name='SID', full_name='DeleteRequest.SID', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -112,8 +112,8 @@ _DELETEREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=87,
-  serialized_end=116,
+  serialized_start=86,
+  serialized_end=114,
 )
 
 
@@ -143,8 +143,8 @@ _DELETIONREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=118,
-  serialized_end=150,
+  serialized_start=116,
+  serialized_end=148,
 )
 
 DESCRIPTOR.message_types_by_name['CreateRequest'] = _CREATEREQUEST
@@ -189,8 +189,8 @@ _SLICEMANAGER = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=152,
-  serialized_end=264,
+  serialized_start=150,
+  serialized_end=262,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateSlice',

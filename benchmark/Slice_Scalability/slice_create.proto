@@ -7,7 +7,7 @@ service SliceManager {
 
 // The request message containing the user's name.
 message CreateRequest {
-  string name = 1;
+  string SID = 1;
 }
 
 // The response message containing the greetings
@@ -18,7 +18,7 @@ message CreationReply {
 
 // The delete request message containing the SIDs
 message DeleteRequest {
-  string name = 1;
+  string SID = 1;
 }
 
 message DeletionReply {
