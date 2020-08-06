@@ -1,12 +1,12 @@
-// The greeting service definition.
-service SliceCreator {
-  // Sends a greeting
+syntax = "proto3";
+
+service SliceManager {
   rpc CreateSlice (CreateRequest) returns (CreationReply) {}
   rpc DeleteSlice (DeleteRequest) returns (DeletionReply) {}
 }
 
 // The request message containing the user's name.
-message CreateSlice {
+message CreateRequest {
   string name = 1;
 }
 
@@ -17,7 +17,7 @@ message CreationReply {
 
 
 // The delete request message containing the SIDs
-message DeleteSlice {
+message DeleteRequest {
   string name = 1;
 }
 
