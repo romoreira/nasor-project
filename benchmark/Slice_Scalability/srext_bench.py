@@ -13,9 +13,9 @@ except OSError:
 save = 0
 M = 16**4
 with open("SIDs.txt", "a") as f:
-   for i in range(100):
+   for i in range(1000000):
       #print("2000:" + ":".join(("%x" % random.randint(0, M) for i in range(7))))
-      a = "2000:" + ":".join(("%x" % random.randint(0, M) for i in range(7)))
+      a = "5000:" + ":".join(("%x" % random.randint(0, M) for i in range(7)))
       f.write(a+str("\n"))
    f.close()
 

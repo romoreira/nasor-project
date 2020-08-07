@@ -9,7 +9,7 @@ import slice_create_pb2_grpc
 import slice_create_pb2
 
 def run(SID_NAME, method):
-  channel = grpc.insecure_channel('192.168.0.202:50051')
+  channel = grpc.insecure_channel('192.168.0.251:50051')
   stub = slice_create_pb2_grpc.SliceManagerStub(channel)
   if method == "CREATE":
     response = stub.CreateSlice(slice_create_pb2.CreateRequest(SID=SID_NAME))

@@ -22,7 +22,7 @@ class SliceManager(slice_create_pb2_grpc.SliceManagerServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     slice_create_pb2_grpc.add_SliceManagerServicer_to_server(SliceManager(), server)
-    server.add_insecure_port('192.168.0.202:50051')
+    server.add_insecure_port('192.168.0.251:50051')
     server.start()
     server.wait_for_termination()
 

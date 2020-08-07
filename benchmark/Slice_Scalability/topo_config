@@ -1,0 +1,41 @@
+sudo ovs-vsctl add-br scalabilityAB
+sudo ovs-vsctl add-br scalabilityBC
+sudo ip tuntap add mode tap A-port
+sudo ip tuntap add mode tap B-port
+sudo ip tuntap add mode tap C-port
+sudo ip tuntap add mode tap D-port
+sudo ip link set A-port up
+sudo ip link set B-port up
+sudo ip link set C-port up
+sudo ip link set D-port up
+sudo ovs-vsctl add-port scalabilityAB A-port
+sudo ovs-vsctl add-port scalabilityAB B-port
+sudo ovs-vsctl add-port scalabilityBC C-port
+sudo ovs-vsctl add-port scalabilityBC D-port
+
+#From Host 1 to Host 2
+
+#Host-1
+/home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add client veth1_1 inet6 a::1/64 a::2/64
+sudo ip -6 route add b::/64 via 2000:cafe::2 encap seg6 mode encap segs 1000::,2::D6
+
+#Host-2
+srconf localsid add 1000:: end
+ip -6 route add 1::D6/64 via 2000:cafe::1 dev eth1
+
+#Host3
+sudo /home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add server veth1_3 inet6 b::1/64 b::2/64
+sudo srconf localsid add 2::D6 end.dx6 ip b::2 veth1_3
+
+#From Host-2 to Host-1
+
+#Host-3
+sudo ip -6 route add a::/64 via 2000:cafe::3 encap seg6 mode encap segs 3000::,1::D6
+sudo ip -6 route add 3000::/64 via 2000:cafe::3 dev eth1
+
+#Host-2
+srconf localsid add 3000:: end
+ip -6 route add 2::D6/64 via 2000:cafe::4 dev eth2
+
+#Host-1
+sudo srconf localsid add 1::D6 end.dx6 ip a::2 veth1_1
