@@ -13,7 +13,7 @@ except OSError:
 save = 0
 M = 16**4
 with open("SIDs.txt", "a") as f:
-   for i in range(1000000):
+   for i in range(50000):
       #print("2000:" + ":".join(("%x" % random.randint(0, M) for i in range(7))))
       a = "5000:" + ":".join(("%x" % random.randint(0, M) for i in range(7)))
       f.write(a+str("\n"))
@@ -29,7 +29,7 @@ with open("SIDs.txt") as fp:
       client.run(SID.strip(), "CREATE")
       #print("Oi")
    fp.close()
-
+exit()
 print("Deletion process...\n")
 
 with open("SIDs.txt") as fp:

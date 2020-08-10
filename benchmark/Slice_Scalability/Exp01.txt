@@ -1,0 +1,48 @@
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.88  sec  1.26 GBytes   992 Mbits/sec  0.000 ms  0/164736 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.39  sec  1.21 GBytes  1000 Mbits/sec  0.000 ms  0/158429 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.18  sec  1.16 GBytes   981 Mbits/sec  0.000 ms  0/152359 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.04  sec  1.14 GBytes   975 Mbits/sec  0.000 ms  0/149443 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.22  sec  1.16 GBytes   974 Mbits/sec  0.000 ms  0/151958 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.03  sec  1.16 GBytes   996 Mbits/sec  0.000 ms  0/152449 (0%) 
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.01  sec  1.19 GBytes  1.02 Gbits/sec  0.000 ms  0/156063 (0%)  
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-9.96   sec  1.16 GBytes  1.00 Gbits/sec  0.000 ms  0/152099 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.68  sec  1.21 GBytes   973 Mbits/sec  0.000 ms  0/158581 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.16  sec  1.18 GBytes   995 Mbits/sec  0.000 ms  0/154188 (0%)
+
+Latency:
+
+root@routerA-border:/home/sr6/scalability_test# sudo ip netns exec client ping6  b::2 -c 10
+PING b::2(b::2) 56 data bytes
+64 bytes from b::2: icmp_seq=1 ttl=63 time=0.749 ms
+64 bytes from b::2: icmp_seq=2 ttl=63 time=0.447 ms
+64 bytes from b::2: icmp_seq=3 ttl=63 time=0.432 ms
+64 bytes from b::2: icmp_seq=4 ttl=63 time=0.725 ms
+64 bytes from b::2: icmp_seq=5 ttl=63 time=0.752 ms
+64 bytes from b::2: icmp_seq=6 ttl=63 time=0.571 ms
+64 bytes from b::2: icmp_seq=7 ttl=63 time=0.456 ms
+64 bytes from b::2: icmp_seq=8 ttl=63 time=0.758 ms
+64 bytes from b::2: icmp_seq=9 ttl=63 time=0.697 ms
+64 bytes from b::2: icmp_seq=10 ttl=63 time=0.493 ms
+
+--- b::2 ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9087ms
+rtt min/avg/max/mdev = 0.432/0.608/0.758/0.133 ms

@@ -1,0 +1,46 @@
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.38  sec  1.25 GBytes  1.04 Gbits/sec  0.000 ms  0/164477 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.10  sec  1.27 GBytes  1.08 Gbits/sec  0.000 ms  0/166798 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.13  sec  1.40 GBytes  1.18 Gbits/sec  0.000 ms  0/183015 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.26  sec  1.49 GBytes  1.25 Gbits/sec  0.000 ms  0/195086 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.46  sec  1.54 GBytes  1.26 Gbits/sec  0.000 ms  0/201462 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.51  sec  1.53 GBytes  1.25 Gbits/sec  0.000 ms  0/200450 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.38  sec  1.49 GBytes  1.23 Gbits/sec  0.000 ms  0/194795 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-11.04  sec  1.59 GBytes  1.24 Gbits/sec  0.000 ms  0/208470 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-11.51  sec  1.70 GBytes  1.27 Gbits/sec  0.000 ms  0/222270 (0%)
+
+[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
+[  4]   0.00-10.21  sec  1.47 GBytes  1.24 Gbits/sec  0.000 ms  0/192904 (0%)
+
+Latency:
+
+64 bytes from b::2: icmp_seq=1 ttl=63 time=5.24 ms
+64 bytes from b::2: icmp_seq=2 ttl=63 time=7.71 ms
+64 bytes from b::2: icmp_seq=3 ttl=63 time=7.65 ms
+64 bytes from b::2: icmp_seq=4 ttl=63 time=6.00 ms
+64 bytes from b::2: icmp_seq=5 ttl=63 time=5.84 ms
+64 bytes from b::2: icmp_seq=6 ttl=63 time=2.92 ms
+64 bytes from b::2: icmp_seq=7 ttl=63 time=6.51 ms
+64 bytes from b::2: icmp_seq=8 ttl=63 time=5.93 ms
+64 bytes from b::2: icmp_seq=9 ttl=63 time=5.94 ms
+64 bytes from b::2: icmp_seq=10 ttl=63 time=6.09 ms
+
+--- b::2 ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9012ms
+rtt min/avg/max/mdev = 2.923/5.987/7.713/1.265 ms
