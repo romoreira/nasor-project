@@ -18,6 +18,7 @@ sudo ovs-vsctl add-port scalabilityBC D-port
 #Host-1
 /home/sr6/SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add client veth1_1 inet6 a::1/64 a::2/64
 sudo ip -6 route add b::/64 via 2000:cafe::2 encap seg6 mode encap segs 1000::,2::D6
+sudo ip route add 1000::/64 via 2000:cafe::2 dev eth1
 
 #Host-2
 srconf localsid add 1000:: end
