@@ -6,3 +6,5 @@ Exp13 - 1vcpu 1gb-RAM SID Table 50K
 Exp21 - 2vcpu 2gb-RAM SID Table 200k
 Exp23 - 2vcpu 2gb-RAM SID Table 300k
 Exp23 - 2vcpu 2gb-RAM SID Table 50K
+Exp24 - 2vcpu 2gb-RAM SID Table 100K
+Exp25 - 2vcpu 2gb-RAM SID Table 200K (Latency under load)
