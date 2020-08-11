@@ -1,32 +1,33 @@
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.12  sec  1.05 GBytes   888 Mbits/sec  0.000 ms  0/136984 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.08  sec  1.32 GBytes  1.02 Gbits/sec  516             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.25  sec  1.04 GBytes   873 Mbits/sec  0.000 ms  0/136670 (0%) 
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.07  sec  1.30 GBytes  1.01 Gbits/sec  441             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.08  sec  1.00 GBytes   855 Mbits/sec  0.000 ms  0/131499 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.08  sec  1.30 GBytes  1.01 Gbits/sec  552             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.52  sec  1.07 GBytes   875 Mbits/sec  0.000 ms  0/140469 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.82  sec  1.40 GBytes  1.02 Gbits/sec  518             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.11  sec  1.00 GBytes   850 Mbits/sec  0.000 ms  0/131076 (0%) 
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.00  sec  1.29 GBytes  1.01 Gbits/sec  371             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.07  sec  1.02 GBytes   872 Mbits/sec  0.000 ms  0/134097 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.06  sec  1.30 GBytes  1.01 Gbits/sec  431             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-9.96   sec  1.03 GBytes   890 Mbits/sec  0.000 ms  0/135276 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.01  sec  1.30 GBytes  1.02 Gbits/sec  496             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.26  sec  1.04 GBytes   869 Mbits/sec  0.000 ms  0/136122 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.16  sec  1.32 GBytes  1.01 Gbits/sec  608             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-9.99   sec  1.02 GBytes   875 Mbits/sec  0.000 ms  0/133418 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-10.99  sec  1.31 GBytes  1.03 Gbits/sec  420             sender
 
-[ ID] Interval           Transfer     Bandwidth       Jitter    Lost/Total Datagrams
-[  4]   0.00-10.38  sec  1.04 GBytes   861 Mbits/sec  0.000 ms  0/136272 (0%)
+[ ID] Interval           Transfer     Bandwidth       Retr
+[  4]   0.00-11.49  sec  1.36 GBytes  1.02 Gbits/sec  635             sender
+
 
 Latency:
 
