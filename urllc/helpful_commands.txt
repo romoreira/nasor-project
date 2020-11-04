@@ -1,41 +1,31 @@
-Remove XDP program from interface:
+#Installing basic packages:
+sudo apt install clang llvm libelf-dev libpcap-dev gcc-multilib build-essential linux-tools-common linux-tools-generic
+
+#Creating and Activating Test Environment:
+./testenv.sh setup --name=test
+eval $(./testenv.sh alias)
+
+#Remove XDP program from interface:
 sudo ip link set dev test xdp off
 
-Compile a XDP program:
+#Compile a XDP program:
 sudo ./xdp_loader --dev test --force
 
-Whatch interface:
+#Whatch interface:
 sudo ./xdp_stats -d test
 
-Ping from inside Network Namespace to Outtermost interface:
+#Ping from inside Network Namespace to Outtermost interface:
 t exec -- ping 192.168.0.2
 
+#Configuring IPv4 Interfaces:
+t exec -- ifconfig veth0 192.168.0.1 netmask 255.255.255.0
+sudo ifconfig test 192.168.0.2 netmask 255.255.255.0
 
+#Watching logs while you trying the XDP program:
+sudo cat /sys/kernel/debug/tracing/trace_pipe
 
-    1  sudo apt-get update
-    2  git clone https://github.com/xdp-project/xdp-tutorial.git
-    3  ls
-    4  cd xdp-tutorial/
-    5  ls
-    6  cd packet-solutions/
-    7  ls
-    8  cd ..
-    9  ls
-   10  sudo apt-get install clang
-   11  ls
-   12  cd packet01-parsing/
-   13  ls
-   14  make
-   15  sudo apt-get install make
-   16  ls
-   17  make
-   18  sudo apt-get install llvm
-   19  make
-   20  ls ../common/
-   21  sudo apt install clang llvm libelf-dev libpcap-dev gcc-multilib build-essential
-   22  sudo apt install linux-tools-common linux-tools-generic
-   23  cd
-   24  ls
-   25  rm -Rf xdp-tutorial/
-   26  git clone --recurse-submodules https://github.com/xdp-project/xdp-tutorial
+#Testing IPv6:
+t ping
 
+#Testing IPv4
+t exec -- ping 192.168.0.2

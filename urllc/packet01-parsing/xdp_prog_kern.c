@@ -64,12 +64,12 @@ struct hdr_cursor {
 }*/
 
 /* Assignment 2: Implement and use this */
-static __always_inline int parse_ip6hdr(struct hdr_cursor *nh,
+/*static __always_inline int parse_ip6hdr(struct hdr_cursor *nh,
 					void *data_end,
 					struct ipv6hdr **ip6hdr)
 {
-	struct ipv6hdr *ip6h = nh->pos;
 	struct ethhdr *eth = nh->pos;
+	struct ipv6hdr *ip6h = nh->pos;
 	int hdrsize = sizeof(*ip6h);
 
         __u32 nh_off;
@@ -82,9 +82,9 @@ static __always_inline int parse_ip6hdr(struct hdr_cursor *nh,
 	nh->pos += hdrsize;
         *ip6hdr = ip6h;
 
-        return eth->h_proto; /* network-byte-order */
+        return eth->h_proto; // network-byte-order
 
-}
+}*/
 
 /* Assignment 3: Implement and use this */
 /*static __always_inline int parse_icmp6hdr(struct hdr_cursor *nh,
@@ -109,7 +109,7 @@ int  xdp_parser_func(struct xdp_md *ctx)
 
         /* These keep track of the next header type and iterator pointer */
 	struct hdr_cursor nh;
-	int nh_type;
+//	int nh_type;
 
 	/* Start next header cursor position at data start */
 	nh.pos = data;
@@ -119,14 +119,39 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	 * header type in the packet correct?), and bounds checking.
 	 */
 	//nh_type = parse_ethhdr(&nh, data_end, &eth);
-	nh_type = parse_ip6hdr(&nh, data_end, &ip6h);
-	bpf_custom_printk("Valor de nh_type = %d e valor de bpf_htons(ETH_P_IPV6) = %d\n",nh_type, bpf_htons(ETH_P_IPV4)); // <-- Adicionar essa linha
-	if (nh_type != bpf_htons(ETH_P_IPV4))
-		goto out;
+
+
+
+	struct ethhdr *eth = data;
+	if ((void*)eth + sizeof(*eth) <= data_end){
+		bpf_custom_printk("Tipo de pacote eth %u\n",eth->h_proto);
+		if(eth->h_proto == bpf_htons(ETH_P_IPV4)){
+			bpf_custom_printk("Pacote nao eh IPv6\n");
+                        goto out;
+		}
+		ip6h = data + sizeof(*eth);
+		if ((void*)ip6h + sizeof(*ip6h) <= data_end) {
+			bpf_custom_printk("Pacote eh IPv6 sera Dropado\n");
+			action = XDP_DROP;
+			return xdp_stats_record_action(ctx, action); /* read via xdp_stats */
+		}
+		else{
+			bpf_custom_printk("Pacote nao eh ICMPv6\n");
+			goto out;
+		}
+
+	}
+
+
+
+//	nh_type = parse_ip6hdr(&nh, data_end, &ip6h);
+//	bpf_custom_printk("Valor de nh_type = %d e valor de bpf_htons(ETH_P_IPV6) = %d\n",nh_type, bpf_htons(ETH_P_IPV4)); // <-- Adicionar essa linha
+//	if (nh_type != bpf_htons(ETH_P_IPV4))
+//		goto out;
 
 	/* Assignment additions go below here */
 
-	action = XDP_DROP;
+//	action = XDP_DROP;
 out:
 	return xdp_stats_record_action(ctx, action); /* read via xdp_stats */
 }
