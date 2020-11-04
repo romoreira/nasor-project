@@ -120,7 +120,7 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	 */
 	//nh_type = parse_ethhdr(&nh, data_end, &eth);
 
-
+	struct icmp6hdr *icmp6h;
 
 	struct ethhdr *eth = data;
 	if ((void*)eth + sizeof(*eth) <= data_end){
@@ -131,9 +131,13 @@ int  xdp_parser_func(struct xdp_md *ctx)
 		}
 		ip6h = data + sizeof(*eth);
 		if ((void*)ip6h + sizeof(*ip6h) <= data_end) {
-			bpf_custom_printk("Pacote eh IPv6 sera Dropado\n");
-			action = XDP_DROP;
-			return xdp_stats_record_action(ctx, action); /* read via xdp_stats */
+			bpf_custom_printk("Pacote eh IPv6 Verificando se ele e ICMPv6\n");
+			icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
+			if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
+				bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
+				action = XDP_DROP;
+				return xdp_stats_record_action(ctx, action); /* read via xdp_stats */
+			}
 		}
 		else{
 			bpf_custom_printk("Pacote nao eh ICMPv6\n");
