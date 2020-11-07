@@ -132,9 +132,12 @@ int  xdp_parser_func(struct xdp_md *ctx)
                         goto out;
 		}
 		ip6h = data + sizeof(*eth);
+		
+//		bpf_custom_printk("Pacote eh IPv6 verificando dentro dele se ha SRH: %d\n", bpf_htons(ip6h->nexthdr));
+
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
 		if ((void*)srhv6 + sizeof(*srhv6) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH. Verificando o nexthdr: %d\n", bpf_htons(srhv6->nexthdr));
+			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %d\n", srhv6->segments);
 			//icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
 			//if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
 			//	bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
