@@ -31,8 +31,8 @@ t ping
 t exec -- ping 192.168.0.2
 
 #Import Routes:
-t exec -- ip -6 route
-fc00:dead:cafe:1::/64  encap seg6 mode inline segs 4 [ 1001:: 2::d6 4::56 :: ] via fc00:dead:cafe:1::1 dev veth0 metric 1024 pref medium
+
+t exec -- ip -6 route add fc00:dead:cafe:1::/64  encap seg6 mode inline segs 1001::,2::d6,4::56 via fc00:dead:cafe:1::1 dev veth0
 
 t exec -- ip -6 route add 1001::/64 via fc00:dead:cafe:1::1 dev veth0
 
