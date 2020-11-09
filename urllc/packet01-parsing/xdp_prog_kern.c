@@ -8,6 +8,7 @@
 #include <linux/ip.h>
 #include <linux/icmpv6.h>
 #include <linux/seg6.h>
+#include <linux/in6.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 /* Defines xdp_stats_map from packet04 */
@@ -125,6 +126,7 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	struct ipv6_sr_hdr *srhv6;
 
 	struct ethhdr *eth = data;
+	struct in6_addr *ipv6_list;
 	if ((void*)eth + sizeof(*eth) <= data_end){
 		bpf_custom_printk("Tipo de pacote eth %u\n",eth->h_proto);
 		if(eth->h_proto == bpf_htons(ETH_P_IPV4)){
@@ -136,8 +138,9 @@ int  xdp_parser_func(struct xdp_md *ctx)
 //		bpf_custom_printk("Pacote eh IPv6 verificando dentro dele se ha SRH: %d\n", bpf_htons(ip6h->nexthdr));
 
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
-		if ((void*)srhv6 + sizeof(*srhv6) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %d\n", srhv6->segments);
+		ipv6_list = srhv6->segments;
+		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
+			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %x\n", ipv6_list->s6_addr[0]);
 			//icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
 			//if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
 			//	bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
