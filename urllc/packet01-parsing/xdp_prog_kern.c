@@ -140,7 +140,7 @@ int  xdp_parser_func(struct xdp_md *ctx)
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
 		ipv6_list = srhv6->segments;
 		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %x\n", ipv6_list->s6_addr[15]);
+			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %x\n", bpf_htons(ipv6_list->s6_addr16[1]));
 			//icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
 			//if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
 			//	bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
