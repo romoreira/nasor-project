@@ -17,6 +17,7 @@
 
 #define ETH_P_IPV4 0x0800
 
+
 /* Header cursor to keep track of current parsing position */
 struct hdr_cursor {
 	void *pos;
@@ -125,6 +126,8 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	//struct icmp6hdr *icmp6h;
 	struct ipv6_sr_hdr *srhv6;
 
+	int a;
+
 	struct ethhdr *eth = data;
 	struct in6_addr *ipv6_list;
 	if ((void*)eth + sizeof(*eth) <= data_end){
@@ -140,7 +143,11 @@ int  xdp_parser_func(struct xdp_md *ctx)
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
 		ipv6_list = srhv6->segments+3;
 		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH. Verificando o segments Left: %x\n", bpf_htons(ipv6_list->s6_addr16[0]));
+			bpf_custom_printk("Pacote eh SRH Registrando no MAP. Verificando o segments Left: %x\n", bpf_htons(ipv6_list->s6_addr16[0]));
+			//xdp_stats_record_action(ctx, action);
+			
+			bpf_map_update_elem(&xdp_stats_map, ipv6_list-2, &ipv6_list->s6_addr16[0],a=0);
+			
 			//icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
 			//if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
 			//	bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
