@@ -126,7 +126,7 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	//struct icmp6hdr *icmp6h;
 	struct ipv6_sr_hdr *srhv6;
 
-	int a;
+	//int a;
 
 	struct ethhdr *eth = data;
 	struct in6_addr *ipv6_list;
@@ -143,17 +143,14 @@ int  xdp_parser_func(struct xdp_md *ctx)
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
 		ipv6_list = srhv6->segments+3;
 		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH Registrando no MAP. Verificando o segments Left: %x\n", bpf_htons(ipv6_list->s6_addr16[0]));
-			//xdp_stats_record_action(ctx, action);
+			bpf_custom_printk("Pacote eh SRH Registrando no MAP. Segments_Left %d e IP: %x\n", srhv6->segments_left ,bpf_htons(ipv6_list->s6_addr16[0]));
 			
-			bpf_map_update_elem(&xdp_stats_map, ipv6_list-2, &ipv6_list->s6_addr16[0],a=0);
-			
-			//icmp6h = data + sizeof(*eth)  + sizeof(*ip6h);
-			//if ((void*)icmp6h + sizeof(*icmp6h) <= data_end){
-			//	bpf_custom_printk("Pacote eh ICMPv6, sequence number: %d\n", bpf_htons(icmp6h->icmp6_sequence));
-			//	action = XDP_DROP;
-			//	return xdp_stats_record_action(ctx, action); /* read via xdp_stats */
-			//}
+			//bpf_map_update_elem(&xdp_stats_map, &srhv6->segments_left, &ipv6_list->s6_addr16[0],a=0);
+			bpf_custom_printk("Teste de Busca no MAP: %x\n", bpf_htons(bpf_map_lookup_elem(&xdp_stats_map, &srhv6->segments_left)));
+		        //bpf_custom_printk("Teste: %x\n", ipv6_list-2);
+				//bpf_custom_printk("Elemento SRH encontrado, deixando o ping passar");
+				//goto out;
+			//}	
 		}
 		else{
 			bpf_custom_printk("Pacote nao eh ICMPv6\n");
