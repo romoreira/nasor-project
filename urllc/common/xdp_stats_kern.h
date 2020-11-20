@@ -17,7 +17,9 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.type        = BPF_MAP_TYPE_HASH,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarec),
-	.max_entries = XDP_ACTION_MAX,
+	//.value_size = sizeof(__u64),
+	//.max_entries = XDP_ACTION_MAX,
+	.max_entries = 10000,
 };
 
 static __always_inline

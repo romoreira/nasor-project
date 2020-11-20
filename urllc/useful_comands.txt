@@ -37,3 +37,10 @@ t exec -- ip -6 route add fc00:dead:cafe:1::/64  encap seg6 mode inline segs 100
 t exec -- ip -6 route add 1001::/64 via fc00:dead:cafe:1::1 dev veth0
 
 t exec -- ip -6 route del fc00:dead:cafe:1::/64 dev veth0 proto kernel metric 256 pref medium
+
+
+#To test map_lookup()
+
+sudo bpftool map -p
+
+sudo bpftool map update id 160 key 03 03 00 00  value hex fc 00 de ad ca fe 00 01  00 00 00 00 00 00 00 01

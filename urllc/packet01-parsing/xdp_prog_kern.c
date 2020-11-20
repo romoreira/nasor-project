@@ -127,7 +127,8 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	struct ipv6_sr_hdr *srhv6;
 
 	//int a;
-
+	//char *text;
+	
 	struct ethhdr *eth = data;
 	struct in6_addr *ipv6_list;
 	if ((void*)eth + sizeof(*eth) <= data_end){
@@ -141,16 +142,19 @@ int  xdp_parser_func(struct xdp_md *ctx)
 //		bpf_custom_printk("Pacote eh IPv6 verificando dentro dele se ha SRH: %d\n", bpf_htons(ip6h->nexthdr));
 
 		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
-		ipv6_list = srhv6->segments+3;
+		//ipv6_list = srhv6->segments+3;
+		ipv6_list = srhv6->segments;
 		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
 			bpf_custom_printk("Pacote eh SRH Registrando no MAP. Segments_Left %d e IP: %x\n", srhv6->segments_left ,bpf_htons(ipv6_list->s6_addr16[0]));
 			
 			//bpf_map_update_elem(&xdp_stats_map, &srhv6->segments_left, &ipv6_list->s6_addr16[0],a=0);
-			bpf_custom_printk("Teste de Busca no MAP: %x\n", bpf_htons(bpf_map_lookup_elem(&xdp_stats_map, &srhv6->segments_left)));
-		        //bpf_custom_printk("Teste: %x\n", ipv6_list-2);
-				//bpf_custom_printk("Elemento SRH encontrado, deixando o ping passar");
-				//goto out;
-			//}	
+                        bpf_custom_printk("Sements_left without HTONS %x\n", srhv6->segments_left);
+			if(bpf_map_lookup_elem(&xdp_stats_map, &srhv6->segments_left)){
+				bpf_custom_printk("Encontrou elemento no MAPA\n");
+			}
+			else{
+				bpf_custom_printk("NAO Encontrou elemento no MAPA\n");
+			}
 		}
 		else{
 			bpf_custom_printk("Pacote nao eh ICMPv6\n");
