@@ -19,7 +19,16 @@ struct bpf_map_def SEC("maps") xdp_stats_map = {
 	.value_size  = sizeof(struct datarec),
 	//.value_size = sizeof(__u64),
 	//.max_entries = XDP_ACTION_MAX,
-	.max_entries = 10000,
+	.max_entries = 5,
+};
+
+
+/* Criado para armazenar a interface de saida */
+struct bpf_map_def SEC("maps") tx_port_map = {
+	.type        =  BPF_MAP_TYPE_DEVMAP,
+	.key_size    =  sizeof(__u32),
+	.value_size  =  sizeof(__u32),
+	.max_entries = 10,
 };
 
 static __always_inline

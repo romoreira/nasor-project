@@ -17,7 +17,6 @@
 
 #define ETH_P_IPV4 0x0800
 
-
 /* Header cursor to keep track of current parsing position */
 struct hdr_cursor {
 	void *pos;
@@ -128,7 +127,8 @@ int  xdp_parser_func(struct xdp_md *ctx)
 
 	//int a;
 	//char *text;
-	
+	long long *value = 0;
+
 	struct ethhdr *eth = data;
 	struct in6_addr *ipv6_list;
 	if ((void*)eth + sizeof(*eth) <= data_end){
@@ -153,7 +153,18 @@ int  xdp_parser_func(struct xdp_md *ctx)
 				bpf_custom_printk("Encontrou elemento no MAPA\n");
 			}
 			else{
-				bpf_custom_printk("NAO Encontrou elemento no MAPA\n");
+				bpf_custom_printk("NAO Encontrou elemento no MAPA - Buscando no Mapa das Dev\n");
+				int a = 3;
+			        value = bpf_map_lookup_elem(&tx_port_map, &a);
+				if (!value){
+					bpf_custom_printk("Nao possui o indice: %x\n",*value);
+					return bpf_redirect_map(&tx_port_map, a, 0);
+					bpf_custom_printk("Nao pode printar isso");
+					//return XDP_PASS;
+				}
+				else{
+					bpf_custom_printk("Teste de busca no MAP_DEV: %d \n",value);
+				}
 			}
 		}
 		else{

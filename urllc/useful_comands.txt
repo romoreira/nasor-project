@@ -44,3 +44,9 @@ t exec -- ip -6 route del fc00:dead:cafe:1::/64 dev veth0 proto kernel metric 25
 sudo bpftool map -p
 
 sudo bpftool map update id 160 key 03 03 00 00  value hex fc 00 de ad ca fe 00 01  00 00 00 00 00 00 00 01
+
+#Load XDP_Forwarding
+sudo ip -force link set dev test xdp obj xdp_segment_routing_proc.o sec xdp_redirect_dummy
+
+#Turning off XDP_Forwarding
+sudo ip link set dev test xdp offsudo bpftool map -psudo bpftool map -p
