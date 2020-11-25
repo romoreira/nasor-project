@@ -28,7 +28,7 @@ struct bpf_map_def SEC("maps") tx_port_map = {
 	.type        =  BPF_MAP_TYPE_DEVMAP,
 	.key_size    =  sizeof(__u32),
 	.value_size  =  sizeof(__u32),
-	.max_entries = 10,
+	.max_entries = 1,
 };
 
 static __always_inline

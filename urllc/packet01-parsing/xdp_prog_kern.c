@@ -116,6 +116,9 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	/* Start next header cursor position at data start */
 	nh.pos = data;
 
+	int index = ctx->ingress_ifindex;
+
+
 	/* Packet parsing in steps: Get each header one at a time, aborting if
 	 * parsing fails. Each helper function does sanity checking (is the
 	 * header type in the packet correct?), and bounds checking.
@@ -125,7 +128,10 @@ int  xdp_parser_func(struct xdp_md *ctx)
 	//struct icmp6hdr *icmp6h;
 	struct ipv6_sr_hdr *srhv6;
 
-	//int a;
+	//int *ifindex = 0;
+	int a = 1;
+	//char fmt6[] = "ingress forward to ifindex:%d daddr6:%x::%x\n";
+
 	//char *text;
 	long long *value = 0;
 
@@ -145,25 +151,26 @@ int  xdp_parser_func(struct xdp_md *ctx)
 		//ipv6_list = srhv6->segments+3;
 		ipv6_list = srhv6->segments;
 		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
-			bpf_custom_printk("Pacote eh SRH Registrando no MAP. Segments_Left %d e IP: %x\n", srhv6->segments_left ,bpf_htons(ipv6_list->s6_addr16[0]));
+			//bpf_custom_printk("Pacote eh SRH Registrando no MAP. Segments_Left %d e IP: %x\n", srhv6->segments_left ,bpf_htons(ipv6_list->s6_addr16[0]));
 			
 			//bpf_map_update_elem(&xdp_stats_map, &srhv6->segments_left, &ipv6_list->s6_addr16[0],a=0);
                         bpf_custom_printk("Sements_left without HTONS %x\n", srhv6->segments_left);
 			if(bpf_map_lookup_elem(&xdp_stats_map, &srhv6->segments_left)){
-				bpf_custom_printk("Encontrou elemento no MAPA\n");
+				bpf_custom_printk("Encontrou elemento no MAPA.. redirecionando para o indice: %d\n", index);
+				const int ret_val =  bpf_redirect_map(&tx_port_map, a, 0);
+	                        bpf_printk("RET-VAL: %d\n", ret_val);
+                        return ret_val;
 			}
 			else{
 				bpf_custom_printk("NAO Encontrou elemento no MAPA - Buscando no Mapa das Dev\n");
-				int a = 3;
 			        value = bpf_map_lookup_elem(&tx_port_map, &a);
 				if (!value){
 					bpf_custom_printk("Nao possui o indice: %x\n",*value);
 					return bpf_redirect_map(&tx_port_map, a, 0);
-					bpf_custom_printk("Nao pode printar isso");
-					//return XDP_PASS;
 				}
 				else{
-					bpf_custom_printk("Teste de busca no MAP_DEV: %d \n",value);
+					bpf_custom_printk("Possui o indice - redirecionando");
+					return bpf_redirect_map(&tx_port_map, a, 0);
 				}
 			}
 		}
