@@ -3,6 +3,7 @@
 #include <linux/in.h>
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
+#include <linux/seg6.h>
 
 // The parsing helper functions from the packet01 lesson have moved here
 #include "../common/parsing_helpers.h"
@@ -11,9 +12,21 @@
 #include "../common/xdp_stats_kern_user.h"
 #include "../common/xdp_stats_kern.h"
 
+#define ETH_P_IPV4 0x0800
+
+
 #ifndef memcpy
 #define memcpy(dest, src, n) __builtin_memcpy((dest), (src), (n))
 #endif
+
+// Nicer way to call bpf_trace_printk()
+#define bpf_custom_printk(fmt, ...)                     \
+        ({                                              \
+            char ____fmt[] = fmt;                       \
+            bpf_trace_printk(____fmt, sizeof(____fmt),  \
+                    ##__VA_ARGS__);                     \
+        })
+
 
 struct bpf_map_def SEC("maps") tx_port = {
 	.type = BPF_MAP_TYPE_DEVMAP,
@@ -110,7 +123,13 @@ out:
 	return xdp_stats_record_action(ctx, action);
 }
 
-/* Assignment 2 */
+
+
+
+
+
+
+
 SEC("xdp_redirect")
 int xdp_redirect_func(struct xdp_md *ctx)
 {
@@ -120,8 +139,8 @@ int xdp_redirect_func(struct xdp_md *ctx)
 	struct ethhdr *eth;
 	int eth_type;
 	int action = XDP_PASS;
-	/* unsigned char dst[ETH_ALEN] = {} */	/* Assignment 2: fill in with the MAC address of the left inner interface */
-	/* unsigned ifindex = 0; */		/* Assignment 2: fill in with the ifindex of the left interface */
+	unsigned char dst[ETH_ALEN] = {0x2a, 0x38, 0xdb, 0x0a, 0x5d, 0x6c}; /*2a:38:db:0a:5d:6c*/
+	unsigned ifindex = 5;
 
 	/* These keep track of the next header type and iterator pointer */
 	nh.pos = data;
@@ -131,8 +150,14 @@ int xdp_redirect_func(struct xdp_md *ctx)
 	if (eth_type == -1)
 		goto out;
 
-	/* Assignment 2: set a proper destination address and call the
-	 * bpf_redirect() with proper parameters, action = bpf_redirect(...) */
+
+	//bpf_map_lookup_elem(&tx_port, &port);
+
+	bpf_custom_printk("Encaminhando origem: %x:%x  para destino: %x\n", eth->h_source[4],eth->h_source[5], dst[5]);
+
+	memcpy(eth->h_dest, dst, ETH_ALEN);
+
+        action = bpf_redirect(ifindex, 0);
 
 out:
 	return xdp_stats_record_action(ctx, action);
@@ -145,121 +170,60 @@ int xdp_redirect_map_func(struct xdp_md *ctx)
 	void *data_end = (void *)(long)ctx->data_end;
 	void *data = (void *)(long)ctx->data;
 	struct hdr_cursor nh;
-	struct ethhdr *eth;
-	int eth_type;
 	int action = XDP_PASS;
-	unsigned char *dst;
+
 
 	/* These keep track of the next header type and iterator pointer */
 	nh.pos = data;
 
-	/* Parse Ethernet and IP/IPv6 headers */
-	eth_type = parse_ethhdr(&nh, data_end, &eth);
-	if (eth_type == -1)
-		goto out;
+//      unsigned char *dst;
+//	struct ethhdr *eth;
+//     	int eth_type;	
+//	eth_type = parse_ethhdr(&nh, data_end, &eth);
+//	if (eth_type == -1)
+//		goto out;
 
-	/* Do we know where to redirect this packet? */
-	dst = bpf_map_lookup_elem(&redirect_params, eth->h_source);
-	if (!dst)
-		goto out;
+	unsigned char dst[ETH_ALEN] = {0x08, 0x00, 0x27, 0x2d, 0x25, 0xa0}; /*08:00:27:2d:25:a0*/
+        unsigned ifindex = 4;
 
-	/* Set a proper destination address */
-	memcpy(eth->h_dest, dst, ETH_ALEN);
-	action = bpf_redirect_map(&tx_port, 0, 0);
 
-out:
-	return xdp_stats_record_action(ctx, action);
-}
-
-/* from include/net/ip.h */
-static __always_inline int ip_decrease_ttl(struct iphdr *iph)
-{
-	/* Assignment 4: see samples/bpf/xdp_fwd_kern.c from the kernel */
-	return --iph->ttl;
-}
-
-/* Assignment 4: Complete this router program */
-SEC("xdp_router")
-int xdp_router_func(struct xdp_md *ctx)
-{
-	void *data_end = (void *)(long)ctx->data_end;
-	void *data = (void *)(long)ctx->data;
-	struct bpf_fib_lookup fib_params = {};
-	struct ethhdr *eth = data;
 	struct ipv6hdr *ip6h;
-	struct iphdr *iph;
-	__u16 h_proto;
-	__u64 nh_off;
-	int rc;
-	int action = XDP_PASS;
+        struct ipv6_sr_hdr *srhv6;
+	struct ethhdr *eth = data;
+	struct in6_addr *ipv6_list;
+	if ((void*)eth + sizeof(*eth) <= data_end){
+		bpf_custom_printk("Tipo de pacote eth %u\n",eth->h_proto);
+		if(eth->h_proto == bpf_htons(ETH_P_IPV4)){
+			bpf_custom_printk("Pacote nao eh IPv6\n");
+                        goto out;
+		}
+		ip6h = data + sizeof(*eth);
+		srhv6 = data + sizeof(*eth) + sizeof(*ip6h);
+		ipv6_list = srhv6->segments + 1;
+		if ((void*)ipv6_list + sizeof(*ipv6_list) <= data_end) {
+			bpf_custom_printk("Sements_left without HTONS %x\n", srhv6->segments_left);
+			bpf_custom_printk("IPv6 da lista de Segmentos para Encaminhamento %x\n", bpf_htons(ipv6_list->s6_addr16[0]));
+			
+			bpf_custom_printk("Encaminhando MAC destino:  %x\n", dst[5]);
+		        memcpy(eth->h_dest, dst, ETH_ALEN);
+			action = bpf_redirect(ifindex, 0);
 
-	nh_off = sizeof(*eth);
-	if (data + nh_off > data_end) {
-		action = XDP_DROP;
+		}
+	}
+	else{
+		bpf_custom_printk("Pacote nao eh ICMPv6\n");
 		goto out;
 	}
 
-	h_proto = eth->h_proto;
-	if (h_proto == bpf_htons(ETH_P_IP)) {
-		iph = data + nh_off;
 
-		if (iph + 1 > data_end) {
-			action = XDP_DROP;
-			goto out;
-		}
+//	/* Do we know where to redirect this packet? */
+//	dst = bpf_map_lookup_elem(&redirect_params, eth->h_source);
+//	if (!dst)
+//		goto out;
 
-		if (iph->ttl <= 1)
-			goto out;
-
-		/* Assignment 4: fill the fib_params structure for the AF_INET case */
-	} else if (h_proto == bpf_htons(ETH_P_IPV6)) {
-		/* These pointers can be used to assign structures instead of executing memcpy: */
-		/* struct in6_addr *src = (struct in6_addr *) fib_params.ipv6_src; */
-		/* struct in6_addr *dst = (struct in6_addr *) fib_params.ipv6_dst; */
-
-		ip6h = data + nh_off;
-		if (ip6h + 1 > data_end) {
-			action = XDP_DROP;
-			goto out;
-		}
-
-		if (ip6h->hop_limit <= 1)
-			goto out;
-
-		/* Assignment 4: fill the fib_params structure for the AF_INET6 case */
-	} else {
-		goto out;
-	}
-
-	fib_params.ifindex = ctx->ingress_ifindex;
-
-	rc = bpf_fib_lookup(ctx, &fib_params, sizeof(fib_params), 0);
-	switch (rc) {
-	case BPF_FIB_LKUP_RET_SUCCESS:         /* lookup successful */
-		if (h_proto == bpf_htons(ETH_P_IP))
-			ip_decrease_ttl(iph);
-		else if (h_proto == bpf_htons(ETH_P_IPV6))
-			ip6h->hop_limit--;
-
-		/* Assignment 4: fill in the eth destination and source
-		 * addresses and call the bpf_redirect_map function */
-		/* memcpy(eth->h_dest, ???, ETH_ALEN); */
-		/* memcpy(eth->h_source, ???, ETH_ALEN); */
-		/* action = bpf_redirect_map(&tx_port, ???, 0); */
-		break;
-	case BPF_FIB_LKUP_RET_BLACKHOLE:    /* dest is blackholed; can be dropped */
-	case BPF_FIB_LKUP_RET_UNREACHABLE:  /* dest is unreachable; can be dropped */
-	case BPF_FIB_LKUP_RET_PROHIBIT:     /* dest not allowed; can be dropped */
-		action = XDP_DROP;
-		break;
-	case BPF_FIB_LKUP_RET_NOT_FWDED:    /* packet is not forwarded */
-	case BPF_FIB_LKUP_RET_FWD_DISABLED: /* fwding is not enabled on ingress */
-	case BPF_FIB_LKUP_RET_UNSUPP_LWT:   /* fwd requires encapsulation */
-	case BPF_FIB_LKUP_RET_NO_NEIGH:     /* no neighbor entry for nh */
-	case BPF_FIB_LKUP_RET_FRAG_NEEDED:  /* fragmentation required to fwd */
-		/* PASS */
-		break;
-	}
+//	/* Set a proper destination address */
+//	memcpy(eth->h_dest, dst, ETH_ALEN);
+//	action = bpf_redirect_map(&tx_port, 0, 0);
 
 out:
 	return xdp_stats_record_action(ctx, action);
@@ -268,7 +232,8 @@ out:
 SEC("xdp_pass")
 int xdp_pass_func(struct xdp_md *ctx)
 {
-	return XDP_PASS;
+	int action = XDP_PASS;
+	return xdp_stats_record_action(ctx, action);
 }
 
 char _license[] SEC("license") = "GPL";

@@ -50,16 +50,23 @@ static const struct option_wrapper long_options[] = {
 	{{0, 0, NULL,  0 }, NULL, false}
 };
 
+
 static int parse_mac(char *str, unsigned char mac[ETH_ALEN])
 {
 	/* Assignment 3: parse a MAC address in this function and place the
 	 * result in the mac array */
 
+	sscanf(str, "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+	printf("Mac Resultante: %02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx\n",mac[0],mac[1],mac[2],mac[3],mac[4],mac[5]);
+	
+	
 	return 0;
 }
 
 static int write_iface_params(int map_fd, unsigned char *src, unsigned char *dest)
 {
+
+	printf("Parametros para a aualizacao: SRC: %c, DST: %c", src[0], dest[0]);
 	if (bpf_map_update_elem(map_fd, src, dest, 0) < 0) {
 		fprintf(stderr,
 			"WARN: Failed to update bpf map file: err(%d):%s\n",
@@ -96,6 +103,7 @@ int main(int argc, char **argv)
 		.redirect_ifindex   = -1,
 	};
 
+
 	/* Cmdline options can change progsec */
 	parse_cmdline_args(argc, argv, long_options, &cfg, __doc__);
 
@@ -108,6 +116,7 @@ int main(int argc, char **argv)
 	}
 
 	len = snprintf(pin_dir, PATH_MAX, "%s/%s", pin_basedir, cfg.ifname);
+	
 	if (len < 0) {
 		fprintf(stderr, "ERR: creating pin dirname\n");
 		return EXIT_FAIL_OPTION;
@@ -117,15 +126,18 @@ int main(int argc, char **argv)
 		fprintf(stderr, "ERR: can't parse mac address %s\n", cfg.src_mac);
 		return EXIT_FAIL_OPTION;
 	}
-
+	
 	if (parse_mac(cfg.dest_mac, dest) < 0) {
 		fprintf(stderr, "ERR: can't parse mac address %s\n", cfg.dest_mac);
 		return EXIT_FAIL_OPTION;
 	}
 
-
 	/* Assignment 3: open the tx_port map corresponding to the cfg.ifname interface */
-	map_fd = -1;
+	map_fd = open_bpf_map_file(pin_dir, "tx_port", NULL);
+	if (map_fd < 0) {
+		return EXIT_FAIL_BPF;
+	}
+
 
 	printf("map dir: %s\n", pin_dir);
 
@@ -136,7 +148,11 @@ int main(int argc, char **argv)
 		printf("redirect from ifnum=%d to ifnum=%d\n", cfg.ifindex, cfg.redirect_ifindex);
 
 		/* Assignment 3: open the redirect_params map corresponding to the cfg.ifname interface */
-		map_fd = -1;
+		map_fd = open_bpf_map_file(pin_dir, "redirect_params", NULL);
+		if (map_fd < 0) {
+			return EXIT_FAIL_BPF;
+		}
+
 
 		/* Setup the mapping containing MAC addresses */
 		if (write_iface_params(map_fd, src, dest) < 0) {
@@ -145,7 +161,9 @@ int main(int argc, char **argv)
 		}
 	} else {
 		/* Assignment 4: setup 1-1 mapping for the dynamic router */
+		printf("Assignment 4\n");
 	}
 
 	return EXIT_OK;
 }
+
