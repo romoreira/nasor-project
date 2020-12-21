@@ -3,4 +3,5 @@ We measure the processing time considering the time of ingress and egress collec
 
 Files:
 1-11.pcapng -> many icmp requests (containing ICMPv6 Neighbor Solicitation)
-12.pcapng -> 200 icmp forwarding (considering two interfaces)
+12.pcapng -> 200 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_Redirect()
+13.pcapng -> 200 icmpv6 forwarding (considering two interfaces on Wireshark) - SR_CONF
