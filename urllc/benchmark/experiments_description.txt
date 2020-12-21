@@ -1,0 +1,6 @@
+In this experiment we ran BPF_Redirect modifying an IPv6 on Segment List and BPF program redirected packet to proper interface.
+We measure the processing time considering the time of ingress and egress collected through Wireshark, which whatched both interfaces at the same time.
+
+Files:
+1-11.pcapng -> many icmp requests (containing ICMPv6 Neighbor Solicitation)
+12.pcapng -> 200 icmp forwarding (considering two interfaces)
