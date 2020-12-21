@@ -1,3 +1,23 @@
+# BPF_Redirect() Versus SR_CONF 
+## Host VM
+
+sudo ip tuntap add mode tap eth-b
+sudo ip tuntap add mode tap eth-c
+sudo ip tuntap add mode tap eth-d
+sudo ip tuntap add mode tap eth-e
+sudo ip tuntap add mode tap eth-f
+sudo ifconfig eth-f up
+sudo ifconfig eth-a up
+sudo ifconfig eth-b up
+sudo ifconfig eth-c up
+sudo ifconfig eth-d up
+sudo ifconfig eth-e up
+
+#VM1 - Adding SRH Encapsulation
+sudo ip -6 route add b::/64 via 2a00:7b80:454:2000::2 encap seg6 mode encap segs 2001::
+sudo ip -6 route add 2001::/64 via 2a00:7b80:454:2000::2 dev enp0s8
+
+
 #Installing basic packages:
 sudo apt install clang llvm libelf-dev libpcap-dev gcc-multilib build-essential linux-tools-common linux-tools-generic
 
