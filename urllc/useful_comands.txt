@@ -1,6 +1,7 @@
 # BPF_Redirect() Versus SR_CONF 
 ## Host VM
 
+sudo ip tuntap add mode tap eth-a
 sudo ip tuntap add mode tap eth-b
 sudo ip tuntap add mode tap eth-c
 sudo ip tuntap add mode tap eth-d
@@ -16,14 +17,32 @@ sudo ifconfig eth-e up
 #VM1 - Adding SRH Encapsulation
 sudo ip -6 route add b::/64 via 2a00:7b80:454:2000::2 encap seg6 mode encap segs 2001::
 sudo ip -6 route add 2001::/64 via 2a00:7b80:454:2000::2 dev enp0s8
+*Creating source VNF:
+sudo ./SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add client veth1_1 inet6 a::1/64 a::2/64
+
+
+#VM2 - Attaching SRH_BPF Program to Transit VM
+sudo ./xdp_loader --dev enp0s8 --force --progsec xdp_redirect --auto-mode
+
+#VM3 - Enabling SRH Desencapsulation
+sudo ./SRv6-net-prog/srext/scripts/testbed1/vnf-single_iface.sh add server veth1_3 inet6 b::1/64 b::2/64
+sudo ip -6 route add 2001::/64 encap seg6local action End.DX6 nh6 b::2 dev veth1_3 table localsid
+sudo echo 2001:: localsid >> /etc/iproute2/rt_tables
+ip -6 rule add to 2001::/64 lookup localsid
+ip -6 route add blackhole default table localsid
+sudo ip -6 route add a::/64 via cafe:7b80:454:2000::2 dev enp0s9
 
 
 #Installing basic packages:
 sudo apt install clang llvm libelf-dev libpcap-dev gcc-multilib build-essential linux-tools-common linux-tools-generic
 
 #Creating and Activating Test Environment:
-./testenv.sh setup --name=test
+sudo ./testenv.sh setup --name=test
 eval $(./testenv.sh alias)
+
+#Solve Problem> ERR: pinning maps
+t enter -n left
+ulimit -l unlimited
 
 #Remove XDP program from interface:
 sudo ip link set dev test xdp off

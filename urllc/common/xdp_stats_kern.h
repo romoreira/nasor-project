@@ -14,12 +14,10 @@
 
 /* Keeps stats per (enum) xdp_action */
 struct bpf_map_def SEC("maps") xdp_stats_map = {
-	.type        = BPF_MAP_TYPE_HASH,
+	.type        = BPF_MAP_TYPE_PERCPU_ARRAY,
 	.key_size    = sizeof(__u32),
 	.value_size  = sizeof(struct datarec),
-	//.value_size = sizeof(__u64),
-	//.max_entries = XDP_ACTION_MAX,
-	.max_entries = 5,
+	.max_entries = XDP_ACTION_MAX,
 };
 
 
