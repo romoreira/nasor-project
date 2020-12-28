@@ -1,6 +1,7 @@
 # BPF_Redirect() Versus SR_CONF 
 ## Host VM
 
+sudo ip tuntap add mode tap eth-a
 sudo ip tuntap add mode tap eth-b
 sudo ip tuntap add mode tap eth-c
 sudo ip tuntap add mode tap eth-d
