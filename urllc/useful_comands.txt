@@ -89,10 +89,3 @@ sudo ip -force link set dev test xdp obj xdp_segment_routing_proc.o sec xdp_redi
 
 #Turning off XDP_Forwarding
 sudo ip link set dev test xdp offsudo bpftool map -psudo bpftool map -p
-
-
-
-
-#BPF_REDIRECT_MAPT Experiments
-sudo ./xdp_loader --dev enp0s8 --force --progsec xdp_redirect_map --auto-mode
-sudo ./xdp_prog_user -d enp0s8 -r enp0s9 --src-mac 08:00:27:93:51:83 --dest-mac 08:00:27:2d:25:a0
