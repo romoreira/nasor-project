@@ -14,3 +14,6 @@ ping_200.txt -> Ping using BPF_Redirect without SR_CONF (Measure Mean AVG)
 
 ping_100_redirect_map.txt -> Ping using BPF_Redirect_MAP Without SR_CONF (Measure Mean AVG)
 ping_200_redirect_map.txt -> Ping using BPF_Redirect_MAP without SR_CONF (Measure Mean AVG)
+
+ping_100_srconf.txt -> Ping using SR_CONF Baseline (Measure Mean AVG)
+ping_200_srconf.txt -> PIng using SR_CONF Baseline (Measure Mean AVG)
