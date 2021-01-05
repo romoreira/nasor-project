@@ -7,7 +7,10 @@ Files:
 13.pcapng -> 200 icmpv6 forwarding (considering two interfaces on Wireshark) - SR_CONF
 14.pcapng -> 200 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_Redirect_Map()
 15.pcapng -> 200 icmpv6 forwarding (considering two interfaces on Wireshark) - SR_CONF - End-to-End Ping
-16.pcapng -> 230 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_REDIRECT_MAP() with 100 K addresses
+16.pcapng -> 230 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_REDIRECT_MAP() with 100 K addresses - 2GB and 2 vCPU
+17.pcapng -> 230 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_REDIRECT_MAP() with 0 address  - 4GB and 4 vCPU
+18.pcapng -> 230 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_REDIRECT_MAP() with 100K address - 4GB and 4 vCPU
+19.pcapng -> 187 icmpv6 forwarding (considering two interfaces on Wireshark) - BPF_REDIRECT_MAP() with aprox 100K address - 4 GB and 4 vCPU
 
 Files:
 xdp_latency_bpf_redirect:
@@ -19,3 +22,9 @@ ping_200_redirect_map.txt -> Ping using BPF_Redirect_MAP without SR_CONF (Measur
 
 ping_100_srconf.txt -> Ping using SR_CONF Baseline (Measure Mean AVG)
 ping_200_srconf.txt -> PIng using SR_CONF Baseline (Measure Mean AVG)
+
+
+ping_perf_evaluation_-1-1_latency.txt -> Ping using BPF_REDIRECT()MAP with MAP Empty -  2 GB 2 vCPU
+ping_perf_evaluation_-11_latency.txt -> Ping using BPF_REDIRECT()MAP with MAP Full   -  2 GB 2 vCPU
+ping_perf_evaluation_1-1_latency.txt -> Ping using BPF_REDIRECT()MAP with MAP Empy - 4 GB 4 vCPU
+ping_perf_evaluation_11_latency.txt -> Ping using BPF_REDIRECT()MAP with MAP Full - 4 GB 4 vCPU
