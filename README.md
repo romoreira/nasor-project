@@ -6,6 +6,8 @@
    |_|  \_ _ |  /_/      \_\  |¨_¨_¨_¨_|   :_____:   |_|    \_\   > 
 ```
 
+Developed by Rodrigo M.  <br>
+[![](https://img.shields.io/badge/GitHub%20Pages-222222?style=for-the-badge&logo=GitHub%20Pages&logoColor=white)](https://romoreira.github.io)
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3899171.svg)](https://doi.org/10.5281/zenodo.3899171)
 
@@ -141,6 +143,25 @@ Here we bring some steps to follow to deploy and try our solution.
 7. `create region --name=regionA --type=REPLICATE_PERSISTENT`
 
 > TIP: Now the RestAPI should be working fine (check it - GET http://InterOIB:1026/gemfire-api/v1/regionA)
+
+
+### How to cite this work? :newspaper:
+
+```bibtex
+@inproceedings{moreira2023,
+author = {Rodrigo Moreira and Tereza Carvalho and Flávio Silva},
+title = {Designing and Evaluating a high-reliable and security-aware Identity and Access Management for Slicing Architectures},
+booktitle = {Anais do XIV Workshop de Pesquisa Experimental da Internet do Futuro},
+location = {Brasília/DF},
+year = {2023},
+issn = {2595-2692},
+pages = {1--6},
+publisher = {SBC},
+address = {Porto Alegre, RS, Brasil},
+doi = {10.5753/wpeif.2023.722},
+url = {https://sol.sbc.org.br/index.php/wpeif/article/view/24653}
+}
+```
 
 
 [Rodrigo Moreira](http://twitter.com/moreira_r) \
