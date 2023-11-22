@@ -148,18 +148,18 @@ Here we bring some steps to follow to deploy and try our solution.
 ### How to cite this work? :newspaper:
 
 ```bibtex
-@inproceedings{moreira2023,
-author = {Rodrigo Moreira and Tereza Carvalho and Flávio Silva},
-title = {Designing and Evaluating a high-reliable and security-aware Identity and Access Management for Slicing Architectures},
-booktitle = {Anais do XIV Workshop de Pesquisa Experimental da Internet do Futuro},
-location = {Brasília/DF},
-year = {2023},
-issn = {2595-2692},
-pages = {1--6},
-publisher = {SBC},
-address = {Porto Alegre, RS, Brasil},
-doi = {10.5753/wpeif.2023.722},
-url = {https://sol.sbc.org.br/index.php/wpeif/article/view/24653}
+@article{Moreira2021,
+title = {NASOR: A network slicing approach for multiple Autonomous Systems},
+journal = {Computer Communications},
+volume = {179},
+pages = {131-144},
+year = {2021},
+issn = {0140-3664},
+doi = {https://doi.org/10.1016/j.comcom.2021.07.028},
+url = {https://www.sciencedirect.com/science/article/pii/S0140366421002917},
+author = {Rodrigo Moreira and Pedro Frosi Rosa and Rui Luis Andrade Aguiar and Flávio de Oliveira Silva},
+keywords = {SDN, NFV, Segment rouging, Network slicing, Multi-domain, Orchestration, Recursive Network Slicing},
+abstract = {Realizing network slicing inside and between Autonomous Systems (ASs), that is, multi-domain, is challenging because there is no consensus or solutions that consider both policy and technological independence between domains. Many approaches found in the literature aimed to realize network slices that span across multiple ASs. However, they commonly rely on cross-connected technologies or domain-coupled such as Virtual Private Network (VPN) or Multi-Protocol Label Switching (MPLS). This work addresses the issue of multi-domain network slicing by leveraging technologies such as Software-defined Networking (SDN), Segment Routing (SR), and Network Functions Virtualization (NFV) in an innovative distributed framework, called Network And Slice ORchestrator (NASOR). Our work advances resource management and orchestration potentialities, providing a recursive network slice mechanism and adding dynamism in the network slice deployment between multiple domains through an open interface. As a result, NASOR functionally outperforms its peers. Experiments showcased the proposal’s applicability and scalability in multi-domain network slicing. Additionally, experiments suggest that an open interface enhances network slices’ customization degree and improves the network Quality of Service (QoS) in typical Internet applications, such as Voice over Internet Protocol (VoIP).}
 }
 ```
 
